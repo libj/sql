@@ -43,7 +43,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import org.safris.commons.logging.LoggerUtil;
+import org.lib4j.logging.LoggerUtil;
 import org.safris.commons.util.Formats;
 import org.safris.commons.util.Hexadecimal;
 import org.slf4j.Logger;
