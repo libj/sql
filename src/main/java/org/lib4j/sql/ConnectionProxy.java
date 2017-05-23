@@ -14,7 +14,7 @@
  * program. If not, see <http://opensource.org/licenses/MIT/>.
  */
 
-package org.safris.commons.sql;
+package org.lib4j.sql;
 
 import java.sql.Array;
 import java.sql.Blob;
@@ -35,7 +35,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 
-import org.safris.commons.lang.Throwables;
+import org.lib4j.lang.Throwables;
 
 public class ConnectionProxy implements Connection {
   public static void close(final Connection connection) {

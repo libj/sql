@@ -14,12 +14,12 @@
  * program. If not, see <http://opensource.org/licenses/MIT/>.
  */
 
-package org.safris.commons.sql;
+package org.lib4j.sql;
 
 import java.util.Arrays;
 import java.util.StringTokenizer;
 
-import org.safris.commons.lang.Strings;
+import org.lib4j.lang.Strings;
 
 public final class SQLFormat {
   private static final String[] reserveds = new String[] {"ALL", "AND", "BY", "DISTINCT", "FROM", "GROUP", "HAVING", "JOIN", "LEFT", "ON", "OR", "ORDER", "OUTER", "SELECT", "WHERE"};

@@ -14,7 +14,7 @@
  * program. If not, see <http://opensource.org/licenses/MIT/>.
  */
 
-package org.safris.commons.sql;
+package org.lib4j.sql;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -44,8 +44,8 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.lib4j.logging.LoggerUtil;
-import org.safris.commons.util.Formats;
-import org.safris.commons.util.Hexadecimal;
+import org.lib4j.util.Formats;
+import org.lib4j.util.Hexadecimal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;

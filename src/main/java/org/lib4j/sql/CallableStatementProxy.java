@@ -14,7 +14,7 @@
  * program. If not, see <http://opensource.org/licenses/MIT/>.
  */
 
-package org.safris.commons.sql;
+package org.lib4j.sql;
 
 import java.io.InputStream;
 import java.io.Reader;
