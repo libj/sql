@@ -241,7 +241,7 @@ public class StatementProxy implements Statement {
 
   private List<String> batch;
 
-  protected void addBatchRecord(final String sql) {
+  protected final void addBatch0(final String sql) {
     if (batch == null)
       batch = new ArrayList<String>();
 
@@ -251,7 +251,7 @@ public class StatementProxy implements Statement {
   @Override
   public void addBatch(final String sql) throws SQLException {
     statement.addBatch(sql);
-    addBatchRecord(sql);
+    addBatch0(sql);
   }
 
   @Override

@@ -330,7 +330,7 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
 
   @Override
   public void addBatch() throws SQLException {
-    addBatchRecord(toString(sql, getCurrentParameterMap()));
+    addBatch0(toString(sql, getCurrentParameterMap()));
     parameterMaps.add(new HashMap<Integer,Object>());
     getStatement().addBatch();
   }
