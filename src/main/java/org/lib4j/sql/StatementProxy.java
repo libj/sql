@@ -241,13 +241,17 @@ public class StatementProxy implements Statement {
 
   private List<String> batch;
 
-  @Override
-  public void addBatch(final String sql) throws SQLException {
+  protected void addBatchRecord(final String sql) {
     if (batch == null)
       batch = new ArrayList<String>();
 
-    statement.addBatch(sql);
     batch.add(sql);
+  }
+
+  @Override
+  public void addBatch(final String sql) throws SQLException {
+    statement.addBatch(sql);
+    addBatchRecord(sql);
   }
 
   @Override

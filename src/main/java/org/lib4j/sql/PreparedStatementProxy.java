@@ -19,7 +19,6 @@ package org.lib4j.sql;
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.net.URL;
 import java.sql.Array;
 import java.sql.Blob;
@@ -38,8 +37,10 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
@@ -62,12 +63,56 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
     return dateTime.substring(0, dateTime.charAt(i) == '.' ? i : i + 1);
   }
 
+  private static String toString(final String sql, final Map<Integer,Object> parameterMap) {
+    final StringTokenizer tokenizer = new StringTokenizer(sql, "?", true);
+    final StringBuilder buffer = new StringBuilder();
+    int index = 0;
+    while (tokenizer.hasMoreTokens()) {
+      final String token = tokenizer.nextToken();
+      if ("?".equals(token)) {
+        final Object value = parameterMap.get(++index);
+        if (value == NULL)
+          buffer.append("NULL");
+        else if (value instanceof byte[])
+          buffer.append("X'").append(new Hexadecimal((byte[])value)).append("'");
+        else if (value instanceof Date)
+          buffer.append("'").append(dateFormat.get().format((Date)value)).append("'");
+        else if (value instanceof Time)
+          buffer.append("'").append(trimNanos(timeFormat.get().format((Time)value))).append("'");
+        else if (value instanceof Timestamp)
+          buffer.append("'").append(trimNanos(timestampFormat.get().format((Timestamp)value))).append("'");
+        else if (value instanceof String || value instanceof Byte)
+          buffer.append("'").append(value).append("'");
+        else if (value instanceof Number)
+          buffer.append(numberFormat.get().format(value));
+        else if (value != null)
+          buffer.append(value);
+        else
+          buffer.append("?");
+      }
+      else {
+        buffer.append(token);
+      }
+    }
+
+    final String display = buffer.toString();
+    // String display = null;
+    // try {
+    // display = SQLFormat.format(buffer.toString());
+    // }
+    // catch (final ParseException e) {
+    // throw new RuntimeException(buffer.toString(), e);
+    // }
+
+    return display;
+  }
+
   private static final ThreadLocal<SimpleDateFormat> dateFormat = Formats.createSimpleDateFormat("yyyy-MM-dd");
   private static final ThreadLocal<SimpleDateFormat> timeFormat = Formats.createSimpleDateFormat("HH:mm:ss.SSS");
   private static final ThreadLocal<SimpleDateFormat> timestampFormat = Formats.createSimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
   private static final ThreadLocal<DecimalFormat> numberFormat = Formats.createDecimalFormat("###############.###############;-###############.###############");
 
-  private final Map<Integer,Object> parameterMap = new HashMap<Integer,Object>();
+  private final List<Map<Integer,Object>> parameterMaps = new ArrayList<Map<Integer,Object>>();
   private final String sql;
 
   protected PreparedStatement getStatement() {
@@ -76,7 +121,12 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
 
   public PreparedStatementProxy(final PreparedStatement statement, final String sql) {
     super(statement);
+    parameterMaps.add(new HashMap<Integer,Object>());
     this.sql = sql;
+  }
+
+  private Map<Integer,Object> getCurrentParameterMap() {
+    return parameterMaps.get(parameterMaps.size() - 1);
   }
 
   @Override
@@ -132,104 +182,104 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
   @Override
   public void setNull(final int parameterIndex, final int sqlType) throws SQLException {
     getStatement().setNull(parameterIndex, sqlType);
-    parameterMap.put(parameterIndex, NULL);
+    getCurrentParameterMap().put(parameterIndex, NULL);
   }
 
   @Override
   public void setBoolean(final int parameterIndex, final boolean x) throws SQLException {
     getStatement().setBoolean(parameterIndex, x);
-    parameterMap.put(parameterIndex, x);
+    getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
   public void setByte(final int parameterIndex, final byte x) throws SQLException {
     getStatement().setByte(parameterIndex, x);
-    parameterMap.put(parameterIndex, x);
+    getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
   public void setShort(final int parameterIndex, final short x) throws SQLException {
     getStatement().setShort(parameterIndex, x);
-    parameterMap.put(parameterIndex, x);
+    getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
   public void setInt(final int parameterIndex, final int x) throws SQLException {
     getStatement().setInt(parameterIndex, x);
-    parameterMap.put(parameterIndex, x);
+    getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
   public void setLong(final int parameterIndex, final long x) throws SQLException {
     getStatement().setLong(parameterIndex, x);
-    parameterMap.put(parameterIndex, x);
+    getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
   public void setFloat(final int parameterIndex, final float x) throws SQLException {
     getStatement().setFloat(parameterIndex, x);
-    parameterMap.put(parameterIndex, x);
+    getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
   public void setDouble(final int parameterIndex, final double x) throws SQLException {
     getStatement().setDouble(parameterIndex, x);
-    parameterMap.put(parameterIndex, x);
+    getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
   public void setBigDecimal(final int parameterIndex, final BigDecimal x) throws SQLException {
     getStatement().setBigDecimal(parameterIndex, x);
-    parameterMap.put(parameterIndex, x);
+    getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
   public void setString(final int parameterIndex, final String x) throws SQLException {
     getStatement().setString(parameterIndex, x);
-    parameterMap.put(parameterIndex, x);
+    getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
   public void setBytes(final int parameterIndex, final byte[] x) throws SQLException {
     getStatement().setBytes(parameterIndex, x);
-    parameterMap.put(parameterIndex, x);
+    getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
   public void setDate(final int parameterIndex, final Date x) throws SQLException {
     getStatement().setDate(parameterIndex, x);
-    parameterMap.put(parameterIndex, x);
+    getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
   public void setTime(final int parameterIndex, final Time x) throws SQLException {
     getStatement().setTime(parameterIndex, x);
-    parameterMap.put(parameterIndex, x);
+    getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
   public void setTimestamp(final int parameterIndex, final Timestamp x) throws SQLException {
     getStatement().setTimestamp(parameterIndex, x);
-    parameterMap.put(parameterIndex, x);
+    getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
   public void setAsciiStream(final int parameterIndex, final InputStream x, final int length) throws SQLException {
     getStatement().setAsciiStream(parameterIndex, x, length);
-    parameterMap.put(parameterIndex, x);
+    getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
   @Deprecated
   public void setUnicodeStream(final int parameterIndex, final InputStream x, final int length) throws SQLException {
     getStatement().setUnicodeStream(parameterIndex, x, length);
-    parameterMap.put(parameterIndex, x);
+    getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
   public void setBinaryStream(final int parameterIndex, final InputStream x, final int length) throws SQLException {
     getStatement().setBinaryStream(parameterIndex, x, length);
-    parameterMap.put(parameterIndex, x);
+    getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
@@ -240,19 +290,19 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
   @Override
   public void setObject(final int parameterIndex, final Object x, int targetSqlType, final int scale) throws SQLException {
     getStatement().setObject(parameterIndex, x, targetSqlType, scale);
-    parameterMap.put(parameterIndex, x);
+    getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
   public void setObject(final int parameterIndex, final Object x, final int targetSqlType) throws SQLException {
     getStatement().setObject(parameterIndex, x, targetSqlType);
-    parameterMap.put(parameterIndex, x);
+    getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
   public void setObject(final int parameterIndex, final Object x) throws SQLException {
     getStatement().setObject(parameterIndex, x);
-    parameterMap.put(parameterIndex, x);
+    getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
@@ -280,7 +330,8 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
 
   @Override
   public void addBatch() throws SQLException {
-    LoggerUtil.log(logger, defaultLogLevel, toString());
+    addBatchRecord(toString(sql, getCurrentParameterMap()));
+    parameterMaps.add(new HashMap<Integer,Object>());
     getStatement().addBatch();
   }
 
@@ -317,13 +368,13 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
   @Override
   public void setDate(final int parameterIndex, final Date x, final Calendar cal) throws SQLException {
     getStatement().setDate(parameterIndex, x, cal);
-    parameterMap.put(parameterIndex, x);
+    getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
   public void setTime(final int parameterIndex, final Time x, final Calendar cal) throws SQLException {
     getStatement().setTime(parameterIndex, x, cal);
-    parameterMap.put(parameterIndex, x);
+    getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
@@ -339,7 +390,7 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
   @Override
   public void setURL(final int parameterIndex, final URL x) throws SQLException {
     getStatement().setURL(parameterIndex, x);
-    parameterMap.put(parameterIndex, x);
+    getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
@@ -464,46 +515,10 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
 
   @Override
   public String toString() {
-    final StringTokenizer tokenizer = new StringTokenizer(sql, "?", true);
-    final StringBuilder buffer = new StringBuilder();
-    int index = 0;
-    while (tokenizer.hasMoreTokens()) {
-      final String token = tokenizer.nextToken();
-      if ("?".equals(token)) {
-        final Object value = parameterMap.get(++index);
-        if (value == NULL)
-          buffer.append("NULL");
-        else if (value instanceof byte[])
-          buffer.append("X'").append(new Hexadecimal((byte[])value)).append("'");
-        else if (value instanceof Date)
-          buffer.append("'").append(dateFormat.get().format((Date)value)).append("'");
-        else if (value instanceof Time)
-          buffer.append("'").append(trimNanos(timeFormat.get().format((Time)value))).append("'");
-        else if (value instanceof Timestamp)
-          buffer.append("'").append(trimNanos(timestampFormat.get().format((Timestamp)value))).append("'");
-        else if (value instanceof String || value instanceof Byte)
-          buffer.append("'").append(value).append("'");
-        else if (value instanceof Short || value instanceof Integer || value instanceof Long || value instanceof Double || value instanceof BigInteger)
-          buffer.append(numberFormat.get().format(value));
-        else if (value != null)
-          buffer.append(value);
-        else
-          buffer.append("?");
-      }
-      else {
-        buffer.append(token);
-      }
-    }
+    final StringBuilder builder = new StringBuilder();
+    for (final Map<Integer,Object> parameterMap : parameterMaps)
+      builder.append(toString(sql, parameterMap));
 
-    final String display = buffer.toString();
-    // String display = null;
-    // try {
-    // display = SQLFormat.format(buffer.toString());
-    // }
-    // catch (final ParseException e) {
-    // throw new RuntimeException(buffer.toString(), e);
-    // }
-
-    return display;
+    return builder.toString();
   }
 }
