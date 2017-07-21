@@ -36,7 +36,9 @@ import java.sql.SQLXML;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -45,8 +47,8 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.lib4j.logging.LoggerUtil;
-import org.lib4j.util.Formats;
 import org.lib4j.util.Hexadecimal;
+import org.lib4j.util.NumberFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
@@ -56,12 +58,6 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
   private static final Level defaultLogLevel = Level.DEBUG;
 
   private static final String NULL = "NULL";
-
-  private static String trimNanos(final String dateTime) {
-    int i = dateTime.length() - 1;
-    for (; i >= 0 && dateTime.charAt(i) == '0'; i--);
-    return dateTime.substring(0, dateTime.charAt(i) == '.' ? i : i + 1);
-  }
 
   private static String toString(final String sql, final Map<Integer,Object> parameterMap) {
     final StringTokenizer tokenizer = new StringTokenizer(sql, "?", true);
@@ -76,11 +72,11 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
         else if (value instanceof byte[])
           buffer.append("X'").append(new Hexadecimal((byte[])value)).append("'");
         else if (value instanceof Date)
-          buffer.append("'").append(dateFormat.get().format((Date)value)).append("'");
+          buffer.append("'").append(((Date)value).toLocalDate().format(dateFormat)).append("'");
         else if (value instanceof Time)
-          buffer.append("'").append(trimNanos(timeFormat.get().format((Time)value))).append("'");
+          buffer.append("'").append(DateTimes.toLocalTime((Time)value).format(timeFormat)).append("'");
         else if (value instanceof Timestamp)
-          buffer.append("'").append(trimNanos(timestampFormat.get().format((Timestamp)value))).append("'");
+          buffer.append("'").append(((Timestamp)value).toLocalDateTime().format(timestampFormat)).append("'");
         else if (value instanceof String || value instanceof Byte)
           buffer.append("'").append(value).append("'");
         else if (value instanceof Number)
@@ -107,10 +103,10 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
     return display;
   }
 
-  private static final ThreadLocal<SimpleDateFormat> dateFormat = Formats.createSimpleDateFormat("yyyy-MM-dd");
-  private static final ThreadLocal<SimpleDateFormat> timeFormat = Formats.createSimpleDateFormat("HH:mm:ss.SSS");
-  private static final ThreadLocal<SimpleDateFormat> timestampFormat = Formats.createSimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-  private static final ThreadLocal<DecimalFormat> numberFormat = Formats.createDecimalFormat("###############.###############;-###############.###############");
+  private static final DateTimeFormatter dateFormat = DateTimeFormatter.ISO_LOCAL_DATE;
+  private static final DateTimeFormatter timeFormat = new DateTimeFormatterBuilder().appendPattern("HH:mm:ss").appendFraction(ChronoField.MILLI_OF_SECOND, 0, 6, true).toFormatter();
+  private static final DateTimeFormatter timestampFormat = new DateTimeFormatterBuilder().append(dateFormat).appendLiteral(' ').append(timeFormat).toFormatter();
+  private static final ThreadLocal<DecimalFormat> numberFormat = NumberFormatter.createDecimalFormat("###############.###############;-###############.###############");
 
   private final List<Map<Integer,Object>> parameterMaps = new ArrayList<Map<Integer,Object>>();
   private final String sql;
@@ -141,10 +137,10 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
       if (LoggerUtil.isLoggable(logger, logLevel))
         size = resultSet.getSize();
     }
-    catch (final Throwable t) {
-      logLevel = Level.ERROR;
-      throw t;
-    }
+//    catch (final Throwable t) {
+//      logLevel = Level.ERROR;
+//      throw t;
+//    }
     finally {
       if (LoggerUtil.isLoggable(logger, logLevel)) {
         final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append("@").append(Integer.toHexString(hashCode())).append("].executeQuery() {\n  ").append(toString());
@@ -164,10 +160,10 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
     try {
       count = getStatement().executeUpdate();
     }
-    catch (final Throwable t) {
-      logLevel = Level.ERROR;
-      throw t;
-    }
+//    catch (final Throwable t) {
+//      logLevel = Level.ERROR;
+//      throw t;
+//    }
     finally {
       if (LoggerUtil.isLoggable(logger, logLevel)) {
         final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append("@").append(Integer.toHexString(hashCode())).append("].executeUpdate() {\n  ").append(toString());
@@ -313,10 +309,10 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
     try {
       result = getStatement().execute();
     }
-    catch (final Throwable t) {
-      logLevel = Level.ERROR;
-      throw t;
-    }
+//    catch (final Throwable t) {
+//      logLevel = Level.ERROR;
+//      throw t;
+//    }
     finally {
       if (LoggerUtil.isLoggable(logger, logLevel)) {
         final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append("@").append(Integer.toHexString(hashCode())).append("].execute() {\n  ").append(toString());

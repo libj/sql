@@ -38,7 +38,7 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Map;
 
-public final class ResultSetProxy implements ResultSet {
+public class ResultSetProxy implements ResultSet {
   public static void close(final ResultSet resultSet) {
     try {
       if (resultSet != null && !resultSet.isClosed())
