@@ -32,7 +32,6 @@ import org.slf4j.event.Level;
 
 public class StatementProxy implements Statement {
   private static final Logger logger = LoggerFactory.getLogger(StatementProxy.class);
-  private static final Level defaultLogLevel = Level.DEBUG;
 
   public static void close(final Statement statement) {
     try {
@@ -52,27 +51,19 @@ public class StatementProxy implements Statement {
 
   @Override
   public ResultSet executeQuery(final String sql) throws SQLException {
-    Level logLevel = defaultLogLevel;
-
     int size = -1;
     ResultSetProxy resultSet;
     final long time = System.currentTimeMillis();
     try {
       resultSet = new ResultSetProxy(statement.executeQuery(sql));
-      if (LoggerUtil.isLoggable(logger, logLevel))
+      if (LoggerUtil.isLoggable(logger, Level.DEBUG))
         size = resultSet.getSize();
     }
-//    catch (final Throwable t) {
-//      logLevel = Level.ERROR;
-//      throw t;
-//    }
     finally {
-      if (LoggerUtil.isLoggable(logger, logLevel)) {
-        final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append("@").append(Integer.toHexString(hashCode())).append("].executeQuery(\n");
-        buffer.append(sql);
-        buffer.append("\n) -> " + size + "\t\t" + (System.currentTimeMillis() - time) + "ms");
-        LoggerUtil.log(logger, logLevel, buffer.toString());
-      }
+      final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append("@").append(Integer.toHexString(hashCode())).append("].executeQuery(\n");
+      buffer.append(sql);
+      buffer.append("\n) -> " + size + "\t\t" + (System.currentTimeMillis() - time) + "ms");
+      logger.debug(buffer.toString());
     }
 
     return resultSet;
@@ -80,24 +71,17 @@ public class StatementProxy implements Statement {
 
   @Override
   public int executeUpdate(final String sql) throws SQLException {
-    Level logLevel = defaultLogLevel;
     final long time = System.currentTimeMillis();
     int count = -1;
     try {
       count = statement.executeUpdate(sql);
     }
-//    catch (final Throwable t) {
-//      logLevel = Level.ERROR;
-//      throw t;
-//    }
     finally {
-      if (LoggerUtil.isLoggable(logger, logLevel)) {
-        final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append("@").append(Integer.toHexString(hashCode())).append("].executeUpdate(\n");
-        buffer.append(sql);
+      final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append("@").append(Integer.toHexString(hashCode())).append("].executeUpdate(\n");
+      buffer.append(sql);
 
-        buffer.append("\n) -> " + count + "\t\t" + (System.currentTimeMillis() - time) + "ms");
-        LoggerUtil.log(logger, logLevel, buffer.toString());
-      }
+      buffer.append("\n) -> " + count + "\t\t" + (System.currentTimeMillis() - time) + "ms");
+      logger.debug(buffer.toString());
     }
 
     return count;
@@ -171,24 +155,17 @@ public class StatementProxy implements Statement {
 
   @Override
   public boolean execute(final String sql) throws SQLException {
-    Level logLevel = defaultLogLevel;
     final long time = System.currentTimeMillis();
     Boolean result = null;
     try {
       result = statement.execute(sql);
     }
-//    catch (final Throwable t) {
-//      logLevel = Level.ERROR;
-//      throw t;
-//    }
     finally {
-      if (LoggerUtil.isLoggable(logger, logLevel)) {
-        final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append("@").append(Integer.toHexString(hashCode())).append("].execute(\n");
-        buffer.append("  ").append(sql);
+      final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append("@").append(Integer.toHexString(hashCode())).append("].execute(\n");
+      buffer.append("  ").append(sql);
 
-        buffer.append("\n) -> " + result + "\t\t" + (System.currentTimeMillis() - time) + "ms");
-        LoggerUtil.log(logger, logLevel, buffer.toString());
-      }
+      buffer.append("\n) -> " + result + "\t\t" + (System.currentTimeMillis() - time) + "ms");
+      logger.debug(buffer.toString());
     }
 
     return result;
@@ -263,29 +240,22 @@ public class StatementProxy implements Statement {
 
   @Override
   public int[] executeBatch() throws SQLException {
-    Level logLevel = defaultLogLevel;
     final long time = System.currentTimeMillis();
     int[] count = null;
     try {
       count = statement.executeBatch();
     }
-//    catch (final Throwable t) {
-//      logLevel = Level.ERROR;
-//      throw t;
-//    }
     finally {
-      if (LoggerUtil.isLoggable(logger, logLevel)) {
-        final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append("@").append(Integer.toHexString(hashCode())).append("].executeBatch() {");
-        if (count != null)
-          for (int i = 0; i < batch.size(); i++)
-            buffer.append("\n  ").append(batch.get(i).replaceAll("\n", "\n  ")).append(" -> ").append(count[i]);
-        else
-          for (int i = 0; i < batch.size(); i++)
-            buffer.append("\n  ").append(batch.get(i).replaceAll("\n", "\n  ")).append(" -> -1");
+      final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append("@").append(Integer.toHexString(hashCode())).append("].executeBatch() {");
+      if (count != null)
+        for (int i = 0; i < batch.size(); i++)
+          buffer.append("\n  ").append(batch.get(i).replaceAll("\n", "\n  ")).append(" -> ").append(count[i]);
+      else
+        for (int i = 0; i < batch.size(); i++)
+          buffer.append("\n  ").append(batch.get(i).replaceAll("\n", "\n  ")).append(" -> -1");
 
-        buffer.append("\n} ").append(System.currentTimeMillis() - time).append("ms");
-        LoggerUtil.log(logger, logLevel, buffer.toString());
-      }
+      buffer.append("\n} ").append(System.currentTimeMillis() - time).append("ms");
+      logger.debug(buffer.toString());
     }
 
     return count;
@@ -308,24 +278,17 @@ public class StatementProxy implements Statement {
 
   @Override
   public int executeUpdate(final String sql, final int autoGeneratedKeys) throws SQLException {
-    Level logLevel = defaultLogLevel;
     final long time = System.currentTimeMillis();
     int count = -1;
     try {
       count = statement.executeUpdate(sql, autoGeneratedKeys);
     }
-//    catch (final Throwable t) {
-//      logLevel = Level.ERROR;
-//      throw t;
-//    }
     finally {
-      if (LoggerUtil.isLoggable(logger, logLevel)) {
-        final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append("@").append(Integer.toHexString(hashCode())).append("].executeUpdate(\n");
-        buffer.append(sql);
+      final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append("@").append(Integer.toHexString(hashCode())).append("].executeUpdate(\n");
+      buffer.append(sql);
 
-        buffer.append("\n, " + autoGeneratedKeys + ") -> " + count + "\t\t" + (System.currentTimeMillis() - time) + "ms");
-        LoggerUtil.log(logger, logLevel, buffer.toString());
-      }
+      buffer.append("\n, " + autoGeneratedKeys + ") -> " + count + "\t\t" + (System.currentTimeMillis() - time) + "ms");
+      logger.debug(buffer.toString());
     }
 
     return count;
@@ -333,24 +296,17 @@ public class StatementProxy implements Statement {
 
   @Override
   public int executeUpdate(final String sql, final int[] columnIndexes) throws SQLException {
-    Level logLevel = defaultLogLevel;
     final long time = System.currentTimeMillis();
     int count = -1;
     try {
       count = statement.executeUpdate(sql, columnIndexes);
     }
-//    catch (final Throwable t) {
-//      logLevel = Level.ERROR;
-//      throw t;
-//    }
     finally {
-      if (LoggerUtil.isLoggable(logger, logLevel)) {
-        final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append("@").append(Integer.toHexString(hashCode())).append("].executeUpdate(\n");
-        buffer.append(sql);
+      final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append("@").append(Integer.toHexString(hashCode())).append("].executeUpdate(\n");
+      buffer.append(sql);
 
-        buffer.append("\n, [" + Arrays.toString(columnIndexes) + "]) -> " + count + "\t\t" + (System.currentTimeMillis() - time) + "ms");
-        LoggerUtil.log(logger, logLevel, buffer.toString());
-      }
+      buffer.append("\n, [" + Arrays.toString(columnIndexes) + "]) -> " + count + "\t\t" + (System.currentTimeMillis() - time) + "ms");
+      logger.debug(buffer.toString());
     }
 
     return count;
@@ -358,24 +314,17 @@ public class StatementProxy implements Statement {
 
   @Override
   public int executeUpdate(final String sql, final String[] columnNames) throws SQLException {
-    Level logLevel = defaultLogLevel;
     final long time = System.currentTimeMillis();
     int count = -1;
     try {
       count = statement.executeUpdate(sql, columnNames);
     }
-//    catch (final Throwable t) {
-//      logLevel = Level.ERROR;
-//      throw t;
-//    }
     finally {
-      if (LoggerUtil.isLoggable(logger, logLevel)) {
-        final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append("@").append(Integer.toHexString(hashCode())).append("].executeUpdate(\n");
-        buffer.append(sql);
+      final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append("@").append(Integer.toHexString(hashCode())).append("].executeUpdate(\n");
+      buffer.append(sql);
 
-        buffer.append("\n, " + Arrays.toString(columnNames) + ") -> " + count + "\t\t" + (System.currentTimeMillis() - time) + "ms");
-        LoggerUtil.log(logger, logLevel, buffer.toString());
-      }
+      buffer.append("\n, " + Arrays.toString(columnNames) + ") -> " + count + "\t\t" + (System.currentTimeMillis() - time) + "ms");
+      logger.debug(buffer.toString());
     }
 
     return count;
@@ -383,24 +332,17 @@ public class StatementProxy implements Statement {
 
   @Override
   public boolean execute(final String sql, final int autoGeneratedKeys) throws SQLException {
-    Level logLevel = defaultLogLevel;
     final long time = System.currentTimeMillis();
     Boolean result = null;
     try {
       result = statement.execute(sql, autoGeneratedKeys);
     }
-//    catch (final Throwable t) {
-//      logLevel = Level.ERROR;
-//      throw t;
-//    }
     finally {
-      if (LoggerUtil.isLoggable(logger, logLevel)) {
-        final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append("@").append(Integer.toHexString(hashCode())).append("].execute(\n");
-        buffer.append(sql);
+      final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append("@").append(Integer.toHexString(hashCode())).append("].execute(\n");
+      buffer.append(sql);
 
-        buffer.append("\n, " + autoGeneratedKeys + ") -> " + result + "\t\t" + (System.currentTimeMillis() - time) + "ms");
-        LoggerUtil.log(logger, logLevel, buffer.toString());
-      }
+      buffer.append("\n, " + autoGeneratedKeys + ") -> " + result + "\t\t" + (System.currentTimeMillis() - time) + "ms");
+      logger.debug(buffer.toString());
     }
 
     return result;
@@ -408,24 +350,17 @@ public class StatementProxy implements Statement {
 
   @Override
   public boolean execute(final String sql, final int[] columnIndexes) throws SQLException {
-    Level logLevel = defaultLogLevel;
     final long time = System.currentTimeMillis();
     Boolean result = null;
     try {
       result = statement.execute(sql, columnIndexes);
     }
-//    catch (final Throwable t) {
-//      logLevel = Level.ERROR;
-//      throw t;
-//    }
     finally {
-      if (LoggerUtil.isLoggable(logger, logLevel)) {
-        final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append("@").append(Integer.toHexString(hashCode())).append("].execute(\n");
-        buffer.append(sql);
+      final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append("@").append(Integer.toHexString(hashCode())).append("].execute(\n");
+      buffer.append(sql);
 
-        buffer.append("\n, " + Arrays.toString(columnIndexes) + ") -> " + result + "\t\t" + (System.currentTimeMillis() - time) + "ms");
-        LoggerUtil.log(logger, logLevel, buffer.toString());
-      }
+      buffer.append("\n, " + Arrays.toString(columnIndexes) + ") -> " + result + "\t\t" + (System.currentTimeMillis() - time) + "ms");
+      logger.debug(buffer.toString());
     }
 
     return result;
@@ -433,24 +368,17 @@ public class StatementProxy implements Statement {
 
   @Override
   public boolean execute(final String sql, final String[] columnNames) throws SQLException {
-    Level logLevel = defaultLogLevel;
     final long time = System.currentTimeMillis();
     Boolean result = null;
     try {
       result = statement.execute(sql, columnNames);
     }
-//    catch (final Throwable t) {
-//      logLevel = Level.ERROR;
-//      throw t;
-//    }
     finally {
-      if (LoggerUtil.isLoggable(logger, logLevel)) {
-        final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append("@").append(Integer.toHexString(hashCode())).append("].execute(\n");
-        buffer.append(sql);
+      final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append("@").append(Integer.toHexString(hashCode())).append("].execute(\n");
+      buffer.append(sql);
 
-        buffer.append("\n, " + Arrays.toString(columnNames) + ") -> " + result + "\t\t" + (System.currentTimeMillis() - time) + "ms");
-        LoggerUtil.log(logger, logLevel, buffer.toString());
-      }
+      buffer.append("\n, " + Arrays.toString(columnNames) + ") -> " + result + "\t\t" + (System.currentTimeMillis() - time) + "ms");
+      logger.debug(buffer.toString());
     }
 
     return result;

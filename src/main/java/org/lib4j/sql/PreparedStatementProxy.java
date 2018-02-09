@@ -55,7 +55,6 @@ import org.slf4j.event.Level;
 
 public class PreparedStatementProxy extends StatementProxy implements PreparedStatement {
   private static final Logger logger = LoggerFactory.getLogger(PreparedStatementProxy.class);
-  private static final Level defaultLogLevel = Level.DEBUG;
 
   private static final String NULL = "NULL";
 
@@ -130,23 +129,16 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
     final PreparedStatement statement = getStatement();
     int size = -1;
     final ResultSetProxy resultSet;
-    Level logLevel = defaultLogLevel;
     final long time = System.currentTimeMillis();
     try {
       resultSet = new ResultSetProxy(statement.executeQuery());
-      if (LoggerUtil.isLoggable(logger, logLevel))
+      if (LoggerUtil.isLoggable(logger, Level.DEBUG))
         size = resultSet.getSize();
     }
-//    catch (final Throwable t) {
-//      logLevel = Level.ERROR;
-//      throw t;
-//    }
     finally {
-      if (LoggerUtil.isLoggable(logger, logLevel)) {
-        final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append("@").append(Integer.toHexString(hashCode())).append("].executeQuery() {\n  ").append(toString());
-        buffer.append("\n} -> ").append(size).append("\t\t").append(System.currentTimeMillis() - time).append("ms");
-        LoggerUtil.log(logger, logLevel, buffer.toString());
-      }
+      final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append("@").append(Integer.toHexString(hashCode())).append("].executeQuery() {\n  ").append(toString());
+      buffer.append("\n} -> ").append(size).append("\t\t").append(System.currentTimeMillis() - time).append("ms");
+      logger.debug(buffer.toString());
     }
 
     return resultSet;
@@ -156,20 +148,13 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
   public int executeUpdate() throws SQLException {
     final long time = System.currentTimeMillis();
     int count = -1;
-    Level logLevel = defaultLogLevel;
     try {
       count = getStatement().executeUpdate();
     }
-//    catch (final Throwable t) {
-//      logLevel = Level.ERROR;
-//      throw t;
-//    }
     finally {
-      if (LoggerUtil.isLoggable(logger, logLevel)) {
-        final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append("@").append(Integer.toHexString(hashCode())).append("].executeUpdate() {\n  ").append(toString());
-        buffer.append("\n} -> ").append(count).append("\t\t").append((System.currentTimeMillis() - time)).append("ms");
-        LoggerUtil.log(logger, logLevel, buffer.toString());
-      }
+      final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append("@").append(Integer.toHexString(hashCode())).append("].executeUpdate() {\n  ").append(toString());
+      buffer.append("\n} -> ").append(count).append("\t\t").append((System.currentTimeMillis() - time)).append("ms");
+      logger.debug(buffer.toString());
     }
 
     return count;
@@ -305,20 +290,13 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
   public boolean execute() throws SQLException {
     final long time = System.currentTimeMillis();
     boolean result = false;
-    Level logLevel = defaultLogLevel;
     try {
       result = getStatement().execute();
     }
-//    catch (final Throwable t) {
-//      logLevel = Level.ERROR;
-//      throw t;
-//    }
     finally {
-      if (LoggerUtil.isLoggable(logger, logLevel)) {
-        final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append("@").append(Integer.toHexString(hashCode())).append("].execute() {\n  ").append(toString());
-        buffer.append("} -> ").append(result).append("\t\t").append((System.currentTimeMillis() - time)).append("ms");
-        LoggerUtil.log(logger, logLevel, buffer.toString());
-      }
+      final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append("@").append(Integer.toHexString(hashCode())).append("].execute() {\n  ").append(toString());
+      buffer.append("} -> ").append(result).append("\t\t").append((System.currentTimeMillis() - time)).append("ms");
+      logger.debug(buffer.toString());
     }
 
     return result;
