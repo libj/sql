@@ -36,14 +36,19 @@ import java.util.Properties;
 import java.util.concurrent.Executor;
 
 import org.lib4j.lang.Throwables;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ConnectionProxy implements Connection {
+  private static final Logger logger = LoggerFactory.getLogger(ConnectionProxy.class);
+
   public static void close(final Connection connection) {
     try {
       if (connection != null && !connection.isClosed())
         connection.close();
     }
     catch (final SQLException e) {
+      logger.warn(e.getMessage(), e);
     }
   }
 
@@ -172,7 +177,13 @@ public class ConnectionProxy implements Connection {
 
   @Override
   public CallableStatement prepareCall(final String sql, final int resultSetType, final int resultSetConcurrency) throws SQLException {
-    return new CallableStatementProxy(connection.prepareCall(sql, resultSetType, resultSetConcurrency), sql);
+    try {
+      return new CallableStatementProxy(connection.prepareCall(sql, resultSetType, resultSetConcurrency), sql);
+    }
+    catch (final SQLException e) {
+      Throwables.set(e, e.getMessage() + " "  + sql);
+      throw e;
+    }
   }
 
   @Override
@@ -233,7 +244,13 @@ public class ConnectionProxy implements Connection {
 
   @Override
   public CallableStatement prepareCall(final String sql, final int resultSetType, int resultSetConcurrency, final int resultSetHoldability) throws SQLException {
-    return new CallableStatementProxy(connection.prepareCall(sql, resultSetType, resultSetConcurrency, resultSetHoldability), sql);
+    try {
+      return new CallableStatementProxy(connection.prepareCall(sql, resultSetType, resultSetConcurrency, resultSetHoldability), sql);
+    }
+    catch (final SQLException e) {
+      Throwables.set(e, e.getMessage() + " "  + sql);
+      throw e;
+    }
   }
 
   @Override
