@@ -23,12 +23,11 @@ import java.sql.SQLFeatureNotSupportedException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.SQLInvalidAuthorizationSpecException;
 import java.util.HashMap;
-import java.util.Map;
 
 import org.lib4j.lang.Throwables;
 
 public class SQLExceptionCatalog {
-  private static final Map<String,Class<? extends SQLException>> categories = new HashMap<String,Class<? extends SQLException>>();
+  private static final HashMap<String,Class<? extends SQLException>> categories = new HashMap<String,Class<? extends SQLException>>();
 
   // Spec: http://www.contrib.andrew.cmu.edu/~shadow/sql/sql1992.txt
   static {
