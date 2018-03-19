@@ -69,21 +69,21 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
         if (value == NULL)
           buffer.append("NULL");
         else if (value instanceof byte[])
-          buffer.append("X'").append(new Hexadecimal((byte[])value)).append("'");
+          buffer.append("X'").append(new Hexadecimal((byte[])value)).append('\'');
         else if (value instanceof Date)
-          buffer.append("'").append(((Date)value).toLocalDate().format(dateFormat)).append("'");
+          buffer.append('\'').append(((Date)value).toLocalDate().format(dateFormat)).append('\'');
         else if (value instanceof Time)
-          buffer.append("'").append(DateTimes.toLocalTime((Time)value).format(timeFormat)).append("'");
+          buffer.append('\'').append(DateTimes.toLocalTime((Time)value).format(timeFormat)).append('\'');
         else if (value instanceof Timestamp)
-          buffer.append("'").append(((Timestamp)value).toLocalDateTime().format(timestampFormat)).append("'");
+          buffer.append('\'').append(((Timestamp)value).toLocalDateTime().format(timestampFormat)).append('\'');
         else if (value instanceof String || value instanceof Byte)
-          buffer.append("'").append(value).append("'");
+          buffer.append('\'').append(value).append('\'');
         else if (value instanceof Number)
           buffer.append(numberFormat.get().format(value));
         else if (value != null)
           buffer.append(value);
         else
-          buffer.append("?");
+          buffer.append('?');
       }
       else {
         buffer.append(token);
@@ -136,7 +136,7 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
         size = resultSet.getSize();
     }
     finally {
-      final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append("@").append(Integer.toHexString(hashCode())).append("].executeQuery() {\n  ").append(toString());
+      final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append('@').append(Integer.toHexString(hashCode())).append("].executeQuery() {\n  ").append(toString());
       buffer.append("\n} -> ").append(size).append("\t\t").append(System.currentTimeMillis() - time).append("ms");
       logger.debug(buffer.toString());
     }
@@ -152,7 +152,7 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
       count = getStatement().executeUpdate();
     }
     finally {
-      final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append("@").append(Integer.toHexString(hashCode())).append("].executeUpdate() {\n  ").append(toString());
+      final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append('@').append(Integer.toHexString(hashCode())).append("].executeUpdate() {\n  ").append(toString());
       buffer.append("\n} -> ").append(count).append("\t\t").append((System.currentTimeMillis() - time)).append("ms");
       logger.debug(buffer.toString());
     }
@@ -294,7 +294,7 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
       result = getStatement().execute();
     }
     finally {
-      final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append("@").append(Integer.toHexString(hashCode())).append("].execute() {\n  ").append(toString());
+      final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append('@').append(Integer.toHexString(hashCode())).append("].execute() {\n  ").append(toString());
       buffer.append("} -> ").append(result).append("\t\t").append((System.currentTimeMillis() - time)).append("ms");
       logger.debug(buffer.toString());
     }
