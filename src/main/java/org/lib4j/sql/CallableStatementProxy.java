@@ -101,6 +101,7 @@ public class CallableStatementProxy extends PreparedStatementProxy implements Ca
   }
 
   @Override
+  @Deprecated(since="1.2")
   public BigDecimal getBigDecimal(final int parameterIndex, final int scale) throws SQLException {
     return getStatement().getBigDecimal(parameterIndex);
   }
