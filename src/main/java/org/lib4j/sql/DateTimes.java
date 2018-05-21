@@ -24,29 +24,9 @@ import java.time.temporal.ChronoUnit;
 import org.lib4j.util.Dates;
 
 public final class DateTimes {
-  public static class XTime extends Time {
-    private static final long serialVersionUID = -5429219222847694085L;
-
-    @SuppressWarnings("deprecation")
-    public XTime(final int hour, final int minute, final int second) {
-      super(hour, minute, second);
-    }
-
-    public XTime(long time) {
-      super(time);
-    }
-
-    @Override
-    public LocalTime toLocalTime() {
-      return DateTimes.toLocalTime(this);
-    }
-  }
-
   public static Time toTime(final LocalTime localTime) {
     final Time time = Time.valueOf(localTime);
-//    System.err.println(time + " " + localTime.get(ChronoField.MILLI_OF_SECOND));
     time.setTime(time.getTime() + localTime.get(ChronoField.MILLI_OF_SECOND));
-//    System.err.println(time);
     return time;
   }
 
