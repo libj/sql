@@ -27,7 +27,7 @@ import java.util.HashMap;
 import org.lib4j.lang.Throwables;
 
 public class SQLExceptionCatalog {
-  private static final HashMap<String,Class<? extends SQLException>> categories = new HashMap<String,Class<? extends SQLException>>();
+  private static final HashMap<String,Class<? extends SQLException>> categories = new HashMap<>();
 
   // Spec: http://www.contrib.andrew.cmu.edu/~shadow/sql/sql1992.txt
   static {

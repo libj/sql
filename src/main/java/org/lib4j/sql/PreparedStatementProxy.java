@@ -107,7 +107,7 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
   private static final DateTimeFormatter timestampFormat = new DateTimeFormatterBuilder().append(dateFormat).appendLiteral(' ').append(timeFormat).toFormatter();
   private static final ThreadLocal<DecimalFormat> numberFormat = NumberFormatter.createDecimalFormat("###############.###############;-###############.###############");
 
-  private final List<Map<Integer,Object>> parameterMaps = new ArrayList<Map<Integer,Object>>();
+  private final List<Map<Integer,Object>> parameterMaps = new ArrayList<>();
   private final String sql;
 
   protected PreparedStatement getStatement() {

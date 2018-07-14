@@ -220,7 +220,7 @@ public class StatementProxy implements Statement {
 
   protected final void addBatch0(final String sql) {
     if (batch == null)
-      batch = new ArrayList<String>();
+      batch = new ArrayList<>();
 
     batch.add(sql);
   }
