@@ -24,7 +24,7 @@ import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.SQLInvalidAuthorizationSpecException;
 import java.util.HashMap;
 
-import org.lib4j.lang.Throwables;
+import org.lib4j.util.Throwables;
 
 public class SQLExceptionCatalog {
   private static final HashMap<String,Class<? extends SQLException>> categories = new HashMap<>();
