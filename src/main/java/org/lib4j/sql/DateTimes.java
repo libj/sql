@@ -21,7 +21,7 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 
-import org.lib4j.util.Dates;
+import org.fastjax.util.Dates;
 
 public final class DateTimes {
   public static Time toTime(final LocalTime localTime) {

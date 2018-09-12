@@ -47,8 +47,8 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.lib4j.logging.LoggerUtil;
-import org.lib4j.util.Hexadecimal;
-import org.lib4j.util.NumberFormatter;
+import org.fastjax.util.Hexadecimal;
+import org.fastjax.util.NumberFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;

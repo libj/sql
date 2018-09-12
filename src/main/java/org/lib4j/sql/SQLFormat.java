@@ -19,7 +19,7 @@ package org.lib4j.sql;
 import java.util.Arrays;
 import java.util.StringTokenizer;
 
-import org.lib4j.util.Strings;
+import org.fastjax.util.Strings;
 
 public final class SQLFormat {
   private static final String[] reserveds = new String[] {"ALL", "AND", "BY", "DISTINCT", "FROM", "GROUP", "HAVING", "JOIN", "LEFT", "ON", "OR", "ORDER", "OUTER", "SELECT", "WHERE"};
