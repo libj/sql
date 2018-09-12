@@ -1,4 +1,4 @@
-/* Copyright (c) 2016 lib4j
+/* Copyright (c) 2016 FastJAX
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -14,14 +14,14 @@
  * program. If not, see <http://opensource.org/licenses/MIT/>.
  */
 
-package org.lib4j.sql.exception;
+package org.fastjax.sql.exception;
 
 import java.sql.SQLException;
 
-public class SQLConnectionException extends SQLException {
-  private static final long serialVersionUID = -6805255607691275191L;
+public class SQLInvalidCursorNameException extends SQLException {
+  private static final long serialVersionUID = -2033520423152724973L;
 
-  public SQLConnectionException(final String reason, final String sqlState, final int vendorCode) {
+  public SQLInvalidCursorNameException(final String reason, final String sqlState, final int vendorCode) {
     super(reason, sqlState, vendorCode);
   }
 }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2016 lib4j
+/* Copyright (c) 2016 FastJAX
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -14,18 +14,14 @@
  * program. If not, see <http://opensource.org/licenses/MIT/>.
  */
 
-package org.lib4j.sql.exception;
+package org.fastjax.sql.exception;
 
 import java.sql.SQLException;
 
-public class SQLInvalidSchemaNameException extends SQLException {
-  private static final long serialVersionUID = 1348084743318425264L;
+public class SQLInvalidCatalogNameException extends SQLException {
+  private static final long serialVersionUID = -7212085230114811715L;
 
-  public SQLInvalidSchemaNameException(final String message) {
-    super(message);
-  }
-
-  public SQLInvalidSchemaNameException(final String reason, final String sqlState, final int vendorCode) {
+  public SQLInvalidCatalogNameException(final String reason, final String sqlState, final int vendorCode) {
     super(reason, sqlState, vendorCode);
   }
 }

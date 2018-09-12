@@ -1,4 +1,4 @@
-/* Copyright (c) 2016 lib4j
+/* Copyright (c) 2017 FastJAX
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -14,14 +14,28 @@
  * program. If not, see <http://opensource.org/licenses/MIT/>.
  */
 
-package org.lib4j.sql.exception;
+package org.fastjax.sql;
 
-import java.sql.SQLException;
+import java.sql.Time;
+import java.time.LocalTime;
+import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
 
-public class SQLInvalidCursorStateException extends SQLException {
-  private static final long serialVersionUID = -8132215601095093770L;
+import org.fastjax.util.Dates;
 
-  public SQLInvalidCursorStateException(final String reason, final String sqlState, final int vendorCode) {
-    super(reason, sqlState, vendorCode);
+public final class DateTimes {
+  public static Time toTime(final LocalTime localTime) {
+    final Time time = Time.valueOf(localTime);
+    time.setTime(time.getTime() + localTime.get(ChronoField.MILLI_OF_SECOND));
+    return time;
+  }
+
+  public static LocalTime toLocalTime(final Time time) {
+    final LocalTime localTime = time.toLocalTime();
+    localTime.plus(Dates.getMilliOfSecond(time), ChronoUnit.MILLIS);
+    return localTime;
+  }
+
+  private DateTimes() {
   }
 }

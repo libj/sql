@@ -24,8 +24,8 @@
     <artifactId>lib4j</artifactId>
     <version>3.2.3-SNAPSHOT</version>
   </parent>
-  <groupId>org.lib4j</groupId>
-  <artifactId>lib4j-sql</artifactId>
+  <groupId>org.fastjax</groupId>
+  <artifactId>fastjax-sql</artifactId>
   <version>1.1.5-SNAPSHOT</version>
   <name>${project.groupId}:${project.artifactId}</name>
   <description>
