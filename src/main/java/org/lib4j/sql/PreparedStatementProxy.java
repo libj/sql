@@ -46,7 +46,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import org.lib4j.logging.LoggerUtil;
+import org.fastjax.logging.LoggerUtil;
 import org.fastjax.util.Hexadecimal;
 import org.fastjax.util.NumberFormatter;
 import org.slf4j.Logger;
