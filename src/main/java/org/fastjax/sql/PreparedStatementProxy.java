@@ -47,8 +47,8 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.fastjax.logging.LoggerUtil;
+import org.fastjax.util.DecimalFormatter;
 import org.fastjax.util.Hexadecimal;
-import org.fastjax.util.NumberFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
@@ -105,7 +105,7 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
   private static final DateTimeFormatter dateFormat = DateTimeFormatter.ISO_LOCAL_DATE;
   private static final DateTimeFormatter timeFormat = new DateTimeFormatterBuilder().appendPattern("HH:mm:ss").appendFraction(ChronoField.MILLI_OF_SECOND, 0, 6, true).toFormatter();
   private static final DateTimeFormatter timestampFormat = new DateTimeFormatterBuilder().append(dateFormat).appendLiteral(' ').append(timeFormat).toFormatter();
-  private static final ThreadLocal<DecimalFormat> numberFormat = NumberFormatter.createDecimalFormat("###############.###############;-###############.###############");
+  private static final ThreadLocal<DecimalFormat> numberFormat = DecimalFormatter.createDecimalFormat("###############.###############;-###############.###############");
 
   private final List<Map<Integer,Object>> parameterMaps = new ArrayList<>();
   private final String sql;
