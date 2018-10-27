@@ -67,7 +67,7 @@ public class SQLExceptionCatalog {
       final Constructor<? extends SQLException> constructor = category.getConstructor(String.class, String.class, int.class);
       final SQLException sqlException = constructor.newInstance(exception.getMessage(), exception.getSQLState(), exception.getErrorCode());
       sqlException.setStackTrace(exception.getStackTrace());
-      Throwables.set(sqlException, exception.getCause());
+      SQLExceptions.clone(sqlException, exception.getCause());
       return sqlException;
     }
     catch (final ReflectiveOperationException e) {
