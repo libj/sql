@@ -16,36 +16,42 @@
 
 package org.fastjax.sql;
 
-import java.sql.Array;
-import java.sql.Blob;
 import java.sql.CallableStatement;
-import java.sql.Clob;
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.NClob;
 import java.sql.PreparedStatement;
-import java.sql.SQLClientInfoException;
 import java.sql.SQLException;
-import java.sql.SQLWarning;
-import java.sql.SQLXML;
-import java.sql.Savepoint;
 import java.sql.Statement;
-import java.sql.Struct;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.Executor;
 
-import org.fastjax.sql.exception.SQLExceptions;
-import org.fastjax.util.Throwables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ConnectionProxy implements Connection {
-  private static final Logger logger = LoggerFactory.getLogger(ConnectionProxy.class);
+/**
+ * A {@link Connection} that delegates all method calls to another connection.
+ * The sole purpose of this class is to override all "create" and "prepare"
+ * methods to return "Audit" implementations of the respective return types.
+ *
+ * @see AuditStatement
+ * @see AuditPreparedStatement
+ * @see AuditCallableStatement
+ */
+public class AuditConnection extends DelegateConnection {
+  private static final Logger logger = LoggerFactory.getLogger(AuditConnection.class);
 
+  /**
+   * Releases the specified {@link Connection} object's database and JDBC
+   * resources immediately instead of waiting for them to be automatically
+   * released.
+   * <p>
+   * This method differs itself from {@link Connection#close()} by not throwing
+   * a {@link SQLException} if a database access error occurs. If a database
+   * access error occurs, a warning will be logged to the logger associated with
+   * the {@code AuditConnection} class.
+   *
+   * @throws NullPointerException If {@code connection} is null.
+   */
   public static void close(final Connection connection) {
     try {
-      if (connection != null && !connection.isClosed())
+      if (!connection.isClosed())
         connection.close();
     }
     catch (final SQLException e) {
@@ -53,319 +59,145 @@ public class ConnectionProxy implements Connection {
     }
   }
 
-  protected final Connection connection;
-
-  public ConnectionProxy(final Connection connection) {
-    this.connection = connection;
+  /**
+   * Creates a new {@code AuditConnection} with the specified {@code target} to
+   * which all method calls will be delegated.
+   *
+   * @param target The {@link Connection} to which all method calls will be
+   *          delegated.
+   */
+  public AuditConnection(final Connection target) {
+    super(target);
   }
 
+  /**
+   * {@inheritDoc}
+   * <p>
+   * <i><b>Note:</b> This method returns an {@link AuditStatement} instance that
+   * delegates all method calls to the underlying {@link Statement}.</i>
+   */
   @Override
   public Statement createStatement() throws SQLException {
-    return new StatementProxy(connection.createStatement());
+    return new AuditStatement(target.createStatement());
   }
 
+  /**
+   * {@inheritDoc}
+   * <p>
+   * <i><b>Note:</b> This method returns an {@link AuditPreparedStatement}
+   * instance that delegates all method calls to the underlying
+   * {@link PreparedStatement}.</i>
+   */
   @Override
   public PreparedStatement prepareStatement(final String sql) throws SQLException {
-    try {
-      return new PreparedStatementProxy(connection.prepareStatement(sql), sql);
-    }
-    catch (final SQLException e) {
-      throw SQLExceptions.clone(e, e.getMessage() + " "  + sql);
-    }
+    return new AuditPreparedStatement(target.prepareStatement(sql), sql);
   }
 
-  @Override
-  public CallableStatement prepareCall(final String sql) throws SQLException {
-    return new CallableStatementProxy(connection.prepareCall(sql), sql);
-  }
-
-  @Override
-  public String nativeSQL(final String sql) throws SQLException {
-    return connection.nativeSQL(sql);
-  }
-
-  @Override
-  public void setAutoCommit(final boolean autoCommit) throws SQLException {
-    connection.setAutoCommit(autoCommit);
-  }
-
-  @Override
-  public boolean getAutoCommit() throws SQLException {
-    return connection.getAutoCommit();
-  }
-
-  @Override
-  public void commit() throws SQLException {
-    connection.commit();
-  }
-
-  @Override
-  public void rollback() throws SQLException {
-    connection.rollback();
-  }
-
-  @Override
-  public void close() throws SQLException {
-    connection.close();
-  }
-
-  @Override
-  public boolean isClosed() throws SQLException {
-    return connection.isClosed();
-  }
-
-  @Override
-  public DatabaseMetaData getMetaData() throws SQLException {
-    return connection.getMetaData();
-  }
-
-  @Override
-  public void setReadOnly(final boolean readOnly) throws SQLException {
-    connection.setReadOnly(readOnly);
-  }
-
-  @Override
-  public boolean isReadOnly() throws SQLException {
-    return connection.isReadOnly();
-  }
-
-  @Override
-  public void setCatalog(final String catalog) throws SQLException {
-    connection.setCatalog(catalog);
-  }
-
-  @Override
-  public String getCatalog() throws SQLException {
-    return connection.getCatalog();
-  }
-
-  @Override
-  public void setTransactionIsolation(final int level) throws SQLException {
-    connection.setTransactionIsolation(level);
-  }
-
-  @Override
-  public int getTransactionIsolation() throws SQLException {
-    return connection.getTransactionIsolation();
-  }
-
-  @Override
-  public SQLWarning getWarnings() throws SQLException {
-    return connection.getWarnings();
-  }
-
-  @Override
-  public void clearWarnings() throws SQLException {
-    connection.clearWarnings();
-  }
-
+  /**
+   * {@inheritDoc}
+   * <p>
+   * <i><b>Note:</b> This method returns an {@link AuditStatement}
+   * instance that delegates all method calls to the underlying
+   * {@link Statement}.</i>
+   */
   @Override
   public Statement createStatement(final int resultSetType, final int resultSetConcurrency) throws SQLException {
-    return new StatementProxy(connection.createStatement(resultSetType, resultSetConcurrency));
+    return new AuditStatement(target.createStatement(resultSetType, resultSetConcurrency));
   }
 
+  /**
+   * {@inheritDoc}
+   * <p>
+   * <i><b>Note:</b> This method returns an {@link AuditPreparedStatement}
+   * instance that delegates all method calls to the underlying
+   * {@link PreparedStatement}.</i>
+   */
   @Override
   public PreparedStatement prepareStatement(final String sql, final int resultSetType, final int resultSetConcurrency) throws SQLException {
-    try {
-      return new PreparedStatementProxy(connection.prepareStatement(sql, resultSetType, resultSetConcurrency), sql);
-    }
-    catch (final SQLException e) {
-      throw SQLExceptions.clone(e, e.getMessage() + " "  + sql);
-    }
+    return new AuditPreparedStatement(target.prepareStatement(sql, resultSetType, resultSetConcurrency), sql);
   }
 
+  /**
+   * {@inheritDoc}
+   * <p>
+   * <i><b>Note:</b> This method returns an {@link AuditCallableStatement}
+   * instance that delegates all method calls to the underlying
+   * {@link CallableStatement}.</i>
+   */
   @Override
   public CallableStatement prepareCall(final String sql, final int resultSetType, final int resultSetConcurrency) throws SQLException {
-    try {
-      return new CallableStatementProxy(connection.prepareCall(sql, resultSetType, resultSetConcurrency), sql);
-    }
-    catch (final SQLException e) {
-      throw SQLExceptions.clone(e, e.getMessage() + " "  + sql);
-    }
+    return new AuditCallableStatement(target.prepareCall(sql, resultSetType, resultSetConcurrency), sql);
   }
 
-  @Override
-  public Map<String,Class<?>> getTypeMap() throws SQLException {
-    return connection.getTypeMap();
-  }
-
-  @Override
-  public void setTypeMap(final Map<String,Class<?>> map) throws SQLException {
-    connection.setTypeMap(map);
-  }
-
-  @Override
-  public void setHoldability(final int holdability) throws SQLException {
-    connection.setHoldability(holdability);
-  }
-
-  @Override
-  public int getHoldability() throws SQLException {
-    return connection.getHoldability();
-  }
-
-  @Override
-  public Savepoint setSavepoint() throws SQLException {
-    return connection.setSavepoint();
-  }
-
-  @Override
-  public Savepoint setSavepoint(final String name) throws SQLException {
-    return connection.setSavepoint(name);
-  }
-
-  @Override
-  public void rollback(final Savepoint savepoint) throws SQLException {
-    connection.rollback(savepoint);
-  }
-
-  @Override
-  public void releaseSavepoint(final Savepoint savepoint) throws SQLException {
-    connection.releaseSavepoint(savepoint);
-  }
-
+  /**
+   * {@inheritDoc}
+   * <p>
+   * <i><b>Note:</b> This method returns an {@link AuditStatement}
+   * instance that delegates all method calls to the underlying
+   * {@link Statement}.</i>
+   */
   @Override
   public Statement createStatement(final int resultSetType, final int resultSetConcurrency, final int resultSetHoldability) throws SQLException {
-    return new StatementProxy(connection.createStatement(resultSetType, resultSetConcurrency, resultSetHoldability));
+    return new AuditStatement(target.createStatement(resultSetType, resultSetConcurrency, resultSetHoldability));
   }
 
+  /**
+   * {@inheritDoc}
+   * <p>
+   * <i><b>Note:</b> This method returns an {@link AuditPreparedStatement}
+   * instance that delegates all method calls to the underlying
+   * {@link PreparedStatement}.</i>
+   */
   @Override
   public PreparedStatement prepareStatement(final String sql, final int resultSetType, int resultSetConcurrency, final int resultSetHoldability) throws SQLException {
-    try {
-      return new PreparedStatementProxy(connection.prepareStatement(sql, resultSetType, resultSetConcurrency, resultSetHoldability), sql);
-    }
-    catch (final SQLException e) {
-      throw SQLExceptions.clone(e, e.getMessage() + " "  + sql);
-    }
+    return new AuditPreparedStatement(target.prepareStatement(sql, resultSetType, resultSetConcurrency, resultSetHoldability), sql);
   }
 
+  /**
+   * {@inheritDoc}
+   * <p>
+   * <i><b>Note:</b> This method returns an {@link AuditCallableStatement}
+   * instance that delegates all method calls to the underlying
+   * {@link CallableStatement}.</i>
+   */
   @Override
   public CallableStatement prepareCall(final String sql, final int resultSetType, int resultSetConcurrency, final int resultSetHoldability) throws SQLException {
-    try {
-      return new CallableStatementProxy(connection.prepareCall(sql, resultSetType, resultSetConcurrency, resultSetHoldability), sql);
-    }
-    catch (final SQLException e) {
-      throw SQLExceptions.clone(e, e.getMessage() + " "  + sql);
-    }
+    return new AuditCallableStatement(target.prepareCall(sql, resultSetType, resultSetConcurrency, resultSetHoldability), sql);
   }
 
+  /**
+   * {@inheritDoc}
+   * <p>
+   * <i><b>Note:</b> This method returns an {@link AuditPreparedStatement}
+   * instance that delegates all method calls to the underlying
+   * {@link PreparedStatement}.</i>
+   */
   @Override
   public PreparedStatement prepareStatement(final String sql, final int autoGeneratedKeys) throws SQLException {
-    try {
-      return new PreparedStatementProxy(connection.prepareStatement(sql, autoGeneratedKeys), sql);
-    }
-    catch (final SQLException e) {
-      throw SQLExceptions.clone(e, e.getMessage() + " "  + sql);
-    }
+    return new AuditPreparedStatement(target.prepareStatement(sql, autoGeneratedKeys), sql);
   }
 
+  /**
+   * {@inheritDoc}
+   * <p>
+   * <i><b>Note:</b> This method returns an {@link AuditPreparedStatement}
+   * instance that delegates all method calls to the underlying
+   * {@link PreparedStatement}.</i>
+   */
   @Override
   public PreparedStatement prepareStatement(final String sql, final int[] columnIndexes) throws SQLException {
-    try {
-      return new PreparedStatementProxy(connection.prepareStatement(sql, columnIndexes), sql);
-    }
-    catch (final SQLException e) {
-      throw SQLExceptions.clone(e, e.getMessage() + " "  + sql);
-    }
+    return new AuditPreparedStatement(target.prepareStatement(sql, columnIndexes), sql);
   }
 
+  /**
+   * {@inheritDoc}
+   * <p>
+   * <i><b>Note:</b> This method returns an {@link AuditPreparedStatement}
+   * instance that delegates all method calls to the underlying
+   * {@link PreparedStatement}.</i>
+   */
   @Override
   public PreparedStatement prepareStatement(final String sql, final String[] columnNames) throws SQLException {
-    try {
-      return new PreparedStatementProxy(connection.prepareStatement(sql, columnNames), sql);
-    }
-    catch (final SQLException e) {
-      throw SQLExceptions.clone(e, e.getMessage() + " "  + sql);
-    }
-  }
-
-  @Override
-  public Clob createClob() throws SQLException {
-    return connection.createClob();
-  }
-
-  @Override
-  public Blob createBlob() throws SQLException {
-    return connection.createBlob();
-  }
-
-  @Override
-  public NClob createNClob() throws SQLException {
-    return connection.createNClob();
-  }
-
-  @Override
-  public SQLXML createSQLXML() throws SQLException {
-    return connection.createSQLXML();
-  }
-
-  @Override
-  public boolean isValid(final int timeout) throws SQLException {
-    return connection.isValid(timeout);
-  }
-
-  @Override
-  public void setClientInfo(final String name, final String value) throws SQLClientInfoException {
-    connection.setClientInfo(name, value);
-  }
-
-  @Override
-  public void setClientInfo(final Properties properties) throws SQLClientInfoException {
-    connection.setClientInfo(properties);
-  }
-
-  @Override
-  public String getClientInfo(final String name) throws SQLException {
-    return connection.getClientInfo(name);
-  }
-
-  @Override
-  public Properties getClientInfo() throws SQLException {
-    return connection.getClientInfo();
-  }
-
-  @Override
-  public Array createArrayOf(final String typeName, final Object[] elements) throws SQLException {
-    return connection.createArrayOf(typeName, elements);
-  }
-
-  @Override
-  public Struct createStruct(final String typeName, final Object[] attributes) throws SQLException {
-    return connection.createStruct(typeName, attributes);
-  }
-
-  @Override
-  public <T extends Object>T unwrap(final Class<T> iface) throws SQLException {
-    return connection.unwrap(iface);
-  }
-
-  @Override
-  public boolean isWrapperFor(final Class<?> iface) throws SQLException {
-    return connection.isWrapperFor(iface);
-  }
-
-  @Override
-  public void setSchema(final String schema) throws SQLException {
-    connection.setSchema(schema);
-  }
-
-  @Override
-  public String getSchema() throws SQLException {
-    return connection.getSchema();
-  }
-
-  @Override
-  public void abort(final Executor executor) throws SQLException {
-    connection.abort(executor);
-  }
-
-  @Override
-  public void setNetworkTimeout(final Executor executor, final int milliseconds) throws SQLException {
-    connection.setNetworkTimeout(executor, milliseconds);
-  }
-
-  @Override
-  public int getNetworkTimeout() throws SQLException {
-    return connection.getNetworkTimeout();
+    return new AuditPreparedStatement(target.prepareStatement(sql, columnNames), sql);
   }
 }

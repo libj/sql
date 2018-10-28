@@ -16,10 +16,8 @@
 
 package org.fastjax.sql;
 
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.SQLWarning;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,43 +28,73 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 
-public class StatementProxy implements Statement {
-  private static final Logger logger = LoggerFactory.getLogger(StatementProxy.class);
+/**
+ * A {@link Statement} that delegates all method calls to another statement.
+ * This class overrides all execution methods in order to log the SQL that is
+ * executed. When an "execute" method is invoked, it will be logged to the
+ * logger associated with the {@code AuditStatement} class.
+ */
+public class AuditStatement implements DelegateStatement {
+  private static final Logger logger = LoggerFactory.getLogger(AuditStatement.class);
 
+  /**
+   * Releases the specified {@link Statement} object's database and JDBC
+   * resources immediately instead of waiting for them to be automatically
+   * released.
+   * <p>
+   * This method differs itself from {@link Statement#close()} by not throwing a
+   * {@link SQLException} if a database access error occurs. If a database
+   * access error occurs, a warning will be logged to the logger associated with
+   * the {@code AuditStatement} class.
+   *
+   * @throws NullPointerException If {@code statement} is null.
+   */
   public static void close(final Statement statement) {
     try {
-      if (statement != null && !statement.isClosed())
+      if (!statement.isClosed())
         statement.close();
     }
     catch (final SQLException e) {
-      logger.warn(Statement.class.getName() + ".close()", e);
+      logger.warn(statement.getClass().getName() + "#close()", e);
     }
   }
 
-  protected final Statement statement;
+  private final Statement target;
 
-  public StatementProxy(final Statement statement) {
-    this.statement = statement;
+  /**
+   * Creates a new {@code AuditStatement} with the specified {@code target} to
+   * which all method calls will be delegated.
+   *
+   * @param target The {@link Statement} to which all method calls will be
+   *          delegated.
+   */
+  public AuditStatement(final Statement target) {
+    this.target = target;
+  }
+
+  @Override
+  public Statement getTarget() {
+    return target;
   }
 
   @Override
   public ResultSet executeQuery(final String sql) throws SQLException {
     int size = -1;
-    ResultSetProxy resultSet;
     final long time = System.currentTimeMillis();
     try {
-      resultSet = new ResultSetProxy(statement.executeQuery(sql));
+      final ResultSet resultSet = getTarget().executeQuery(sql);
       if (LoggerUtil.isLoggable(logger, Level.DEBUG))
-        size = resultSet.getSize();
+        size = ResultSets.getSize(resultSet);
+
+      return resultSet;
     }
     finally {
-      final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append('@').append(Integer.toHexString(hashCode())).append("].executeQuery(\n");
-      buffer.append(sql);
-      buffer.append("\n) -> " + size + "\t\t" + (System.currentTimeMillis() - time) + "ms");
-      logger.debug(buffer.toString());
+      if (logger.isDebugEnabled()) {
+        final StringBuilder builder = new StringBuilder("[").append(getClass().getName()).append('@').append(Integer.toHexString(hashCode())).append("].executeQuery(\n");
+        builder.append(sql).append("\n) -> ").append(size).append("\t\t").append((System.currentTimeMillis() - time)).append("ms");
+        logger.debug(builder.toString());
+      }
     }
-
-    return resultSet;
   }
 
   @Override
@@ -74,83 +102,26 @@ public class StatementProxy implements Statement {
     final long time = System.currentTimeMillis();
     int count = -1;
     try {
-      count = statement.executeUpdate(sql);
+      return count = getTarget().executeUpdate(sql);
     }
     finally {
-      final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append('@').append(Integer.toHexString(hashCode())).append("].executeUpdate(\n");
-      buffer.append(sql);
-
-      buffer.append("\n) -> " + count + "\t\t" + (System.currentTimeMillis() - time) + "ms");
-      logger.debug(buffer.toString());
+      if (logger.isDebugEnabled()) {
+        final StringBuilder builder = new StringBuilder("[").append(getClass().getName()).append('@').append(Integer.toHexString(hashCode())).append("].executeUpdate(\n");
+        builder.append(sql).append("\n) -> ").append(count).append("\t\t").append((System.currentTimeMillis() - time)).append("ms");
+        logger.debug(builder.toString());
+      }
     }
-
-    return count;
   }
 
   @Override
   public void close() throws SQLException {
     try {
-      statement.close();
+      getTarget().close();
     }
     catch (final SQLException e) {
-      if (e.getMessage() != null && !"Connection is closed.".equals(e.getMessage()))
+      if (!"Connection is closed.".equals(e.getMessage()))
         throw e;
     }
-  }
-
-  @Override
-  public int getMaxFieldSize() throws SQLException {
-    return statement.getMaxFieldSize();
-  }
-
-  @Override
-  public void setMaxFieldSize(final int max) throws SQLException {
-    statement.setMaxFieldSize(max);
-  }
-
-  @Override
-  public int getMaxRows() throws SQLException {
-    return statement.getMaxRows();
-  }
-
-  @Override
-  public void setMaxRows(final int max) throws SQLException {
-    statement.setMaxRows(max);
-  }
-
-  @Override
-  public void setEscapeProcessing(final boolean enable) throws SQLException {
-    statement.setEscapeProcessing(enable);
-  }
-
-  @Override
-  public int getQueryTimeout() throws SQLException {
-    return statement.getQueryTimeout();
-  }
-
-  @Override
-  public void setQueryTimeout(final int seconds) throws SQLException {
-    statement.setQueryTimeout(seconds);
-  }
-
-  @Override
-  public void cancel() throws SQLException {
-    statement.cancel();
-  }
-
-  @Override
-  public SQLWarning getWarnings() throws SQLException {
-    return statement.getWarnings();
-  }
-
-  @Override
-  public void clearWarnings() throws SQLException {
-    statement.clearWarnings();
-  }
-
-  @Override
-  public void setCursorName(final String name) throws SQLException {
-    statement.setCursorName(name);
   }
 
   @Override
@@ -158,62 +129,15 @@ public class StatementProxy implements Statement {
     final long time = System.currentTimeMillis();
     Boolean result = null;
     try {
-      result = statement.execute(sql);
+      return result = getTarget().execute(sql);
     }
     finally {
-      final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append('@').append(Integer.toHexString(hashCode())).append("].execute(\n");
-      buffer.append("  ").append(sql);
-
-      buffer.append("\n) -> " + result + "\t\t" + (System.currentTimeMillis() - time) + "ms");
-      logger.debug(buffer.toString());
+      if (logger.isDebugEnabled()) {
+        final StringBuilder builder = new StringBuilder("[").append(getClass().getName()).append('@').append(Integer.toHexString(hashCode())).append("].execute(\n");
+        builder.append("  ").append(sql).append("\n) -> ").append(result).append("\t\t").append((System.currentTimeMillis() - time)).append("ms");
+        logger.debug(builder.toString());
+      }
     }
-
-    return result;
-  }
-
-  @Override
-  public ResultSet getResultSet() throws SQLException {
-    return new ResultSetProxy(statement.getResultSet());
-  }
-
-  @Override
-  public int getUpdateCount() throws SQLException {
-    return statement.getUpdateCount();
-  }
-
-  @Override
-  public boolean getMoreResults() throws SQLException {
-    return statement.getMoreResults();
-  }
-
-  @Override
-  public void setFetchDirection(final int direction) throws SQLException {
-    statement.setFetchDirection(direction);
-  }
-
-  @Override
-  public int getFetchDirection() throws SQLException {
-    return statement.getFetchDirection();
-  }
-
-  @Override
-  public void setFetchSize(final int rows) throws SQLException {
-    statement.setFetchSize(rows);
-  }
-
-  @Override
-  public int getFetchSize() throws SQLException {
-    return statement.getFetchSize();
-  }
-
-  @Override
-  public int getResultSetConcurrency() throws SQLException {
-    return statement.getResultSetConcurrency();
-  }
-
-  @Override
-  public int getResultSetType() throws SQLException {
-    return statement.getResultSetType();
   }
 
   private List<String> batch;
@@ -227,13 +151,13 @@ public class StatementProxy implements Statement {
 
   @Override
   public void addBatch(final String sql) throws SQLException {
-    statement.addBatch(sql);
+    getTarget().addBatch(sql);
     addBatch0(sql);
   }
 
   @Override
   public void clearBatch() throws SQLException {
-    statement.clearBatch();
+    getTarget().clearBatch();
     if (batch != null)
       batch.clear();
   }
@@ -243,37 +167,22 @@ public class StatementProxy implements Statement {
     final long time = System.currentTimeMillis();
     int[] count = null;
     try {
-      count = statement.executeBatch();
+      return count = getTarget().executeBatch();
     }
     finally {
-      final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append('@').append(Integer.toHexString(hashCode())).append("].executeBatch() {");
-      if (count != null)
-        for (int i = 0; i < batch.size(); i++)
-          buffer.append("\n  ").append(batch.get(i).replaceAll("\n", "\n  ")).append(" -> ").append(count[i]);
-      else
-        for (int i = 0; i < batch.size(); i++)
-          buffer.append("\n  ").append(batch.get(i).replaceAll("\n", "\n  ")).append(" -> -1");
+      if (logger.isDebugEnabled()) {
+        final StringBuilder builder = new StringBuilder("[").append(getClass().getName()).append('@').append(Integer.toHexString(hashCode())).append("].executeBatch() {");
+        if (count != null)
+          for (int i = 0; i < batch.size(); ++i)
+            builder.append("\n  ").append(batch.get(i).replaceAll("\n", "\n  ")).append(" -> ").append(count[i]);
+        else
+          for (int i = 0; i < batch.size(); ++i)
+            builder.append("\n  ").append(batch.get(i).replaceAll("\n", "\n  ")).append(" -> -1");
 
-      buffer.append("\n} ").append(System.currentTimeMillis() - time).append("ms");
-      logger.debug(buffer.toString());
+        builder.append("\n} ").append(System.currentTimeMillis() - time).append("ms");
+        logger.debug(builder.toString());
+      }
     }
-
-    return count;
-  }
-
-  @Override
-  public Connection getConnection() throws SQLException {
-    return statement.getConnection();
-  }
-
-  @Override
-  public boolean getMoreResults(final int current) throws SQLException {
-    return statement.getMoreResults(current);
-  }
-
-  @Override
-  public ResultSet getGeneratedKeys() throws SQLException {
-    return new ResultSetProxy(statement.getGeneratedKeys());
   }
 
   @Override
@@ -281,17 +190,15 @@ public class StatementProxy implements Statement {
     final long time = System.currentTimeMillis();
     int count = -1;
     try {
-      count = statement.executeUpdate(sql, autoGeneratedKeys);
+      return count = getTarget().executeUpdate(sql, autoGeneratedKeys);
     }
     finally {
-      final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append('@').append(Integer.toHexString(hashCode())).append("].executeUpdate(\n");
-      buffer.append(sql);
-
-      buffer.append("\n, " + autoGeneratedKeys + ") -> " + count + "\t\t" + (System.currentTimeMillis() - time) + "ms");
-      logger.debug(buffer.toString());
+      if (logger.isDebugEnabled()) {
+        final StringBuilder builder = new StringBuilder("[").append(getClass().getName()).append('@').append(Integer.toHexString(hashCode())).append("].executeUpdate(\n");
+        builder.append(sql).append("\n, ").append(autoGeneratedKeys).append(") -> ").append(count).append("\t\t").append((System.currentTimeMillis() - time)).append("ms");
+        logger.debug(builder.toString());
+      }
     }
-
-    return count;
   }
 
   @Override
@@ -299,17 +206,15 @@ public class StatementProxy implements Statement {
     final long time = System.currentTimeMillis();
     int count = -1;
     try {
-      count = statement.executeUpdate(sql, columnIndexes);
+      return count = getTarget().executeUpdate(sql, columnIndexes);
     }
     finally {
-      final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append('@').append(Integer.toHexString(hashCode())).append("].executeUpdate(\n");
-      buffer.append(sql);
-
-      buffer.append("\n, [" + Arrays.toString(columnIndexes) + "]) -> " + count + "\t\t" + (System.currentTimeMillis() - time) + "ms");
-      logger.debug(buffer.toString());
+      if (logger.isDebugEnabled()) {
+        final StringBuilder builder = new StringBuilder("[").append(getClass().getName()).append('@').append(Integer.toHexString(hashCode())).append("].executeUpdate(\n");
+        builder.append(sql).append("\n, [").append(Arrays.toString(columnIndexes)).append("]) -> ").append(count).append("\t\t").append((System.currentTimeMillis() - time)).append("ms");
+        logger.debug(builder.toString());
+      }
     }
-
-    return count;
   }
 
   @Override
@@ -317,17 +222,15 @@ public class StatementProxy implements Statement {
     final long time = System.currentTimeMillis();
     int count = -1;
     try {
-      count = statement.executeUpdate(sql, columnNames);
+      return count = getTarget().executeUpdate(sql, columnNames);
     }
     finally {
-      final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append('@').append(Integer.toHexString(hashCode())).append("].executeUpdate(\n");
-      buffer.append(sql);
-
-      buffer.append("\n, " + Arrays.toString(columnNames) + ") -> " + count + "\t\t" + (System.currentTimeMillis() - time) + "ms");
-      logger.debug(buffer.toString());
+      if (logger.isDebugEnabled()) {
+        final StringBuilder builder = new StringBuilder("[").append(getClass().getName()).append('@').append(Integer.toHexString(hashCode())).append("].executeUpdate(\n");
+        builder.append(sql).append("\n, ").append(Arrays.toString(columnNames)).append(") -> ").append(count).append("\t\t").append((System.currentTimeMillis() - time)).append("ms");
+        logger.debug(builder.toString());
+      }
     }
-
-    return count;
   }
 
   @Override
@@ -335,17 +238,15 @@ public class StatementProxy implements Statement {
     final long time = System.currentTimeMillis();
     Boolean result = null;
     try {
-      result = statement.execute(sql, autoGeneratedKeys);
+      return result = getTarget().execute(sql, autoGeneratedKeys);
     }
     finally {
-      final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append('@').append(Integer.toHexString(hashCode())).append("].execute(\n");
-      buffer.append(sql);
-
-      buffer.append("\n, " + autoGeneratedKeys + ") -> " + result + "\t\t" + (System.currentTimeMillis() - time) + "ms");
-      logger.debug(buffer.toString());
+      if (logger.isDebugEnabled()) {
+        final StringBuilder builder = new StringBuilder("[").append(getClass().getName()).append('@').append(Integer.toHexString(hashCode())).append("].execute(\n");
+        builder.append(sql).append("\n, ").append(autoGeneratedKeys).append(") -> ").append(result).append("\t\t").append((System.currentTimeMillis() - time)).append("ms");
+        logger.debug(builder.toString());
+      }
     }
-
-    return result;
   }
 
   @Override
@@ -353,17 +254,15 @@ public class StatementProxy implements Statement {
     final long time = System.currentTimeMillis();
     Boolean result = null;
     try {
-      result = statement.execute(sql, columnIndexes);
+      return result = getTarget().execute(sql, columnIndexes);
     }
     finally {
-      final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append('@').append(Integer.toHexString(hashCode())).append("].execute(\n");
-      buffer.append(sql);
-
-      buffer.append("\n, " + Arrays.toString(columnIndexes) + ") -> " + result + "\t\t" + (System.currentTimeMillis() - time) + "ms");
-      logger.debug(buffer.toString());
+      if (logger.isDebugEnabled()) {
+        final StringBuilder builder = new StringBuilder("[").append(getClass().getName()).append('@').append(Integer.toHexString(hashCode())).append("].execute(\n");
+        builder.append(sql).append("\n, ").append(Arrays.toString(columnIndexes)).append(") -> ").append(result).append("\t\t").append((System.currentTimeMillis() - time)).append("ms");
+        logger.debug(builder.toString());
+      }
     }
-
-    return result;
   }
 
   @Override
@@ -371,56 +270,14 @@ public class StatementProxy implements Statement {
     final long time = System.currentTimeMillis();
     Boolean result = null;
     try {
-      result = statement.execute(sql, columnNames);
+      return result = getTarget().execute(sql, columnNames);
     }
     finally {
-      final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append('@').append(Integer.toHexString(hashCode())).append("].execute(\n");
-      buffer.append(sql);
-
-      buffer.append("\n, " + Arrays.toString(columnNames) + ") -> " + result + "\t\t" + (System.currentTimeMillis() - time) + "ms");
-      logger.debug(buffer.toString());
+      if (logger.isDebugEnabled()) {
+        final StringBuilder builder = new StringBuilder("[").append(getClass().getName()).append('@').append(Integer.toHexString(hashCode())).append("].execute(\n");
+        builder.append(sql).append("\n, ").append(Arrays.toString(columnNames)).append(") -> ").append(result).append("\t\t").append((System.currentTimeMillis() - time)).append("ms");
+        logger.debug(builder.toString());
+      }
     }
-
-    return result;
-  }
-
-  @Override
-  public int getResultSetHoldability() throws SQLException {
-    return statement.getResultSetHoldability();
-  }
-
-  @Override
-  public boolean isClosed() throws SQLException {
-    return statement.isClosed();
-  }
-
-  @Override
-  public void setPoolable(final boolean poolable) throws SQLException {
-    statement.setPoolable(poolable);
-  }
-
-  @Override
-  public boolean isPoolable() throws SQLException {
-    return statement.isPoolable();
-  }
-
-  @Override
-  public <T extends Object>T unwrap(final Class<T> iface) throws SQLException {
-    return statement.unwrap(iface);
-  }
-
-  @Override
-  public boolean isWrapperFor(final Class<?> iface) throws SQLException {
-    return statement.isWrapperFor(iface);
-  }
-
-  @Override
-  public void closeOnCompletion() throws SQLException {
-    statement.closeOnCompletion();
-  }
-
-  @Override
-  public boolean isCloseOnCompletion() throws SQLException {
-    return statement.isCloseOnCompletion();
   }
 }

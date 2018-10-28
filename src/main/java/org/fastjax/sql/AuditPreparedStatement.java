@@ -25,11 +25,9 @@ import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
 import java.sql.NClob;
-import java.sql.ParameterMetaData;
 import java.sql.PreparedStatement;
 import java.sql.Ref;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.RowId;
 import java.sql.SQLException;
 import java.sql.SQLXML;
@@ -42,64 +40,115 @@ import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
 
-import org.fastjax.logging.LoggerUtil;
 import org.fastjax.util.DecimalFormatter;
 import org.fastjax.util.Hexadecimal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.event.Level;
 
-public class PreparedStatementProxy extends StatementProxy implements PreparedStatement {
-  private static final Logger logger = LoggerFactory.getLogger(PreparedStatementProxy.class);
+/**
+ * A {@link PreparedStatement} that delegates all method calls to another
+ * statement. This class overrides all execution methods in order to log the SQL
+ * that is executed. When an "execute" method is invoked, a debug message with
+ * the executed SQL will be logged to the logger associated with the
+ * {@code AuditPreparedStatement} class.
+ * <p>
+ * This class overrides {@link Object#toString()} to return a detailed rendering
+ * of the prepared SQL statement with its parameters applied.
+ */
+public class AuditPreparedStatement extends AuditStatement implements DelegatePreparedStatement {
+  private static final Logger logger = LoggerFactory.getLogger(AuditPreparedStatement.class);
 
-  private static final String NULL = "NULL";
+  protected static final String NULL = "NULL";
 
-  private static String toString(final String sql, final Map<Integer,Object> parameterMap) {
-    final StringTokenizer tokenizer = new StringTokenizer(sql, "?", true);
-    final StringBuilder buffer = new StringBuilder();
-    int index = 0;
-    while (tokenizer.hasMoreTokens()) {
-      final String token = tokenizer.nextToken();
-      if ("?".equals(token)) {
-        final Object value = parameterMap.get(++index);
-        if (value == NULL)
-          buffer.append("NULL");
-        else if (value instanceof byte[])
-          buffer.append("X'").append(new Hexadecimal((byte[])value)).append('\'');
-        else if (value instanceof Date)
-          buffer.append('\'').append(((Date)value).toLocalDate().format(dateFormat)).append('\'');
-        else if (value instanceof Time)
-          buffer.append('\'').append(DateTimes.toLocalTime((Time)value).format(timeFormat)).append('\'');
-        else if (value instanceof Timestamp)
-          buffer.append('\'').append(((Timestamp)value).toLocalDateTime().format(timestampFormat)).append('\'');
-        else if (value instanceof String || value instanceof Byte)
-          buffer.append('\'').append(value).append('\'');
-        else if (value instanceof Number)
-          buffer.append(numberFormat.get().format(value));
-        else if (value != null)
-          buffer.append(value);
-        else
-          buffer.append('?');
-      }
-      else {
-        buffer.append(token);
-      }
+  private static String toString(final Object value) {
+    if (value == NULL)
+      return "NULL";
+
+    if (value instanceof byte[])
+      return "X'" + new Hexadecimal((byte[])value) + "'";
+
+    if (value instanceof Date)
+      return "'" + ((Date)value).toLocalDate().format(dateFormat) + "'";
+
+    if (value instanceof Time)
+      return "'" + DateTimes.toLocalTime((Time)value).format(timeFormat) + "'";
+
+    if (value instanceof Timestamp)
+      return "'" + ((Timestamp)value).toLocalDateTime().format(timestampFormat) + "'";
+
+    if (value instanceof String || value instanceof URL)
+      return "'" + value + "'";
+
+    if (value instanceof Byte) {
+      final byte ch = ((Byte)value).byteValue();
+      return ' ' < ch && ch < '~' ? "'" + Character.toString((char)ch) + "'" : ("0x" + Integer.toHexString(ch & 0xFF).toUpperCase());
     }
 
-    final String display = buffer.toString();
-    // String display = null;
-    // try {
-    // display = SQLFormat.format(buffer.toString());
-    // }
-    // catch (final ParseException e) {
-    // throw new RuntimeException(buffer.toString(), e);
-    // }
+    if (value instanceof Number)
+      return numberFormat.get().format(value);
 
-    return display;
+    if (value instanceof Boolean)
+      return ((Boolean)value).booleanValue() ? "TRUE" : "FALSE";
+
+    if (value != null)
+      return value.toString();
+
+    return "?";
+  }
+
+  private static int writeParameter(final StringBuilder builder, final int start, final int end, final Object obj) {
+    final int len = builder.length();
+    builder.replace(start, end, toString(obj));
+    return builder.length() - len;
+  }
+
+  // FIXME: Add support for "foo => ?" syntax
+  private static String toString(final String sql, final Map<Object,Object> parameterMap) {
+    int index = 0;
+    boolean escaped = false;
+    char inQuote = '\0';
+    int colon = -1;
+    boolean namedQuoted = false;
+    final StringBuilder builder = new StringBuilder(sql);
+    for (int i = 0; i < builder.length(); ++i) {
+      final char ch = builder.charAt(i);
+      if (colon != -1) {
+        if (colon == i - 1 && ch == '"') {
+          namedQuoted = true;
+        }
+        else if (ch != '#' && ch != '$' && (ch < '0' || '9' < ch) && (ch < '@' || 'Z' < ch) && ch != '_' && (ch < 'a' || 'z' < ch) || ch == '"' && namedQuoted) {
+          i += writeParameter(builder, colon, i, parameterMap.get(builder.substring(colon + 1, i)));
+          colon = -1;
+        }
+
+        continue;
+      }
+
+      if (ch == '\\') {
+        escaped = true;
+        continue;
+      }
+
+      if (inQuote == '\0' || !escaped) {
+        if (ch == '\'' || ch == '"') {
+          inQuote = inQuote == ch ? '\0' : ch;
+        }
+        else if (inQuote == '\0') {
+          if (ch == ':')
+            colon = i;
+          else if (ch == '?')
+            i += writeParameter(builder, i, i + 1, parameterMap.get(++index));
+        }
+      }
+
+      escaped = false;
+    }
+
+    return builder.toString();
   }
 
   private static final DateTimeFormatter dateFormat = DateTimeFormatter.ISO_LOCAL_DATE;
@@ -107,41 +156,55 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
   private static final DateTimeFormatter timestampFormat = new DateTimeFormatterBuilder().append(dateFormat).appendLiteral(' ').append(timeFormat).toFormatter();
   private static final ThreadLocal<DecimalFormat> numberFormat = DecimalFormatter.createDecimalFormat("###############.###############;-###############.###############");
 
-  private final List<Map<Integer,Object>> parameterMaps = new ArrayList<>();
+  private final List<Map<Object,Object>> parameterMaps = new ArrayList<>();
   private final String sql;
 
-  protected PreparedStatement getStatement() {
-    return (PreparedStatement)statement;
-  }
-
-  public PreparedStatementProxy(final PreparedStatement statement, final String sql) {
-    super(statement);
-    parameterMaps.add(new HashMap<Integer,Object>());
+  /**
+   * Creates a new {@code AuditPreparedStatement} with the specified
+   * {@code target} to which all method calls will be delegated.
+   *
+   * @param target The {@link PreparedStatement} to which all method calls will
+   *          be delegated.
+   * @param sql A SQL statement to be sent to the database; may contain one or
+   *          more '?' parameters.
+   */
+  public AuditPreparedStatement(final PreparedStatement target, final String sql) {
+    super(target);
     this.sql = sql;
+    parameterMaps.add(new HashMap<>());
   }
 
-  private Map<Integer,Object> getCurrentParameterMap() {
+  @Override
+  public PreparedStatement getTarget() {
+    return (PreparedStatement)super.getTarget();
+  }
+
+  /**
+   * @return The map of index-to-value parameters for the current batch.
+   */
+  protected Map<Object,Object> getCurrentParameterMap() {
     return parameterMaps.get(parameterMaps.size() - 1);
   }
 
   @Override
   public ResultSet executeQuery() throws SQLException {
-    final PreparedStatement statement = getStatement();
+    final PreparedStatement statement = getTarget();
     int size = -1;
-    final ResultSetProxy resultSet;
     final long time = System.currentTimeMillis();
     try {
-      resultSet = new ResultSetProxy(statement.executeQuery());
-      if (LoggerUtil.isLoggable(logger, Level.DEBUG))
-        size = resultSet.getSize();
+      final ResultSet resultSet = statement.executeQuery();
+      if (logger.isDebugEnabled())
+        size = ResultSets.getSize(resultSet);
+
+      return resultSet;
     }
     finally {
-      final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append('@').append(Integer.toHexString(hashCode())).append("].executeQuery() {\n  ").append(toString());
-      buffer.append("\n} -> ").append(size).append("\t\t").append(System.currentTimeMillis() - time).append("ms");
-      logger.debug(buffer.toString());
+      if (logger.isDebugEnabled()) {
+        final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append('@').append(Integer.toHexString(hashCode())).append("].executeQuery() {\n  ").append(toString());
+        buffer.append("\n} -> ").append(size).append("\t\t").append(System.currentTimeMillis() - time).append("ms");
+        logger.debug(buffer.toString());
+      }
     }
-
-    return resultSet;
   }
 
   @Override
@@ -149,140 +212,141 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
     final long time = System.currentTimeMillis();
     int count = -1;
     try {
-      count = getStatement().executeUpdate();
+      return count = getTarget().executeUpdate();
     }
     finally {
-      final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append('@').append(Integer.toHexString(hashCode())).append("].executeUpdate() {\n  ").append(toString());
-      buffer.append("\n} -> ").append(count).append("\t\t").append((System.currentTimeMillis() - time)).append("ms");
-      logger.debug(buffer.toString());
+      if (logger.isDebugEnabled()) {
+        final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append('@').append(Integer.toHexString(hashCode())).append("].executeUpdate() {\n  ").append(toString());
+        buffer.append("\n} -> ").append(count).append("\t\t").append((System.currentTimeMillis() - time)).append("ms");
+        logger.debug(buffer.toString());
+      }
     }
-
-    return count;
   }
 
   @Override
   public void setNull(final int parameterIndex, final int sqlType) throws SQLException {
-    getStatement().setNull(parameterIndex, sqlType);
+    getTarget().setNull(parameterIndex, sqlType);
     getCurrentParameterMap().put(parameterIndex, NULL);
   }
 
   @Override
   public void setBoolean(final int parameterIndex, final boolean x) throws SQLException {
-    getStatement().setBoolean(parameterIndex, x);
+    getTarget().setBoolean(parameterIndex, x);
     getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
   public void setByte(final int parameterIndex, final byte x) throws SQLException {
-    getStatement().setByte(parameterIndex, x);
+    getTarget().setByte(parameterIndex, x);
     getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
   public void setShort(final int parameterIndex, final short x) throws SQLException {
-    getStatement().setShort(parameterIndex, x);
+    getTarget().setShort(parameterIndex, x);
     getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
   public void setInt(final int parameterIndex, final int x) throws SQLException {
-    getStatement().setInt(parameterIndex, x);
+    getTarget().setInt(parameterIndex, x);
     getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
   public void setLong(final int parameterIndex, final long x) throws SQLException {
-    getStatement().setLong(parameterIndex, x);
+    getTarget().setLong(parameterIndex, x);
     getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
   public void setFloat(final int parameterIndex, final float x) throws SQLException {
-    getStatement().setFloat(parameterIndex, x);
+    getTarget().setFloat(parameterIndex, x);
     getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
   public void setDouble(final int parameterIndex, final double x) throws SQLException {
-    getStatement().setDouble(parameterIndex, x);
+    getTarget().setDouble(parameterIndex, x);
     getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
   public void setBigDecimal(final int parameterIndex, final BigDecimal x) throws SQLException {
-    getStatement().setBigDecimal(parameterIndex, x);
+    getTarget().setBigDecimal(parameterIndex, x);
     getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
   public void setString(final int parameterIndex, final String x) throws SQLException {
-    getStatement().setString(parameterIndex, x);
+    getTarget().setString(parameterIndex, x);
     getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
   public void setBytes(final int parameterIndex, final byte[] x) throws SQLException {
-    getStatement().setBytes(parameterIndex, x);
+    getTarget().setBytes(parameterIndex, x);
     getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
   public void setDate(final int parameterIndex, final Date x) throws SQLException {
-    getStatement().setDate(parameterIndex, x);
+    getTarget().setDate(parameterIndex, x);
     getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
   public void setTime(final int parameterIndex, final Time x) throws SQLException {
-    getStatement().setTime(parameterIndex, x);
+    getTarget().setTime(parameterIndex, x);
     getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
   public void setTimestamp(final int parameterIndex, final Timestamp x) throws SQLException {
-    getStatement().setTimestamp(parameterIndex, x);
+    getTarget().setTimestamp(parameterIndex, x);
     getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
   public void setAsciiStream(final int parameterIndex, final InputStream x, final int length) throws SQLException {
-    getStatement().setAsciiStream(parameterIndex, x, length);
+    getTarget().setAsciiStream(parameterIndex, x, length);
     getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
-  @Deprecated
+  @Deprecated(since="1.2")
   public void setUnicodeStream(final int parameterIndex, final InputStream x, final int length) throws SQLException {
-    getStatement().setUnicodeStream(parameterIndex, x, length);
+    getTarget().setUnicodeStream(parameterIndex, x, length);
     getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
   public void setBinaryStream(final int parameterIndex, final InputStream x, final int length) throws SQLException {
-    getStatement().setBinaryStream(parameterIndex, x, length);
+    getTarget().setBinaryStream(parameterIndex, x, length);
     getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
   public void clearParameters() throws SQLException {
-    getStatement().clearParameters();
+    getTarget().clearParameters();
+    getCurrentParameterMap().clear();
   }
 
   @Override
   public void setObject(final int parameterIndex, final Object x, int targetSqlType, final int scale) throws SQLException {
-    getStatement().setObject(parameterIndex, x, targetSqlType, scale);
+    getTarget().setObject(parameterIndex, x, targetSqlType, scale);
     getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
   public void setObject(final int parameterIndex, final Object x, final int targetSqlType) throws SQLException {
-    getStatement().setObject(parameterIndex, x, targetSqlType);
+    getTarget().setObject(parameterIndex, x, targetSqlType);
     getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
   public void setObject(final int parameterIndex, final Object x) throws SQLException {
-    getStatement().setObject(parameterIndex, x);
+    getTarget().setObject(parameterIndex, x);
     getCurrentParameterMap().put(parameterIndex, x);
   }
 
@@ -291,207 +355,203 @@ public class PreparedStatementProxy extends StatementProxy implements PreparedSt
     final long time = System.currentTimeMillis();
     boolean result = false;
     try {
-      result = getStatement().execute();
+      return result = getTarget().execute();
     }
     finally {
-      final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append('@').append(Integer.toHexString(hashCode())).append("].execute() {\n  ").append(toString());
-      buffer.append("} -> ").append(result).append("\t\t").append((System.currentTimeMillis() - time)).append("ms");
-      logger.debug(buffer.toString());
+      if (logger.isDebugEnabled()) {
+        final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append('@').append(Integer.toHexString(hashCode())).append("].execute() {\n  ").append(toString());
+        buffer.append("} -> ").append(result).append("\t\t").append((System.currentTimeMillis() - time)).append("ms");
+        logger.debug(buffer.toString());
+      }
     }
-
-    return result;
   }
 
   @Override
   public void addBatch() throws SQLException {
     addBatch0(toString(sql, getCurrentParameterMap()));
-    parameterMaps.add(new HashMap<Integer,Object>());
-    getStatement().addBatch();
+    parameterMaps.add(new HashMap<>());
+    getTarget().addBatch();
   }
 
   @Override
-  public void setCharacterStream(final int parameterIndex, final Reader reader, final int length) throws SQLException {
-    getStatement().setCharacterStream(parameterIndex, reader, length);
+  public void setRef(final int parameterIndex, final Ref x) throws SQLException {
+    getTarget().setRef(parameterIndex, x);
+    getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
-  public void setRef(final int i, final Ref x) throws SQLException {
-    getStatement().setRef(i, x);
+  public void setBlob(final int parameterIndex, final Blob x) throws SQLException {
+    getTarget().setBlob(parameterIndex, x);
+    getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
-  public void setBlob(final int i, final Blob x) throws SQLException {
-    getStatement().setBlob(i, x);
+  public void setClob(final int parameterIndex, final Clob x) throws SQLException {
+    getTarget().setClob(parameterIndex, x);
+    getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
-  public void setClob(final int i, final Clob x) throws SQLException {
-    getStatement().setClob(i, x);
-  }
-
-  @Override
-  public void setArray(final int i, final Array x) throws SQLException {
-    getStatement().setArray(i, x);
-  }
-
-  @Override
-  public ResultSetMetaData getMetaData() throws SQLException {
-    return getStatement().getMetaData();
+  public void setArray(final int parameterIndex, final Array x) throws SQLException {
+    getTarget().setArray(parameterIndex, x);
+    getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
   public void setDate(final int parameterIndex, final Date x, final Calendar cal) throws SQLException {
-    getStatement().setDate(parameterIndex, x, cal);
+    getTarget().setDate(parameterIndex, x, cal);
     getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
   public void setTime(final int parameterIndex, final Time x, final Calendar cal) throws SQLException {
-    getStatement().setTime(parameterIndex, x, cal);
+    getTarget().setTime(parameterIndex, x, cal);
     getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
   public void setTimestamp(final int parameterIndex, final Timestamp x, final Calendar cal) throws SQLException {
-    getStatement().setTimestamp(parameterIndex, x, cal);
-  }
-
-  @Override
-  public void setNull(final int paramIndex, final int sqlType, final String typeName) throws SQLException {
-    getStatement().setNull(paramIndex, sqlType, typeName);
-  }
-
-  @Override
-  public void setURL(final int parameterIndex, final URL x) throws SQLException {
-    getStatement().setURL(parameterIndex, x);
+    getTarget().setTimestamp(parameterIndex, x, cal);
     getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
-  public ParameterMetaData getParameterMetaData() throws SQLException {
-    return getStatement().getParameterMetaData();
+  public void setNull(final int parameterIndex, final int sqlType, final String typeName) throws SQLException {
+    getTarget().setNull(parameterIndex, sqlType, typeName);
+    getCurrentParameterMap().put(parameterIndex, NULL);
+  }
+
+  @Override
+  public void setURL(final int parameterIndex, final URL x) throws SQLException {
+    getTarget().setURL(parameterIndex, x);
+    getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
   public void setRowId(final int parameterIndex, final RowId x) throws SQLException {
-    getStatement().setRowId(parameterIndex, x);
+    getTarget().setRowId(parameterIndex, x);
+    getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
   public void setNString(final int parameterIndex, final String value) throws SQLException {
-    getStatement().setNString(parameterIndex, value);
+    getTarget().setNString(parameterIndex, value);
+    getCurrentParameterMap().put(parameterIndex, value);
   }
 
   @Override
   public void setNCharacterStream(final int parameterIndex, final Reader value, final long length) throws SQLException {
-    getStatement().setNCharacterStream(parameterIndex, value, length);
+    getTarget().setNCharacterStream(parameterIndex, value, length);
+    getCurrentParameterMap().put(parameterIndex, value);
   }
 
   @Override
   public void setNClob(final int parameterIndex, final NClob value) throws SQLException {
-    getStatement().setNClob(parameterIndex, value);
+    getTarget().setNClob(parameterIndex, value);
+    getCurrentParameterMap().put(parameterIndex, value);
   }
 
   @Override
   public void setClob(final int parameterIndex, final Reader reader, final long length) throws SQLException {
-    getStatement().setClob(parameterIndex, reader, length);
+    getTarget().setClob(parameterIndex, reader, length);
+    getCurrentParameterMap().put(parameterIndex, reader);
   }
 
   @Override
   public void setBlob(final int parameterIndex, final InputStream inputStream, final long length) throws SQLException {
-    getStatement().setBlob(parameterIndex, inputStream, length);
+    getTarget().setBlob(parameterIndex, inputStream, length);
+    getCurrentParameterMap().put(parameterIndex, inputStream);
   }
 
   @Override
   public void setNClob(final int parameterIndex, final Reader reader, final long length) throws SQLException {
-    getStatement().setNClob(parameterIndex, reader, length);
+    getTarget().setNClob(parameterIndex, reader, length);
+    getCurrentParameterMap().put(parameterIndex, reader);
   }
 
   @Override
   public void setSQLXML(final int parameterIndex, final SQLXML xmlObject) throws SQLException {
-    getStatement().setSQLXML(parameterIndex, xmlObject);
+    getTarget().setSQLXML(parameterIndex, xmlObject);
+    getCurrentParameterMap().put(parameterIndex, xmlObject);
   }
 
   @Override
   public void setAsciiStream(final int parameterIndex, final InputStream x, final long length) throws SQLException {
-    getStatement().setAsciiStream(parameterIndex, x, length);
+    getTarget().setAsciiStream(parameterIndex, x, length);
+    getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
   public void setBinaryStream(final int parameterIndex, final InputStream x, final long length) throws SQLException {
-    getStatement().setBinaryStream(parameterIndex, x, length);
+    getTarget().setBinaryStream(parameterIndex, x, length);
+    getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
   public void setCharacterStream(final int parameterIndex, final Reader reader, final long length) throws SQLException {
-    getStatement().setCharacterStream(parameterIndex, reader, length);
+    getTarget().setCharacterStream(parameterIndex, reader, length);
+    getCurrentParameterMap().put(parameterIndex, reader);
   }
 
   @Override
   public void setAsciiStream(final int parameterIndex, final InputStream x) throws SQLException {
-    getStatement().setAsciiStream(parameterIndex, x);
+    getTarget().setAsciiStream(parameterIndex, x);
+    getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
   public void setBinaryStream(final int parameterIndex, final InputStream x) throws SQLException {
-    getStatement().setBinaryStream(parameterIndex, x);
+    getTarget().setBinaryStream(parameterIndex, x);
+    getCurrentParameterMap().put(parameterIndex, x);
   }
 
   @Override
   public void setCharacterStream(final int parameterIndex, final Reader reader) throws SQLException {
-    getStatement().setCharacterStream(parameterIndex, reader);
+    getTarget().setCharacterStream(parameterIndex, reader);
+    getCurrentParameterMap().put(parameterIndex, reader);
   }
 
   @Override
   public void setNCharacterStream(final int parameterIndex, final Reader value) throws SQLException {
-    getStatement().setNCharacterStream(parameterIndex, value);
+    getTarget().setNCharacterStream(parameterIndex, value);
+    getCurrentParameterMap().put(parameterIndex, value);
   }
 
   @Override
   public void setClob(final int parameterIndex, final Reader reader) throws SQLException {
-    getStatement().setClob(parameterIndex, reader);
+    getTarget().setClob(parameterIndex, reader);
+    getCurrentParameterMap().put(parameterIndex, reader);
   }
 
   @Override
   public void setBlob(final int parameterIndex, final InputStream inputStream) throws SQLException {
-    getStatement().setBlob(parameterIndex, inputStream);
+    getTarget().setBlob(parameterIndex, inputStream);
+    getCurrentParameterMap().put(parameterIndex, inputStream);
   }
 
   @Override
   public void setNClob(final int parameterIndex, final Reader reader) throws SQLException {
-    getStatement().setNClob(parameterIndex, reader);
+    getTarget().setNClob(parameterIndex, reader);
+    getCurrentParameterMap().put(parameterIndex, reader);
   }
 
-  @Override
-  public boolean isClosed() throws SQLException {
-    return getStatement().isClosed();
-  }
-
-  @Override
-  public void setPoolable(final boolean poolable) throws SQLException {
-    getStatement().setPoolable(poolable);
-  }
-
-  @Override
-  public boolean isPoolable() throws SQLException {
-    return getStatement().isPoolable();
-  }
-
-  @Override
-  public <T extends Object>T unwrap(final Class<T> iface) throws SQLException {
-    return getStatement().unwrap(iface);
-  }
-
-  @Override
-  public boolean isWrapperFor(final Class<?> iface) throws SQLException {
-    return getStatement().isWrapperFor(iface);
-  }
-
+  /**
+   * Returns a string representation of this instance's prepared SQL statement
+   * with its parameters applied.
+   *
+   * @return A string representation of this instance's prepared SQL statement
+   *         with its parameters applied.
+   */
   @Override
   public String toString() {
     final StringBuilder builder = new StringBuilder();
-    for (final Map<Integer,Object> parameterMap : parameterMaps)
-      builder.append(toString(sql, parameterMap));
+    final Iterator<Map<Object,Object>> iterator = parameterMaps.iterator();
+    for (int i = 0; iterator.hasNext(); ++i) {
+      if (i > 0)
+        builder.append('\n');
+
+      builder.append(toString(sql, iterator.next()));
+    }
 
     return builder.toString();
   }

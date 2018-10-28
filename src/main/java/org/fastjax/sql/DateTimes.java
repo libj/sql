@@ -16,6 +16,7 @@
 
 package org.fastjax.sql;
 
+import java.sql.Date;
 import java.sql.Time;
 import java.time.LocalTime;
 import java.time.temporal.ChronoField;
@@ -23,13 +24,28 @@ import java.time.temporal.ChronoUnit;
 
 import org.fastjax.util.Dates;
 
+/**
+ * Utility functions for operations pertaining to {@link Date} and {@link Time}.
+ */
 public final class DateTimes {
+  /**
+   * Returns a {@link Time} representation of the specified {@link LocalTime}.
+   *
+   * @param localTime The {@link LocalTime}.
+   * @return A {@link Time} representation of the specified {@link LocalTime}.
+   */
   public static Time toTime(final LocalTime localTime) {
     final Time time = Time.valueOf(localTime);
     time.setTime(time.getTime() + localTime.get(ChronoField.MILLI_OF_SECOND));
     return time;
   }
 
+  /**
+   * Returns a {@link LocalTime} representation of the specified {@link Time}.
+   *
+   * @param time The {@link Time}.
+   * @return A {@link LocalTime} representation of the specified {@link Time}.
+   */
   public static LocalTime toLocalTime(final Time time) {
     final LocalTime localTime = time.toLocalTime();
     localTime.plus(Dates.getMilliOfSecond(time), ChronoUnit.MILLIS);

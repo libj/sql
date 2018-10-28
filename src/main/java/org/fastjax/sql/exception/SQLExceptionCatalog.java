@@ -24,8 +24,6 @@ import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.SQLInvalidAuthorizationSpecException;
 import java.util.HashMap;
 
-import org.fastjax.util.Throwables;
-
 public class SQLExceptionCatalog {
   private static final HashMap<String,Class<? extends SQLException>> categories = new HashMap<>();
 
@@ -64,10 +62,11 @@ public class SQLExceptionCatalog {
       return exception;
 
     try {
+      // FIXME: This is not kosher!
       final Constructor<? extends SQLException> constructor = category.getConstructor(String.class, String.class, int.class);
       final SQLException sqlException = constructor.newInstance(exception.getMessage(), exception.getSQLState(), exception.getErrorCode());
+      sqlException.initCause(exception.getCause());
       sqlException.setStackTrace(exception.getStackTrace());
-      SQLExceptions.clone(sqlException, exception.getCause());
       return sqlException;
     }
     catch (final ReflectiveOperationException e) {
