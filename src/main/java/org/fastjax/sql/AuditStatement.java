@@ -47,6 +47,7 @@ public class AuditStatement implements DelegateStatement {
    * access error occurs, a warning will be logged to the logger associated with
    * the {@code AuditStatement} class.
    *
+   * @param statement The {@link Statement} to close.
    * @throws NullPointerException If {@code statement} is null.
    */
   public static void close(final Statement statement) {
