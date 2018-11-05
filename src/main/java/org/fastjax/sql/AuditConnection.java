@@ -47,6 +47,7 @@ public class AuditConnection extends DelegateConnection {
    * access error occurs, a warning will be logged to the logger associated with
    * the {@code AuditConnection} class.
    *
+   * @param connection The connection to be closed.
    * @throws NullPointerException If {@code connection} is null.
    */
   public static void close(final Connection connection) {
