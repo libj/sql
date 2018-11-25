@@ -38,12 +38,12 @@ public final class SQLFormat {
       final boolean delim = token.length() == 1 && delims.contains(token);
       if (delim) {
         if (")".equals(token))
-          out += "\n" + Strings.padFixed("", depth * 2, true) + token;
+          out += "\n" + Strings.padRight("", depth * 2) + token;
         else if (!lastDelimNonWS)
           out += token;
 
         if (",".equals(token))
-          out += "\n" + Strings.padFixed("", depth * 2, true);
+          out += "\n" + Strings.padRight("", depth * 2);
 
         if (!ws.contains(token))
           lastDelimNonWS = delim;
@@ -59,7 +59,7 @@ public final class SQLFormat {
         }
         else if (lastReserved) {
           ++depth;
-          out += "\n" + Strings.padFixed("", depth * 2, true);
+          out += "\n" + Strings.padRight("", depth * 2);
         }
 
         lastReserved = reserved;
