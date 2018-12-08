@@ -110,7 +110,7 @@ public interface DelegateCallableStatement extends DelegatePreparedStatement, Ca
   }
 
   @Override
-  @Deprecated(since="1.2")
+  @Deprecated//(since="1.2")
   default BigDecimal getBigDecimal(final int parameterIndex, final int scale) throws SQLException {
     return getTarget().getBigDecimal(parameterIndex);
   }

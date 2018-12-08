@@ -126,7 +126,7 @@ public abstract class DelegateResultSet implements ResultSet {
   }
 
   @Override
-  @Deprecated(since="1.2")
+  @Deprecated//(since="1.2")
   public BigDecimal getBigDecimal(final int columnIndex, final int scale) throws SQLException {
     return target.getBigDecimal(columnIndex, scale);
   }
@@ -157,7 +157,7 @@ public abstract class DelegateResultSet implements ResultSet {
   }
 
   @Override
-  @Deprecated(since="1.2")
+  @Deprecated//(since="1.2")
   public InputStream getUnicodeStream(final int columnIndex) throws SQLException {
     return target.getUnicodeStream(columnIndex);
   }
@@ -208,7 +208,7 @@ public abstract class DelegateResultSet implements ResultSet {
   }
 
   @Override
-  @Deprecated(since="1.2")
+  @Deprecated//(since="1.2")
   public BigDecimal getBigDecimal(final String columnName, final int scale) throws SQLException {
     return target.getBigDecimal(columnName, scale);
   }
@@ -239,7 +239,7 @@ public abstract class DelegateResultSet implements ResultSet {
   }
 
   @Override
-  @Deprecated(since="1.2")
+  @Deprecated//(since="1.2")
   public InputStream getUnicodeStream(final String columnName) throws SQLException {
     return target.getUnicodeStream(columnName);
   }

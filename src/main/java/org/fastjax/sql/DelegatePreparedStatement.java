@@ -142,7 +142,7 @@ public interface DelegatePreparedStatement extends DelegateStatement, PreparedSt
   }
 
   @Override
-  @Deprecated(since="1.2")
+  @Deprecated//(since="1.2")
   default void setUnicodeStream(final int parameterIndex, final InputStream x, final int length) throws SQLException {
     getTarget().setUnicodeStream(parameterIndex, x, length);
   }

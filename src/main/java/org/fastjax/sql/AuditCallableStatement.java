@@ -124,7 +124,7 @@ public class AuditCallableStatement extends AuditPreparedStatement implements De
   }
 
   @Override
-  @Deprecated(since="1.2")
+  @Deprecated//(since="1.2")
   public BigDecimal getBigDecimal(final int parameterIndex, final int scale) throws SQLException {
     return getTarget().getBigDecimal(parameterIndex);
   }
