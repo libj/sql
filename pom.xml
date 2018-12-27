@@ -27,6 +27,7 @@
   <artifactId>sql</artifactId>
   <version>0.4.5-SNAPSHOT</version>
   <name>${project.groupId}:${project.artifactId}</name>
+  <url>https://sql.fastjax.org/</url>
   <description>
     Wrappers for common SQL patterns.
   </description>
