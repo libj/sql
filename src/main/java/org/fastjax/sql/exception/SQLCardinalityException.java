@@ -18,6 +18,9 @@ package org.fastjax.sql.exception;
 
 import java.sql.SQLException;
 
+/**
+ * A {@link SQLException} to signal a cardinality error.
+ */
 public class SQLCardinalityException extends SQLException {
   private static final long serialVersionUID = -3041324676621715651L;
 

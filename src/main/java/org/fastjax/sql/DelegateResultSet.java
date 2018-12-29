@@ -52,7 +52,7 @@ public abstract class DelegateResultSet implements ResultSet {
   /**
    * The target {@link ResultSet}.
    */
-  protected ResultSet target;
+  protected volatile ResultSet target;
 
   /**
    * Creates a new {@code FilterResultSet} with the specified {@code target}.

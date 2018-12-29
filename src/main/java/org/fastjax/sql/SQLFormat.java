@@ -21,9 +21,20 @@ import java.util.StringTokenizer;
 
 import org.fastjax.util.Strings;
 
+/**
+ * Utility for formatting SQL.
+ * <p>
+ * <i><b>Note</b>: This class is a work in progress!</i>
+ */
 public final class SQLFormat {
-  private static final String[] reserveds = new String[] {"ALL", "AND", "BY", "DISTINCT", "FROM", "GROUP", "HAVING", "JOIN", "LEFT", "ON", "OR", "ORDER", "OUTER", "SELECT", "WHERE"};
+  private static final String[] reserveds = {"ALL", "AND", "BY", "DISTINCT", "FROM", "GROUP", "HAVING", "JOIN", "LEFT", "ON", "OR", "ORDER", "OUTER", "SELECT", "WHERE"};
 
+  /**
+   * Format the specified SQL (i.e. "pretty print").
+   *
+   * @param sql The SQL string.
+   * @return The formatted SQL string.
+   */
   public static String format(final String sql) {
     final String ws = " \t\n\r\f";
     final String delims = " \t\n\r\f(),";

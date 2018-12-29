@@ -18,6 +18,10 @@ package org.fastjax.sql.exception;
 
 import java.sql.SQLException;
 
+/**
+ * A {@link SQLException} to signal an error with the dependent privilege
+ * descriptors.
+ */
 public class SQLDependentPrivilegeDescriptorsException extends SQLException {
   private static final long serialVersionUID = 8518998344642080879L;
 

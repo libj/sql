@@ -18,6 +18,9 @@ package org.fastjax.sql.exception;
 
 import java.sql.SQLException;
 
+/**
+ * A {@link SQLException} to signal a connection error.
+ */
 public class SQLConnectionException extends SQLException {
   private static final long serialVersionUID = -6805255607691275191L;
 

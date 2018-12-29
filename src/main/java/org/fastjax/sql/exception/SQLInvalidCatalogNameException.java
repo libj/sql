@@ -18,6 +18,9 @@ package org.fastjax.sql.exception;
 
 import java.sql.SQLException;
 
+/**
+ * A {@link SQLException} to signal an invalid catalog name.
+ */
 public class SQLInvalidCatalogNameException extends SQLException {
   private static final long serialVersionUID = -7212085230114811715L;
 

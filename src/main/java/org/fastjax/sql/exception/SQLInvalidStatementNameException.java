@@ -18,6 +18,9 @@ package org.fastjax.sql.exception;
 
 import java.sql.SQLException;
 
+/**
+ * A {@link SQLException} to signal an invalid statement name.
+ */
 public class SQLInvalidStatementNameException extends SQLException {
   private static final long serialVersionUID = -682853228748724806L;
 

@@ -24,7 +24,11 @@ import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.SQLInvalidAuthorizationSpecException;
 import java.util.HashMap;
 
-public class SQLExceptionCatalog {
+/**
+ * A catalog of strong exception types that can be dereferenced by the
+ * {@link SQLException#getSQLState()} via {@link #getStrongType(SQLException)}.
+ */
+public final class SQLExceptions {
   private static final HashMap<String,Class<? extends SQLException>> categories = new HashMap<>();
 
   // Spec: http://www.contrib.andrew.cmu.edu/~shadow/sql/sql1992.txt
@@ -52,7 +56,17 @@ public class SQLExceptionCatalog {
     categories.put("3F", SQLInvalidSchemaNameException.class);
   }
 
-  public static SQLException lookup(final SQLException exception) {
+  /**
+   * Returns the strong exception type for the specified {@code SQLException},
+   * or {@code null} if one is not registered. The specified exception's
+   * {@link SQLException#getSQLState()} method is used to dereference the
+   * appropriate strong exception type.
+   *
+   * @param exception The {@code SQLException}.
+   * @return The strong exception type for the specified {@code SQLException},
+   *         or {@code null} if one is not registered.
+   */
+  public static SQLException getStrongType(final SQLException exception) {
     final String sqlState = exception.getSQLState();
     if (sqlState == null || sqlState.length() < 2)
       return exception;
@@ -62,7 +76,6 @@ public class SQLExceptionCatalog {
       return exception;
 
     try {
-      // FIXME: This is not kosher!
       final Constructor<? extends SQLException> constructor = category.getConstructor(String.class, String.class, int.class);
       final SQLException sqlException = constructor.newInstance(exception.getMessage(), exception.getSQLState(), exception.getErrorCode());
       sqlException.initCause(exception.getCause());
@@ -70,7 +83,10 @@ public class SQLExceptionCatalog {
       return sqlException;
     }
     catch (final ReflectiveOperationException e) {
-      throw new UnsupportedOperationException("Attempted to instantiate " + category.getName(), e);
+      throw new UnsupportedOperationException("Attempted to instantiate: " + category.getName(), e);
     }
+  }
+
+  private SQLExceptions() {
   }
 }

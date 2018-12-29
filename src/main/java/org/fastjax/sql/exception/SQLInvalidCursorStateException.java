@@ -18,6 +18,9 @@ package org.fastjax.sql.exception;
 
 import java.sql.SQLException;
 
+/**
+ * A {@link SQLException} to signal an invalid cursor state.
+ */
 public class SQLInvalidCursorStateException extends SQLException {
   private static final long serialVersionUID = -8132215601095093770L;
 

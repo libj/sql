@@ -49,7 +49,7 @@ public abstract class DelegateConnection implements Connection {
   /**
    * The target {@link Connection}.
    */
-  protected Connection target;
+  protected volatile Connection target;
 
   /**
    * Creates a new {@code DelegateConnection} with the specified

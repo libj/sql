@@ -18,6 +18,9 @@ package org.fastjax.sql.exception;
 
 import java.sql.SQLException;
 
+/**
+ * A {@link SQLException} to signal an invalid schema name.
+ */
 public class SQLInvalidSchemaNameException extends SQLException {
   private static final long serialVersionUID = 1348084743318425264L;
 
