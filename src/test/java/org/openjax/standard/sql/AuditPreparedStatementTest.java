@@ -28,7 +28,6 @@ import java.sql.Timestamp;
 import java.sql.Types;
 
 import org.junit.Test;
-import org.openjax.standard.sql.AuditPreparedStatement;
 
 public class AuditPreparedStatementTest {
   private static AuditPreparedStatement prepareStatement(final String sql, final Object ... parameters) throws SQLException {

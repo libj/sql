@@ -17,7 +17,6 @@
 package org.openjax.standard.sql;
 
 import org.junit.Test;
-import org.openjax.standard.sql.SQLFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

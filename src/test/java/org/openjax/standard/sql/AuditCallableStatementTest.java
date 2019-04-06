@@ -27,7 +27,6 @@ import java.sql.Timestamp;
 import java.sql.Types;
 
 import org.junit.Test;
-import org.openjax.standard.sql.AuditCallableStatement;
 
 public class AuditCallableStatementTest {
   private static AuditCallableStatement prepareCall(final String sql, final String[] names, final Object[] parameters) throws SQLException {
