@@ -1,4 +1,4 @@
-package org.openjax.standard.sql;
+package org.openjax.ext.sql;
 
 import java.io.InputStream;
 import java.io.Reader;

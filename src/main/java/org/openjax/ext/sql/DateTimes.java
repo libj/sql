@@ -14,7 +14,7 @@
  * program. If not, see <http://opensource.org/licenses/MIT/>.
  */
 
-package org.openjax.standard.sql;
+package org.openjax.ext.sql;
 
 import java.sql.Date;
 import java.sql.Time;
@@ -22,7 +22,7 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 
-import org.openjax.standard.util.Dates;
+import org.openjax.ext.util.Dates;
 
 /**
  * Utility functions for operations pertaining to {@link Date} and {@link Time}.

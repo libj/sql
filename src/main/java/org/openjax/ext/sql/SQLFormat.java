@@ -14,12 +14,12 @@
  * program. If not, see <http://opensource.org/licenses/MIT/>.
  */
 
-package org.openjax.standard.sql;
+package org.openjax.ext.sql;
 
 import java.util.Arrays;
 import java.util.StringTokenizer;
 
-import org.openjax.standard.util.Strings;
+import org.openjax.ext.util.Strings;
 
 /**
  * Utility for formatting SQL.

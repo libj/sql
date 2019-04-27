@@ -14,7 +14,7 @@
  * program. If not, see <http://opensource.org/licenses/MIT/>.
  */
 
-package org.openjax.standard.sql;
+package org.openjax.ext.sql;
 
 import org.junit.Test;
 import org.slf4j.Logger;

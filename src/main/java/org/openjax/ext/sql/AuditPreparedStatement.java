@@ -14,7 +14,7 @@
  * program. If not, see <http://opensource.org/licenses/MIT/>.
  */
 
-package org.openjax.standard.sql;
+package org.openjax.ext.sql;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -44,8 +44,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.openjax.standard.util.DecimalFormatter;
-import org.openjax.standard.util.Hexadecimal;
+import org.openjax.ext.util.DecimalFormatter;
+import org.openjax.ext.util.Hexadecimal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
