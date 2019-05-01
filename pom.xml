@@ -26,9 +26,9 @@
   </parent>
   <artifactId>sql</artifactId>
   <version>0.4.5-SNAPSHOT</version>
-  <name>${project.groupId}:${project.artifactId}</name>
+  <name>OpenJAX Extensions SQL</name>
   <description>
-    Common SQL patterns.
+    A supplementary extension to the java.sql package, providing common functions and abstractions related to SQL.
   </description>
   <dependencies>
     <dependency>
