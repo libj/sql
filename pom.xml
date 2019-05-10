@@ -28,7 +28,7 @@
   <version>0.4.5-SNAPSHOT</version>
   <name>LibJ SQL</name>
   <description>
-    A supplementary extension to the java.sql package, providing common functions and abstractions related to SQL.
+    Supplementary extensions to the java.sql package, providing common functions and abstractions related to SQL.
   </description>
   <dependencies>
     <dependency>
