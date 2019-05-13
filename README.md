@@ -1,7 +1,5 @@
 # LibJ SQL
 
-> Supplementary patterns for the `java.sql` package.
-
 [![Build Status](https://travis-ci.org/libj/sql.png)](https://travis-ci.org/libj/sql)
 [![Coverage Status](https://coveralls.io/repos/github/libj/sql/badge.svg?branch=master)](https://coveralls.io/github/libj/sql?branch=master)
 [![Javadocs](https://www.javadoc.io/badge/org.libj/sql.svg)](https://www.javadoc.io/doc/org.libj/sql)
@@ -9,7 +7,7 @@
 
 ## Introduction
 
-The LibJ sql library provides supplementary extensions to the `java.sql` package, as well as common functions and abstractions related to SQL.
+The LibJ SQL library provides supplementary extensions to the `java.sql` package, as well as common functions and abstractions related to SQL.
 
 ## Contributing
 
