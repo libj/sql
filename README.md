@@ -1,9 +1,9 @@
 # LibJ SQL
 
-[![Build Status](https://travis-ci.org/libj/sql.png)](https://travis-ci.org/libj/sql)
+[![Build Status](https://travis-ci.org/libj/sql.svg?1)](https://travis-ci.org/libj/sql)
 [![Coverage Status](https://coveralls.io/repos/github/libj/sql/badge.svg?branch=master)](https://coveralls.io/github/libj/sql?branch=master)
-[![Javadocs](https://www.javadoc.io/badge/org.libj/sql.svg)](https://www.javadoc.io/doc/org.libj/sql)
-[![Released Version](https://img.shields.io/maven-central/v/org.libj/sql.svg)](https://mvnrepository.com/artifact/org.libj/sql)
+[![Javadocs](https://www.javadoc.io/badge/org.libj/sql.svg?1)](https://www.javadoc.io/doc/org.libj/sql)
+[![Released Version](https://img.shields.io/maven-central/v/org.libj/sql.svg?1)](https://mvnrepository.com/artifact/org.libj/sql)
 
 ## Introduction
 
