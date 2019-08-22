@@ -1010,7 +1010,7 @@ public abstract class DelegateResultSet implements ResultSet {
   }
 
   @Override
-  public <T extends Object>T unwrap(final Class<T> iface) throws SQLException {
+  public <T>T unwrap(final Class<T> iface) throws SQLException {
     return target.unwrap(iface);
   }
 

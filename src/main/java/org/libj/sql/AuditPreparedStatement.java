@@ -84,15 +84,15 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
       return "'" + value + "'";
 
     if (value instanceof Byte) {
-      final byte ch = ((Byte)value).byteValue();
-      return ' ' < ch && ch < '~' ? "'" + Character.toString((char)ch) + "'" : ("0x" + Integer.toHexString(ch & 0xFF).toUpperCase());
+      final byte ch = (Byte)value;
+      return ' ' < ch && ch < '~' ? "'" + (char)ch + "'" : ("0x" + Integer.toHexString(ch & 0xFF).toUpperCase());
     }
 
     if (value instanceof Number)
       return numberFormat.get().format(value);
 
     if (value instanceof Boolean)
-      return ((Boolean)value).booleanValue() ? "TRUE" : "FALSE";
+      return (Boolean)value ? "TRUE" : "FALSE";
 
     if (value != null)
       return value.toString();

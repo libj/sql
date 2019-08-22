@@ -566,7 +566,7 @@ public interface DelegateCallableStatement extends DelegatePreparedStatement, Ca
   }
 
   @Override
-  default <T extends Object> T unwrap(final Class<T> iface) throws SQLException {
+  default <T>T unwrap(final Class<T> iface) throws SQLException {
     return getTarget().unwrap(iface);
   }
 
