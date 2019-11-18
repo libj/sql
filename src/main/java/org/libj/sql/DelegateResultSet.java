@@ -40,11 +40,11 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * A {@code FilterResultSet} contains some other {@link ResultSet}, possibly
+ * A {@link DelegateResultSet} contains some other {@link ResultSet}, possibly
  * transforming the method parameters along the way or providing additional
- * functionality. The class {@code FilterResultSet} itself simply overrides all
- * methods of {@link ResultSet} with versions that delegate all calls to the
- * source {@link ResultSet}. Subclasses of {@code FilterResultSet} may further
+ * functionality. The class {@link DelegateResultSet} itself simply overrides
+ * all methods of {@link ResultSet} with versions that delegate all calls to the
+ * source {@link ResultSet}. Subclasses of {@link DelegateResultSet} may further
  * override some of these methods and may also provide additional methods and
  * fields.
  */
@@ -55,7 +55,7 @@ public abstract class DelegateResultSet implements ResultSet {
   protected volatile ResultSet target;
 
   /**
-   * Creates a new {@code FilterResultSet} with the specified {@code target}.
+   * Creates a new {@link DelegateResultSet} with the specified {@code target}.
    *
    * @param target The target {@link ResultSet} object.
    * @throws NullPointerException If {@code target} is null.
@@ -65,7 +65,7 @@ public abstract class DelegateResultSet implements ResultSet {
   }
 
   /**
-   * Creates a new {@code FilterResultSet} with a null target.
+   * Creates a new {@link DelegateResultSet} with a null target.
    */
   protected DelegateResultSet() {
   }

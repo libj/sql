@@ -39,17 +39,20 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 
 /**
- * A {@code DelegatePreparedStatement} delegates to some other
+ * A {@link DelegatePreparedStatement} delegates to some other
  * {@link Statement}, possibly transforming the method parameters along the way
  * or providing additional functionality. The class
- * {@code DelegatePreparedStatement} itself simply implements default methods of
+ * {@link DelegatePreparedStatement} itself simply implements default methods of
  * the {@link Statement} interface with versions that delegate all calls to the
  * object returned by {@link #getTarget()}. Subclasses of
- * {@code DelegatePreparedStatement} may further override some of these methods
+ * {@link DelegatePreparedStatement} may further override some of these methods
  * and may also provide additional methods and fields.
  */
 public interface DelegatePreparedStatement extends DelegateStatement, PreparedStatement {
   /**
+   * Returns the target {@link PreparedStatement} to which all method calls will
+   * be delegated.
+   *
    * @return The target {@link PreparedStatement} to which all method calls will
    *         be delegated.
    */

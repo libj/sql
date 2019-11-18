@@ -57,13 +57,13 @@ public final class SQLExceptions {
   }
 
   /**
-   * Returns the strong exception type for the specified {@code SQLException},
+   * Returns the strong exception type for the specified {@link SQLException},
    * or {@code null} if one is not registered. The specified exception's
    * {@link SQLException#getSQLState()} method is used to dereference the
    * appropriate strong exception type.
    *
-   * @param exception The {@code SQLException}.
-   * @return The strong exception type for the specified {@code SQLException},
+   * @param exception The {@link SQLException}.
+   * @return The strong exception type for the specified {@link SQLException},
    *         or {@code null} if one is not registered.
    */
   public static SQLException getStrongType(final SQLException exception) {

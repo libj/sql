@@ -32,7 +32,7 @@ import org.slf4j.event.Level;
  * A {@link Statement} that delegates all method calls to another statement.
  * This class overrides all execution methods in order to log the SQL that is
  * executed. When an "execute" method is invoked, it will be logged to the
- * logger associated with the {@code AuditStatement} class.
+ * logger associated with the {@link AuditStatement} class.
  */
 public class AuditStatement implements DelegateStatement {
   private static final Logger logger = LoggerFactory.getLogger(AuditStatement.class);
@@ -45,7 +45,7 @@ public class AuditStatement implements DelegateStatement {
    * This method differs itself from {@link Statement#close()} by not throwing a
    * {@link SQLException} if a database access error occurs. If a database
    * access error occurs, a warning will be logged to the logger associated with
-   * the {@code AuditStatement} class.
+   * the {@link AuditStatement} class.
    *
    * @param statement The {@link Statement} to close.
    * @throws NullPointerException If {@code statement} is null.
@@ -63,7 +63,7 @@ public class AuditStatement implements DelegateStatement {
   private final Statement target;
 
   /**
-   * Creates a new {@code AuditStatement} with the specified {@code target} to
+   * Creates a new {@link AuditStatement} with the specified {@code target} to
    * which all method calls will be delegated.
    *
    * @param target The {@link Statement} to which all method calls will be

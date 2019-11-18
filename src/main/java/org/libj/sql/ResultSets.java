@@ -31,7 +31,7 @@ public final class ResultSets {
    * This method differs itself from {@link ResultSet#close()} by not throwing a
    * {@link SQLException} if a database access error occurs. If a database
    * access error occurs, a warning will be logged to the logger associated with
-   * the {@code AuditConnection} class.
+   * the {@link AuditConnection} class.
    *
    * @param resultSet The {@link ResultSet} to close.
    * @throws NullPointerException If {@code resultSet} is null.

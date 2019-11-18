@@ -37,17 +37,20 @@ import java.util.Calendar;
 import java.util.Map;
 
 /**
- * A {@code DelegateCallableStatement} delegates to some other
+ * A {@link DelegateCallableStatement} delegates to some other
  * {@link Statement}, possibly transforming the method parameters along the way
  * or providing additional functionality. The class
- * {@code DelegateCallableStatement} itself simply implements default methods of
+ * {@link DelegateCallableStatement} itself simply implements default methods of
  * the {@link Statement} interface with versions that delegate all calls to the
  * object returned by {@link #getTarget()}. Subclasses of
- * {@code DelegateCallableStatement} may further override some of these methods
+ * {@link DelegateCallableStatement} may further override some of these methods
  * and may also provide additional methods and fields.
  */
 public interface DelegateCallableStatement extends DelegatePreparedStatement, CallableStatement {
   /**
+   * Returns the target {@link CallableStatement} to which all method calls will
+   * be delegated.
+   *
    * @return The target {@link CallableStatement} to which all method calls will
    *         be delegated.
    */

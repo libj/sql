@@ -37,11 +37,11 @@ import java.util.Properties;
 import java.util.concurrent.Executor;
 
 /**
- * A {@code DelegateConnection} contains some other {@link Connection}, possibly
+ * A {@link DelegateConnection} contains some other {@link Connection}, possibly
  * transforming the method parameters along the way or providing additional
- * functionality. The class {@code DelegateConnection} itself simply overrides
+ * functionality. The class {@link DelegateConnection} itself simply overrides
  * all methods of {@link Connection} with versions that delegate all calls to
- * the target {@link Connection}. Subclasses of {@code DelegateConnection} may
+ * the target {@link Connection}. Subclasses of {@link DelegateConnection} may
  * further override some of these methods and may also provide additional
  * methods and fields.
  */
@@ -52,7 +52,7 @@ public abstract class DelegateConnection implements Connection {
   protected volatile Connection target;
 
   /**
-   * Creates a new {@code DelegateConnection} with the specified
+   * Creates a new {@link DelegateConnection} with the specified
    * {@code target}.
    *
    * @param target The target {@link Connection} object.
@@ -63,7 +63,7 @@ public abstract class DelegateConnection implements Connection {
   }
 
   /**
-   * Creates a new {@code DelegateConnection} with a null target.
+   * Creates a new {@link DelegateConnection} with a null target.
    */
   protected DelegateConnection() {
   }

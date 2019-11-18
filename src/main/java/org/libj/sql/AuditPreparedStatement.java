@@ -54,7 +54,7 @@ import org.slf4j.LoggerFactory;
  * statement. This class overrides all execution methods in order to log the SQL
  * that is executed. When an "execute" method is invoked, a debug message with
  * the executed SQL will be logged to the logger associated with the
- * {@code AuditPreparedStatement} class.
+ * {@link AuditPreparedStatement} class.
  * <p>
  * This class overrides {@link Object#toString()} to return a detailed rendering
  * of the prepared SQL statement with its parameters applied.
@@ -160,7 +160,7 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
   private final String sql;
 
   /**
-   * Creates a new {@code AuditPreparedStatement} with the specified
+   * Creates a new {@link AuditPreparedStatement} with the specified
    * {@code target} to which all method calls will be delegated.
    *
    * @param target The {@link PreparedStatement} to which all method calls will
@@ -180,6 +180,8 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
   }
 
   /**
+   * Returns the map of index-to-value parameters for the current batch.
+   *
    * @return The map of index-to-value parameters for the current batch.
    */
   protected Map<Object,Object> getCurrentParameterMap() {

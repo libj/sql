@@ -23,16 +23,19 @@ import java.sql.SQLWarning;
 import java.sql.Statement;
 
 /**
- * A {@code DelegateStatement} delegates to some other {@link Statement},
+ * A {@link DelegateStatement} delegates to some other {@link Statement},
  * possibly transforming the method parameters along the way or providing
- * additional functionality. The class {@code DelegateStatement} itself simply
+ * additional functionality. The class {@link DelegateStatement} itself simply
  * implements default methods of the {@link Statement} interface with versions
  * that delegate all calls to the object returned by {@link #getTarget()}.
- * Subclasses of {@code DelegateStatement} may further override some of these
+ * Subclasses of {@link DelegateStatement} may further override some of these
  * methods and may also provide additional methods and fields.
  */
 public interface DelegateStatement extends Statement {
   /**
+   * Returns the target {@link Statement} to which all method calls will be
+   * delegated.
+   *
    * @return The target {@link Statement} to which all method calls will be
    *         delegated.
    */

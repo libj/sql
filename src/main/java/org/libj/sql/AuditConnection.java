@@ -45,7 +45,7 @@ public class AuditConnection extends DelegateConnection {
    * This method differs itself from {@link Connection#close()} by not throwing
    * a {@link SQLException} if a database access error occurs. If a database
    * access error occurs, a warning will be logged to the logger associated with
-   * the {@code AuditConnection} class.
+   * the {@link AuditConnection} class.
    *
    * @param connection The connection to be closed.
    * @throws NullPointerException If {@code connection} is null.
@@ -61,7 +61,7 @@ public class AuditConnection extends DelegateConnection {
   }
 
   /**
-   * Creates a new {@code AuditConnection} with the specified {@code target} to
+   * Creates a new {@link AuditConnection} with the specified {@code target} to
    * which all method calls will be delegated.
    *
    * @param target The {@link Connection} to which all method calls will be
