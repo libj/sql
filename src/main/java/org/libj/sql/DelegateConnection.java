@@ -337,4 +337,26 @@ public abstract class DelegateConnection implements Connection {
   public int getNetworkTimeout() throws SQLException {
     return target.getNetworkTimeout();
   }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (obj == this)
+      return true;
+
+    if (!(obj instanceof DelegateConnection))
+      return false;
+
+    final DelegateConnection that = (DelegateConnection)obj;
+    return target != null ? target.equals(that.target) : that.target == null;
+  }
+
+  @Override
+  public int hashCode() {
+    return target == null ? 733 : target.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    return String.valueOf(target);
+  }
 }

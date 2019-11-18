@@ -1028,4 +1028,26 @@ public abstract class DelegateResultSet implements ResultSet {
   public <T>T getObject(final String columnLabel, final Class<T> type) throws SQLException {
     return target.getObject(columnLabel, type);
   }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (obj == this)
+      return true;
+
+    if (!(obj instanceof DelegateResultSet))
+      return false;
+
+    final DelegateResultSet that = (DelegateResultSet)obj;
+    return target != null ? target.equals(that.target) : that.target == null;
+  }
+
+  @Override
+  public int hashCode() {
+    return target == null ? 733 : target.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    return String.valueOf(target);
+  }
 }
