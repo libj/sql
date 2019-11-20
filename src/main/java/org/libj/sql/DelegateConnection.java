@@ -46,17 +46,15 @@ import java.util.concurrent.Executor;
  * methods and fields.
  */
 public abstract class DelegateConnection implements Connection {
-  /**
-   * The target {@link Connection}.
-   */
+  /** The target {@link Connection}. */
   protected volatile Connection target;
 
   /**
-   * Creates a new {@link DelegateConnection} with the specified
-   * {@code target}.
+   * Creates a new {@link DelegateConnection} with the specified target
+   * {@link Connection}.
    *
-   * @param target The target {@link Connection} object.
-   * @throws NullPointerException If {@code target} is null.
+   * @param target The target {@link Connection}.
+   * @throws NullPointerException If the target {@link Connection} is null.
    */
   public DelegateConnection(final Connection target) {
     this.target = Objects.requireNonNull(target);

@@ -49,16 +49,15 @@ import java.util.Objects;
  * fields.
  */
 public abstract class DelegateResultSet implements ResultSet {
-  /**
-   * The target {@link ResultSet}.
-   */
+  /** The target {@link ResultSet}. */
   protected volatile ResultSet target;
 
   /**
-   * Creates a new {@link DelegateResultSet} with the specified {@code target}.
+   * Creates a new {@link DelegateResultSet} with the specified target
+   * {@link ResultSet}.
    *
-   * @param target The target {@link ResultSet} object.
-   * @throws NullPointerException If {@code target} is null.
+   * @param target The target {@link ResultSet}.
+   * @throws NullPointerException If the target {@link ResultSet} is null.
    */
   public DelegateResultSet(final ResultSet target) {
     this.target = Objects.requireNonNull(target);
