@@ -24,7 +24,7 @@ import org.libj.util.Strings;
 /**
  * Utility for formatting SQL.
  * <p>
- * <i><b>Note</b>: This class is a work in progress!</i>
+ * <b>Note</b>: This class is a work in progress!
  */
 public final class SQLFormat {
   private static final String[] reserveds = {"ALL", "AND", "BY", "DISTINCT", "FROM", "GROUP", "HAVING", "JOIN", "LEFT", "ON", "OR", "ORDER", "OUTER", "SELECT", "WHERE"};
