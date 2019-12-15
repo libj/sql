@@ -1042,7 +1042,7 @@ public abstract class DelegateResultSet implements ResultSet {
 
   @Override
   public int hashCode() {
-    return target == null ? 733 : target.hashCode();
+    return target == null ? 0 : target.hashCode();
   }
 
   @Override
