@@ -19,7 +19,7 @@ package org.libj.sql;
 import java.util.Arrays;
 import java.util.StringTokenizer;
 
-import org.libj.util.Strings;
+import org.libj.lang.Strings;
 
 /**
  * Utility for formatting SQL.
