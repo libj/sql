@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.libj.lang.Strings;
 import org.libj.logging.LoggerUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -175,10 +176,10 @@ public class AuditStatement implements DelegateStatement {
         final StringBuilder builder = new StringBuilder("[").append(getClass().getName()).append('@').append(Integer.toHexString(hashCode())).append("].executeBatch() {");
         if (count != null)
           for (int i = 0; i < batch.size(); ++i)
-            builder.append("\n  ").append(batch.get(i).replaceAll("\n", "\n  ")).append(" -> ").append(count[i]);
+            builder.append('\n').append(Strings.indent(batch.get(i), 2)).append(" -> ").append(count[i]);
         else
           for (int i = 0; i < batch.size(); ++i)
-            builder.append("\n  ").append(batch.get(i).replaceAll("\n", "\n  ")).append(" -> -1");
+            builder.append('\n').append(Strings.indent(batch.get(i), 2)).append(" -> -1");
 
         builder.append("\n} ").append(System.currentTimeMillis() - time).append("ms");
         logger.debug(builder.toString());

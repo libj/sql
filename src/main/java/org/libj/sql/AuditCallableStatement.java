@@ -308,7 +308,7 @@ public class AuditCallableStatement extends AuditPreparedStatement implements De
   }
 
   @Override
-  public void setObject(final String parameterName, final Object x, int targetSqlType, final int scale) throws SQLException {
+  public void setObject(final String parameterName, final Object x, final int targetSqlType, final int scale) throws SQLException {
     getTarget().setObject(parameterName, x, targetSqlType, scale);
     getCurrentParameterMap().put(parameterName, x);
   }

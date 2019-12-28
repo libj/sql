@@ -335,7 +335,7 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
   }
 
   @Override
-  public void setObject(final int parameterIndex, final Object x, int targetSqlType, final int scale) throws SQLException {
+  public void setObject(final int parameterIndex, final Object x, final int targetSqlType, final int scale) throws SQLException {
     getTarget().setObject(parameterIndex, x, targetSqlType, scale);
     getCurrentParameterMap().put(parameterIndex, x);
   }

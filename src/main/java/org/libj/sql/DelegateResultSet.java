@@ -1037,7 +1037,7 @@ public abstract class DelegateResultSet implements ResultSet {
       return false;
 
     final DelegateResultSet that = (DelegateResultSet)obj;
-    return target != null ? target.equals(that.target) : that.target == null;
+    return Objects.equals(target, that.target);
   }
 
   @Override

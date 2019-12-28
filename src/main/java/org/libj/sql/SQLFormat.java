@@ -40,7 +40,7 @@ public final class SQLFormat {
     final String delims = " \t\n\r\f(),";
     final StringTokenizer tokenizer = new StringTokenizer(sql, delims, true);
     int depth = 0;
-    String out = "";
+    final StringBuilder out = new StringBuilder();
 //    String prev = null;
     boolean lastReserved = true;
     boolean lastDelimNonWS = false;
@@ -49,12 +49,12 @@ public final class SQLFormat {
       final boolean delim = token.length() == 1 && delims.contains(token);
       if (delim) {
         if (")".equals(token))
-          out += "\n" + Strings.padRight("", depth * 2) + token;
+          out.append('\n').append(Strings.padRight("", depth * 2)).append(token);
         else if (!lastDelimNonWS)
-          out += token;
+          out.append(token);
 
         if (",".equals(token))
-          out += "\n" + Strings.padRight("", depth * 2);
+          out.append('\n').append(Strings.padRight("", depth * 2));
 
         if (!ws.contains(token))
           lastDelimNonWS = delim;
@@ -65,20 +65,20 @@ public final class SQLFormat {
         if (reserved) {
           if (!lastReserved) {
             --depth;
-            out += "\n";
+            out.append('\n');
           }
         }
         else if (lastReserved) {
           ++depth;
-          out += "\n" + Strings.padRight("", depth * 2);
+          out.append('\n').append(Strings.padRight("", depth * 2));
         }
 
         lastReserved = reserved;
-        out += token;
+        out.append(token);
       }
     }
 
-    return out;
+    return out.toString();
   }
 
   private SQLFormat() {

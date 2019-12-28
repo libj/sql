@@ -222,12 +222,12 @@ public abstract class DelegateConnection implements Connection {
   }
 
   @Override
-  public PreparedStatement prepareStatement(final String sql, final int resultSetType, int resultSetConcurrency, final int resultSetHoldability) throws SQLException {
+  public PreparedStatement prepareStatement(final String sql, final int resultSetType, final int resultSetConcurrency, final int resultSetHoldability) throws SQLException {
     return target.prepareStatement(sql, resultSetType, resultSetConcurrency, resultSetHoldability);
   }
 
   @Override
-  public CallableStatement prepareCall(final String sql, final int resultSetType, int resultSetConcurrency, final int resultSetHoldability) throws SQLException {
+  public CallableStatement prepareCall(final String sql, final int resultSetType, final int resultSetConcurrency, final int resultSetHoldability) throws SQLException {
     return target.prepareCall(sql, resultSetType, resultSetConcurrency, resultSetHoldability);
   }
 
@@ -345,7 +345,7 @@ public abstract class DelegateConnection implements Connection {
       return false;
 
     final DelegateConnection that = (DelegateConnection)obj;
-    return target != null ? target.equals(that.target) : that.target == null;
+    return Objects.equals(target, that.target);
   }
 
   @Override

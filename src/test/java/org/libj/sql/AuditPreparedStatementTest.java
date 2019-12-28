@@ -32,7 +32,7 @@ import org.junit.Test;
 public class AuditPreparedStatementTest {
   private static AuditPreparedStatement prepareStatement(final String sql, final Object ... parameters) throws SQLException {
     final AuditPreparedStatement statement = new AuditPreparedStatement(new MockPreparedStatement(), sql);
-    for (int i = 0; i < parameters.length ; ++i) {
+    for (int i = 0; i < parameters.length; ++i) {
       final Object parameter = parameters[i];
       if (parameter == null)
         statement.setNull(i + 1, Types.VARCHAR);
@@ -83,7 +83,7 @@ public class AuditPreparedStatementTest {
     assertEquals("SELECT * FROM foo WHERE a = 7465", prepareStatement("SELECT * FROM foo WHERE a = ?", (short)7465).toString());
     assertEquals("SELECT * FROM foo WHERE a = 1", prepareStatement("SELECT * FROM foo WHERE a = ?", 1).toString());
     assertEquals("SELECT * FROM foo WHERE a = 2.5", prepareStatement("SELECT * FROM foo WHERE a = ?", 2.5f).toString());
-    assertEquals("SELECT * FROM foo WHERE a = 821492734784237", prepareStatement("SELECT * FROM foo WHERE a = ?", BigDecimal.valueOf(821492734784237l)).toString());
+    assertEquals("SELECT * FROM foo WHERE a = 821492734784237", prepareStatement("SELECT * FROM foo WHERE a = ?", BigDecimal.valueOf(821492734784237L)).toString());
   }
 
   @Test

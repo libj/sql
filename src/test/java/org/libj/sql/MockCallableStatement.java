@@ -128,7 +128,7 @@ public class MockCallableStatement extends MockPreparedStatement implements Call
   }
 
   @Override
-  public Object getObject(final int parameterIndex, Map<String,Class<?>> map) throws SQLException {
+  public Object getObject(final int parameterIndex, final Map<String,Class<?>> map) throws SQLException {
     return null;
   }
 
@@ -359,7 +359,7 @@ public class MockCallableStatement extends MockPreparedStatement implements Call
   }
 
   @Override
-  public Object getObject(final String parameterName, Map<String,Class<?>> map) throws SQLException {
+  public Object getObject(final String parameterName, final Map<String,Class<?>> map) throws SQLException {
     return null;
   }
 

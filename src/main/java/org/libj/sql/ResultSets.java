@@ -41,7 +41,7 @@ public final class ResultSets {
       if (!resultSet.isClosed())
         resultSet.close();
     }
-    catch (final SQLException e) {
+    catch (final SQLException ignored) {
     }
   }
 

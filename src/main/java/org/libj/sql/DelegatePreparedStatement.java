@@ -161,7 +161,7 @@ public interface DelegatePreparedStatement extends DelegateStatement, PreparedSt
   }
 
   @Override
-  default void setObject(final int parameterIndex, final Object x, int targetSqlType, final int scale) throws SQLException {
+  default void setObject(final int parameterIndex, final Object x, final int targetSqlType, final int scale) throws SQLException {
     getTarget().setObject(parameterIndex, x, targetSqlType, scale);
   }
 
