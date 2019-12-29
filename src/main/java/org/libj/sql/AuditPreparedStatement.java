@@ -120,7 +120,7 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
         if (colon == i - 1 && ch == '"') {
           namedQuoted = true;
         }
-        else if (ch != '#' && ch != '$' && (ch < '0' || '9' < ch) && (ch < '@' || 'Z' < ch) && ch != '_' && (ch < 'a' || 'z' < ch) || ch == '"' && namedQuoted) {
+        else if (ch == '"' && namedQuoted || ch != '#' && ch != '$' && (ch < '0' || '9' < ch) && (ch < '@' || 'Z' < ch) && ch != '_' && (ch < 'a' || 'z' < ch)) {
           i += writeParameter(builder, colon, i, parameterMap.get(builder.substring(colon + 1, i)));
           colon = -1;
         }
