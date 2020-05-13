@@ -26,7 +26,7 @@ import java.util.HashMap;
 
 /**
  * A catalog of strong exception types that can be dereferenced by the
- * {@link SQLException#getSQLState()} via {@link #getStrongType(SQLException)}.
+ * {@link SQLException#getSQLState()} via {@link #toStrongType(SQLException)}.
  */
 public final class SQLExceptions {
   private static final HashMap<String,Class<? extends SQLException>> categories = new HashMap<>();
@@ -66,7 +66,7 @@ public final class SQLExceptions {
    * @return The strong exception type for the specified {@link SQLException},
    *         or {@code null} if one is not registered.
    */
-  public static SQLException getStrongType(final SQLException exception) {
+  public static SQLException toStrongType(final SQLException exception) {
     final String sqlState = exception.getSQLState();
     if (sqlState == null || sqlState.length() < 2)
       return exception;
@@ -80,6 +80,9 @@ public final class SQLExceptions {
       final SQLException sqlException = constructor.newInstance(exception.getMessage(), exception.getSQLState(), exception.getErrorCode());
       sqlException.initCause(exception.getCause());
       sqlException.setStackTrace(exception.getStackTrace());
+      for (final Throwable suppressed : exception.getSuppressed())
+        sqlException.addSuppressed(suppressed instanceof SQLException ? toStrongType((SQLException)suppressed) : suppressed);
+
       return sqlException;
     }
     catch (final ReflectiveOperationException e) {
