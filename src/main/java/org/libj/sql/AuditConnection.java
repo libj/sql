@@ -19,6 +19,7 @@ package org.libj.sql;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -48,15 +49,21 @@ public class AuditConnection extends DelegateConnection {
    * the {@link AuditConnection} class.
    *
    * @param connection The connection to be closed.
+   * @return {@code null} if the {@link ResultSet#close()} operation is
+   *         successful, otherwise the {@link SQLException} that caused the
+   *         failure.
    * @throws NullPointerException If {@code connection} is null.
    */
-  public static void close(final Connection connection) {
+  public static SQLException close(final Connection connection) {
     try {
       if (!connection.isClosed())
         connection.close();
+
+      return null;
     }
     catch (final SQLException e) {
-      logger.warn(e.getMessage(), e);
+      logger.warn(connection.getClass().getName() + ".close(): " + e.getMessage());
+      return e;
     }
   }
 

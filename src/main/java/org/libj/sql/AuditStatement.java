@@ -38,6 +38,14 @@ import org.slf4j.event.Level;
 public class AuditStatement implements DelegateStatement {
   private static final Logger logger = LoggerFactory.getLogger(AuditStatement.class);
 
+  StringBuilder log(final String method, final String sql) {
+    final StringBuilder builder = new StringBuilder("[").append(getClass().getName()).append('@').append(Integer.toHexString(hashCode())).append("].").append(method).append("(\n");
+    if (sql != null)
+      builder.append(' ').append(sql);
+
+    return builder.append("\n)");
+  }
+
   /**
    * Releases the specified {@link Statement} object's database and JDBC
    * resources immediately instead of waiting for them to be automatically
@@ -49,15 +57,21 @@ public class AuditStatement implements DelegateStatement {
    * the {@link AuditStatement} class.
    *
    * @param statement The {@link Statement} to close.
+   * @return {@code null} if the {@link ResultSet#close()} operation is
+   *         successful, otherwise the {@link SQLException} that caused the
+   *         failure.
    * @throws NullPointerException If {@code statement} is null.
    */
-  public static void close(final Statement statement) {
+  public static SQLException close(final Statement statement) {
     try {
       if (!statement.isClosed())
         statement.close();
+
+      return null;
     }
     catch (final SQLException e) {
-      logger.warn(statement.getClass().getName() + "#close()", e);
+      logger.warn(statement.getClass().getName() + ".close(): " + e.getMessage());
+      return e;
     }
   }
 
@@ -79,11 +93,19 @@ public class AuditStatement implements DelegateStatement {
     return target;
   }
 
+  static StringBuilder withResult(final StringBuilder builder, final Object result, final long time) {
+    builder.append(" -> ").append(result).append("\t\t").append((System.currentTimeMillis() - time)).append("ms");
+    return builder;
+  }
+
   @Override
   public ResultSet executeQuery(final String sql) throws SQLException {
     int size = -1;
     final long time = System.currentTimeMillis();
     try {
+      if (logger.isTraceEnabled())
+        logger.trace(log("executeQuery", sql).toString());
+
       final ResultSet resultSet = getTarget().executeQuery(sql);
       if (LoggerUtil.isLoggable(logger, Level.DEBUG))
         size = ResultSets.getSize(resultSet);
@@ -91,11 +113,8 @@ public class AuditStatement implements DelegateStatement {
       return resultSet;
     }
     finally {
-      if (logger.isDebugEnabled()) {
-        final StringBuilder builder = new StringBuilder("[").append(getClass().getName()).append('@').append(Integer.toHexString(hashCode())).append("].executeQuery(\n");
-        builder.append(sql).append("\n) -> ").append(size).append("\t\t").append((System.currentTimeMillis() - time)).append("ms");
-        logger.debug(builder.toString());
-      }
+      if (logger.isDebugEnabled())
+        logger.debug(withResult(log("executeQuery", sql), size, time).toString());
     }
   }
 
@@ -104,14 +123,14 @@ public class AuditStatement implements DelegateStatement {
     final long time = System.currentTimeMillis();
     int count = -1;
     try {
+      if (logger.isTraceEnabled())
+        logger.trace(log("executeUpdate", sql).toString());
+
       return count = getTarget().executeUpdate(sql);
     }
     finally {
-      if (logger.isDebugEnabled()) {
-        final StringBuilder builder = new StringBuilder("[").append(getClass().getName()).append('@').append(Integer.toHexString(hashCode())).append("].executeUpdate(\n");
-        builder.append(sql).append("\n) -> ").append(count).append("\t\t").append((System.currentTimeMillis() - time)).append("ms");
-        logger.debug(builder.toString());
-      }
+      if (logger.isDebugEnabled())
+        logger.debug(withResult(log("executeUpdate", sql), count, time).toString());
     }
   }
 
@@ -131,14 +150,14 @@ public class AuditStatement implements DelegateStatement {
     final long time = System.currentTimeMillis();
     Boolean result = null;
     try {
+      if (logger.isTraceEnabled())
+        logger.trace(log("execute", sql).toString());
+
       return result = getTarget().execute(sql);
     }
     finally {
-      if (logger.isDebugEnabled()) {
-        final StringBuilder builder = new StringBuilder("[").append(getClass().getName()).append('@').append(Integer.toHexString(hashCode())).append("].execute(\n");
-        builder.append("  ").append(sql).append("\n) -> ").append(result).append("\t\t").append((System.currentTimeMillis() - time)).append("ms");
-        logger.debug(builder.toString());
-      }
+      if (logger.isDebugEnabled())
+        logger.debug(withResult(log("execute", sql), result, time).toString());
     }
   }
 
@@ -164,26 +183,37 @@ public class AuditStatement implements DelegateStatement {
       batch.clear();
   }
 
+  private String logBatch(final int[] count, final Long time) {
+    final StringBuilder builder = log("executeBatch", null);
+    builder.setLength(builder.length() - 1);
+    builder.append(" {");
+    if (count != null)
+      for (int i = 0; i < batch.size(); ++i)
+        builder.append('\n').append(Strings.indent(batch.get(i), 2)).append(" -> ").append(count[i]);
+    else
+      for (int i = 0; i < batch.size(); ++i)
+        builder.append('\n').append(Strings.indent(batch.get(i), 2)).append(" -> -1");
+
+    builder.append("\n}");
+    if (time != null)
+      builder.append(' ').append(System.currentTimeMillis() - time).append("ms");
+
+    return builder.toString();
+  }
+
   @Override
   public int[] executeBatch() throws SQLException {
     final long time = System.currentTimeMillis();
     int[] count = null;
     try {
+      if (logger.isTraceEnabled())
+        logger.trace(logBatch(count, null));
+
       return count = getTarget().executeBatch();
     }
     finally {
-      if (logger.isDebugEnabled()) {
-        final StringBuilder builder = new StringBuilder("[").append(getClass().getName()).append('@').append(Integer.toHexString(hashCode())).append("].executeBatch() {");
-        if (count != null)
-          for (int i = 0; i < batch.size(); ++i)
-            builder.append('\n').append(Strings.indent(batch.get(i), 2)).append(" -> ").append(count[i]);
-        else
-          for (int i = 0; i < batch.size(); ++i)
-            builder.append('\n').append(Strings.indent(batch.get(i), 2)).append(" -> -1");
-
-        builder.append("\n} ").append(System.currentTimeMillis() - time).append("ms");
-        logger.debug(builder.toString());
-      }
+      if (logger.isDebugEnabled())
+        logger.debug(logBatch(count, time));
     }
   }
 
@@ -192,14 +222,14 @@ public class AuditStatement implements DelegateStatement {
     final long time = System.currentTimeMillis();
     int count = -1;
     try {
+      if (logger.isTraceEnabled())
+        logger.trace(log("executeUpdate", sql).toString());
+
       return count = getTarget().executeUpdate(sql, autoGeneratedKeys);
     }
     finally {
-      if (logger.isDebugEnabled()) {
-        final StringBuilder builder = new StringBuilder("[").append(getClass().getName()).append('@').append(Integer.toHexString(hashCode())).append("].executeUpdate(\n");
-        builder.append(sql).append("\n, ").append(autoGeneratedKeys).append(") -> ").append(count).append("\t\t").append((System.currentTimeMillis() - time)).append("ms");
-        logger.debug(builder.toString());
-      }
+      if (logger.isDebugEnabled())
+        logger.debug(withResult(log("executeUpdate", sql).append("\n,  ").append(autoGeneratedKeys), count, time).toString());
     }
   }
 
@@ -212,9 +242,7 @@ public class AuditStatement implements DelegateStatement {
     }
     finally {
       if (logger.isDebugEnabled()) {
-        final StringBuilder builder = new StringBuilder("[").append(getClass().getName()).append('@').append(Integer.toHexString(hashCode())).append("].executeUpdate(\n");
-        builder.append(sql).append("\n, [").append(Arrays.toString(columnIndexes)).append("]) -> ").append(count).append("\t\t").append((System.currentTimeMillis() - time)).append("ms");
-        logger.debug(builder.toString());
+        logger.debug(withResult(log("executeUpdate", sql).append("\n, [").append(Arrays.toString(columnIndexes)).append("]"), count, time).toString());
       }
     }
   }
@@ -224,14 +252,14 @@ public class AuditStatement implements DelegateStatement {
     final long time = System.currentTimeMillis();
     int count = -1;
     try {
+      if (logger.isTraceEnabled())
+        logger.trace(log("executeUpdate", sql + "\n,  " + Arrays.toString(columnNames)).toString());
+
       return count = getTarget().executeUpdate(sql, columnNames);
     }
     finally {
-      if (logger.isDebugEnabled()) {
-        final StringBuilder builder = new StringBuilder("[").append(getClass().getName()).append('@').append(Integer.toHexString(hashCode())).append("].executeUpdate(\n");
-        builder.append(sql).append("\n, ").append(Arrays.toString(columnNames)).append(") -> ").append(count).append("\t\t").append((System.currentTimeMillis() - time)).append("ms");
-        logger.debug(builder.toString());
-      }
+      if (logger.isDebugEnabled())
+        logger.debug(withResult(log("executeUpdate", sql + "\n,  " + Arrays.toString(columnNames)), count, time).toString());
     }
   }
 
@@ -240,13 +268,14 @@ public class AuditStatement implements DelegateStatement {
     final long time = System.currentTimeMillis();
     Boolean result = null;
     try {
+      if (logger.isTraceEnabled())
+        logger.trace(log("execute", sql + "\n,  " + autoGeneratedKeys).toString());
+
       return result = getTarget().execute(sql, autoGeneratedKeys);
     }
     finally {
       if (logger.isDebugEnabled()) {
-        final StringBuilder builder = new StringBuilder("[").append(getClass().getName()).append('@').append(Integer.toHexString(hashCode())).append("].execute(\n");
-        builder.append(sql).append("\n, ").append(autoGeneratedKeys).append(") -> ").append(result).append("\t\t").append((System.currentTimeMillis() - time)).append("ms");
-        logger.debug(builder.toString());
+        logger.debug(withResult(log("execute", sql + "\n,  " + autoGeneratedKeys), result, time).toString());
       }
     }
   }
@@ -256,14 +285,14 @@ public class AuditStatement implements DelegateStatement {
     final long time = System.currentTimeMillis();
     Boolean result = null;
     try {
+      if (logger.isTraceEnabled())
+        logger.trace(log("execute", sql + "\n,  " + Arrays.toString(columnIndexes)).toString());
+
       return result = getTarget().execute(sql, columnIndexes);
     }
     finally {
-      if (logger.isDebugEnabled()) {
-        final StringBuilder builder = new StringBuilder("[").append(getClass().getName()).append('@').append(Integer.toHexString(hashCode())).append("].execute(\n");
-        builder.append(sql).append("\n, ").append(Arrays.toString(columnIndexes)).append(") -> ").append(result).append("\t\t").append((System.currentTimeMillis() - time)).append("ms");
-        logger.debug(builder.toString());
-      }
+      if (logger.isDebugEnabled())
+        logger.debug(withResult(log("execute", sql + "\n,  " + Arrays.toString(columnIndexes)), result, time).toString());
     }
   }
 
@@ -272,14 +301,14 @@ public class AuditStatement implements DelegateStatement {
     final long time = System.currentTimeMillis();
     Boolean result = null;
     try {
+      if (logger.isTraceEnabled())
+        logger.trace(log("execute", sql + "\n,  " + Arrays.toString(columnNames)).toString());
+
       return result = getTarget().execute(sql, columnNames);
     }
     finally {
-      if (logger.isDebugEnabled()) {
-        final StringBuilder builder = new StringBuilder("[").append(getClass().getName()).append('@').append(Integer.toHexString(hashCode())).append("].execute(\n");
-        builder.append(sql).append("\n, ").append(Arrays.toString(columnNames)).append(") -> ").append(result).append("\t\t").append((System.currentTimeMillis() - time)).append("ms");
-        logger.debug(builder.toString());
-      }
+      if (logger.isDebugEnabled())
+        logger.debug(withResult(log("execute", sql + "\n,  " + Arrays.toString(columnNames)), result, time).toString());
     }
   }
 }

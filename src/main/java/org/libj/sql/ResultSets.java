@@ -19,10 +19,15 @@ package org.libj.sql;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Utility functions for operations pertaining to {@link ResultSet}.
  */
 public final class ResultSets {
+  private static final Logger logger = LoggerFactory.getLogger(ResultSets.class);
+
   /**
    * Releases the specified {@link ResultSet} object's database and JDBC
    * resources immediately instead of waiting for them to be automatically
@@ -34,14 +39,21 @@ public final class ResultSets {
    * the {@link AuditConnection} class.
    *
    * @param resultSet The {@link ResultSet} to close.
+   * @return {@code null} if the {@link ResultSet#close()} operation is
+   *         successful, otherwise the {@link SQLException} that caused the
+   *         failure.
    * @throws NullPointerException If {@code resultSet} is null.
    */
-  public static void close(final ResultSet resultSet) {
+  public static SQLException close(final ResultSet resultSet) {
     try {
       if (!resultSet.isClosed())
         resultSet.close();
+
+      return null;
     }
-    catch (final SQLException ignored) {
+    catch (final SQLException e) {
+      logger.warn(resultSet.getClass().getName() + ".close(): " + e.getMessage());
+      return e;
     }
   }
 

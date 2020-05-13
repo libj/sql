@@ -194,6 +194,9 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
     int size = -1;
     final long time = System.currentTimeMillis();
     try {
+      if (logger.isTraceEnabled())
+        logger.trace(log("executeQuery", toString()).toString());
+
       final ResultSet resultSet = statement.executeQuery();
       if (logger.isDebugEnabled())
         size = ResultSets.getSize(resultSet);
@@ -201,11 +204,8 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
       return resultSet;
     }
     finally {
-      if (logger.isDebugEnabled()) {
-        final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append('@').append(Integer.toHexString(hashCode())).append("].executeQuery() {\n  ").append(toString());
-        buffer.append("\n} -> ").append(size).append("\t\t").append(System.currentTimeMillis() - time).append("ms");
-        logger.debug(buffer.toString());
-      }
+      if (logger.isDebugEnabled())
+        logger.debug(withResult(log("executeQuery", toString()), size, time).toString());
     }
   }
 
@@ -214,14 +214,14 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
     final long time = System.currentTimeMillis();
     int count = -1;
     try {
+      if (logger.isTraceEnabled())
+        logger.trace(log("executeUpdate", toString()).toString());
+
       return count = getTarget().executeUpdate();
     }
     finally {
-      if (logger.isDebugEnabled()) {
-        final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append('@').append(Integer.toHexString(hashCode())).append("].executeUpdate() {\n  ").append(toString());
-        buffer.append("\n} -> ").append(count).append("\t\t").append((System.currentTimeMillis() - time)).append("ms");
-        logger.debug(buffer.toString());
-      }
+      if (logger.isDebugEnabled())
+        logger.debug(withResult(log("executeUpdate", toString()), count, time).toString());
     }
   }
 
@@ -357,14 +357,14 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
     final long time = System.currentTimeMillis();
     boolean result = false;
     try {
+      if (logger.isTraceEnabled())
+        logger.trace(log("execute", toString()).toString());
+
       return result = getTarget().execute();
     }
     finally {
-      if (logger.isDebugEnabled()) {
-        final StringBuilder buffer = new StringBuilder("[").append(getClass().getName()).append('@').append(Integer.toHexString(hashCode())).append("].execute() {\n  ").append(toString());
-        buffer.append("} -> ").append(result).append("\t\t").append((System.currentTimeMillis() - time)).append("ms");
-        logger.debug(buffer.toString());
-      }
+      if (logger.isDebugEnabled())
+        logger.debug(withResult(log("execute", toString()), result, time).toString());
     }
   }
 
