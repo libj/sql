@@ -1,6 +1,8 @@
 # Changes by Version
 
-## [v0.4.7](https://github.com/libj/sql/compare/30dc2d3f7259aaaf010df901bab8d66d0046fc82..HEAD) (2020-05-23)
+## [v0.4.8-SNAPSHOT](https://github.com/libj/sql/compare/dfabf8776f41b6aabfcefecc60e96df229f13bc3..HEAD)
+
+## [v0.4.7](https://github.com/libj/sql/compare/30dc2d3f7259aaaf010df901bab8d66d0046fc82..dfabf8776f41b6aabfcefecc60e96df229f13bc3) (2020-05-23)
 * Improve `AuditPreparedStatement.toString(String,Map)`.
 * Improve logging abstraction in `AuditPreparedStatement`, `AuditStatement`, and `AuditCallableStatement`.
 * Add `equals`, `hashCode`, `toString` to `DelegateConnection` and `DelegateResultSet`.

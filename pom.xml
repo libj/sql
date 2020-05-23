@@ -22,10 +22,10 @@
   <parent>
     <groupId>org.libj</groupId>
     <artifactId>libj</artifactId>
-    <version>0.9.7</version>
+    <version>0.9.8-SNAPSHOT</version>
   </parent>
   <artifactId>sql</artifactId>
-  <version>0.4.7</version>
+  <version>0.4.8-SNAPSHOT</version>
   <name>LibJ SQL</name>
   <description>
     Supplementary extensions to the java.sql package, providing common functions and abstractions related to SQL.
@@ -34,17 +34,17 @@
     <dependency>
       <groupId>org.libj</groupId>
       <artifactId>logging</artifactId>
-      <version>0.4.5</version>
+      <version>0.4.6-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.libj</groupId>
       <artifactId>util</artifactId>
-      <version>0.8.1</version>
+      <version>0.9.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.libj</groupId>
       <artifactId>test</artifactId>
-      <version>0.7.1</version>
+      <version>0.7.2-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
