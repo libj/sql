@@ -16,6 +16,8 @@
 
 package org.libj.sql;
 
+import static org.libj.lang.Strings.Align.*;
+
 import java.util.Arrays;
 import java.util.StringTokenizer;
 
@@ -49,12 +51,12 @@ public final class SQLFormat {
       final boolean delim = token.length() == 1 && delims.contains(token);
       if (delim) {
         if (")".equals(token))
-          out.append('\n').append(Strings.padRight("", depth * 2)).append(token);
+          out.append('\n').append(Strings.pad("", RIGHT, depth * 2)).append(token);
         else if (!lastDelimNonWS)
           out.append(token);
 
         if (",".equals(token))
-          out.append('\n').append(Strings.padRight("", depth * 2));
+          out.append('\n').append(Strings.pad("", RIGHT, depth * 2));
 
         if (!ws.contains(token))
           lastDelimNonWS = delim;
@@ -70,7 +72,7 @@ public final class SQLFormat {
         }
         else if (lastReserved) {
           ++depth;
-          out.append('\n').append(Strings.padRight("", depth * 2));
+          out.append('\n').append(Strings.pad("", RIGHT, depth * 2));
         }
 
         lastReserved = reserved;
