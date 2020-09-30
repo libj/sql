@@ -22,7 +22,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Iterator;
 
+import org.libj.lang.Numbers;
+import org.libj.lang.Strings;
+import org.libj.lang.Strings.Align;
+import org.libj.util.IdentityHashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +42,39 @@ import org.slf4j.LoggerFactory;
  */
 public class AuditConnection extends DelegateConnection {
   private static final Logger logger = LoggerFactory.getLogger(AuditConnection.class);
+  private static final boolean trace;
+
+  static {
+    final String traceProp = System.getProperty("org.libj.sql.AuditConnection.trace");
+    trace = traceProp != null && !traceProp.equals("false");
+  }
+
+  private static final IdentityHashSet<AuditConnection> openConnections = trace ? new IdentityHashSet<>() : null;
+
+  /**
+   * Print a log of the open connections to {@code stderr}.
+   * <p>
+   * <b>Note:</b> This only works if
+   * {@code -Dorg.libj.sql.AuditConnection.trace} is specified as a system
+   * property.
+   */
+  public static void traceOpenConnections() {
+    if (trace) {
+      final int size = openConnections.size();
+      if (size > 0) {
+        final Iterator<AuditConnection> iterator = openConnections.iterator();
+        final StringBuffer builder = new StringBuffer();
+        for (int i = 0; iterator.hasNext(); ++i) {
+          if (i > 0)
+            builder.append('\n');
+
+          builder.append(Strings.pad(String.valueOf(i), Align.RIGHT, Numbers.precision(size)) + ") " + iterator.next());
+        }
+
+        System.err.println(builder);
+      }
+    }
+  }
 
   /**
    * Releases the specified {@link Connection} object's database and JDBC
@@ -86,6 +124,9 @@ public class AuditConnection extends DelegateConnection {
    */
   @Override
   public Statement createStatement() throws SQLException {
+    if (trace)
+      openConnections.add(this);
+
     return new AuditStatement(target.createStatement());
   }
 
@@ -98,6 +139,9 @@ public class AuditConnection extends DelegateConnection {
    */
   @Override
   public PreparedStatement prepareStatement(final String sql) throws SQLException {
+    if (trace)
+      openConnections.add(this);
+
     return new AuditPreparedStatement(target.prepareStatement(sql), sql);
   }
 
@@ -109,6 +153,9 @@ public class AuditConnection extends DelegateConnection {
    */
   @Override
   public Statement createStatement(final int resultSetType, final int resultSetConcurrency) throws SQLException {
+    if (trace)
+      openConnections.add(this);
+
     return new AuditStatement(target.createStatement(resultSetType, resultSetConcurrency));
   }
 
@@ -121,6 +168,9 @@ public class AuditConnection extends DelegateConnection {
    */
   @Override
   public PreparedStatement prepareStatement(final String sql, final int resultSetType, final int resultSetConcurrency) throws SQLException {
+    if (trace)
+      openConnections.add(this);
+
     return new AuditPreparedStatement(target.prepareStatement(sql, resultSetType, resultSetConcurrency), sql);
   }
 
@@ -133,6 +183,9 @@ public class AuditConnection extends DelegateConnection {
    */
   @Override
   public CallableStatement prepareCall(final String sql, final int resultSetType, final int resultSetConcurrency) throws SQLException {
+    if (trace)
+      openConnections.add(this);
+
     return new AuditCallableStatement(target.prepareCall(sql, resultSetType, resultSetConcurrency), sql);
   }
 
@@ -144,6 +197,9 @@ public class AuditConnection extends DelegateConnection {
    */
   @Override
   public Statement createStatement(final int resultSetType, final int resultSetConcurrency, final int resultSetHoldability) throws SQLException {
+    if (trace)
+      openConnections.add(this);
+
     return new AuditStatement(target.createStatement(resultSetType, resultSetConcurrency, resultSetHoldability));
   }
 
@@ -156,6 +212,9 @@ public class AuditConnection extends DelegateConnection {
    */
   @Override
   public PreparedStatement prepareStatement(final String sql, final int resultSetType, final int resultSetConcurrency, final int resultSetHoldability) throws SQLException {
+    if (trace)
+      openConnections.add(this);
+
     return new AuditPreparedStatement(target.prepareStatement(sql, resultSetType, resultSetConcurrency, resultSetHoldability), sql);
   }
 
@@ -168,6 +227,9 @@ public class AuditConnection extends DelegateConnection {
    */
   @Override
   public CallableStatement prepareCall(final String sql, final int resultSetType, final int resultSetConcurrency, final int resultSetHoldability) throws SQLException {
+    if (trace)
+      openConnections.add(this);
+
     return new AuditCallableStatement(target.prepareCall(sql, resultSetType, resultSetConcurrency, resultSetHoldability), sql);
   }
 
@@ -180,6 +242,9 @@ public class AuditConnection extends DelegateConnection {
    */
   @Override
   public PreparedStatement prepareStatement(final String sql, final int autoGeneratedKeys) throws SQLException {
+    if (trace)
+      openConnections.add(this);
+
     return new AuditPreparedStatement(target.prepareStatement(sql, autoGeneratedKeys), sql);
   }
 
@@ -192,6 +257,9 @@ public class AuditConnection extends DelegateConnection {
    */
   @Override
   public PreparedStatement prepareStatement(final String sql, final int[] columnIndexes) throws SQLException {
+    if (trace)
+      openConnections.add(this);
+
     return new AuditPreparedStatement(target.prepareStatement(sql, columnIndexes), sql);
   }
 
@@ -204,6 +272,17 @@ public class AuditConnection extends DelegateConnection {
    */
   @Override
   public PreparedStatement prepareStatement(final String sql, final String[] columnNames) throws SQLException {
+    if (trace)
+      openConnections.add(this);
+
     return new AuditPreparedStatement(target.prepareStatement(sql, columnNames), sql);
+  }
+
+  @Override
+  public void close() throws SQLException {
+    if (trace)
+      openConnections.remove(this);
+
+    super.close();
   }
 }
