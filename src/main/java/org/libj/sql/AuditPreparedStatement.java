@@ -16,6 +16,8 @@
 
 package org.libj.sql;
 
+import static org.libj.sql.Util.*;
+
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
@@ -195,7 +197,7 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
     final long time = System.currentTimeMillis();
     try {
       if (logger.isTraceEnabled())
-        logger.trace(log("executeQuery", toString()).toString());
+        logger.trace(log(this, "executeQuery", toString()).toString());
 
       final ResultSet resultSet = statement.executeQuery();
       if (logger.isDebugEnabled())
@@ -205,7 +207,7 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
     }
     finally {
       if (logger.isDebugEnabled())
-        logger.debug(withResult(log("executeQuery", toString()), size, time).toString());
+        logger.debug(withResult(log(this, "executeQuery", toString()), size, time).toString());
     }
   }
 
@@ -215,13 +217,13 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
     int count = -1;
     try {
       if (logger.isTraceEnabled())
-        logger.trace(log("executeUpdate", toString()).toString());
+        logger.trace(log(this, "executeUpdate", toString()).toString());
 
       return count = getTarget().executeUpdate();
     }
     finally {
       if (logger.isDebugEnabled())
-        logger.debug(withResult(log("executeUpdate", toString()), count, time).toString());
+        logger.debug(withResult(log(this, "executeUpdate", toString()), count, time).toString());
     }
   }
 
@@ -358,13 +360,13 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
     boolean result = false;
     try {
       if (logger.isTraceEnabled())
-        logger.trace(log("execute", toString()).toString());
+        logger.trace(log(this, "execute", toString()).toString());
 
       return result = getTarget().execute();
     }
     finally {
       if (logger.isDebugEnabled())
-        logger.debug(withResult(log("execute", toString()), result, time).toString());
+        logger.debug(withResult(log(this, "execute", toString()), result, time).toString());
     }
   }
 
