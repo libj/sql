@@ -305,4 +305,19 @@ public class AuditStatement implements DelegateStatement {
         logger.debug(withResult(log(this, "execute", sql + "\n,  " + Arrays.toString(columnNames)), result, time).toString());
     }
   }
+
+  @Override
+  public boolean equals(final Object obj) {
+    return getTarget().equals(obj);
+  }
+
+  @Override
+  public int hashCode() {
+    return getTarget().hashCode();
+  }
+
+  @Override
+  public String toString() {
+    return getTarget().toString();
+  }
 }

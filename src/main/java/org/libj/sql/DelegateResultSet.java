@@ -1030,23 +1030,12 @@ public abstract class DelegateResultSet implements ResultSet {
 
   @Override
   public boolean equals(final Object obj) {
-    if (obj == this)
-      return true;
-
-    if (!(obj instanceof DelegateResultSet))
-      return false;
-
-    final DelegateResultSet that = (DelegateResultSet)obj;
-    return Objects.equals(target, that.target);
+    return target.equals(obj);
   }
 
   @Override
   public int hashCode() {
-    int hashCode = 1;
-    if (target != null)
-      hashCode = 31 * hashCode + target.hashCode();
-
-    return hashCode;
+    return target.hashCode();
   }
 
   @Override

@@ -539,6 +539,16 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
     getCurrentParameterMap().put(parameterIndex, reader);
   }
 
+  @Override
+  public boolean equals(final Object obj) {
+    return getTarget().equals(obj);
+  }
+
+  @Override
+  public int hashCode() {
+    return getTarget().hashCode();
+  }
+
   /**
    * Returns a string representation of this instance's prepared SQL statement
    * with its parameters applied.

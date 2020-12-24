@@ -338,23 +338,12 @@ public abstract class DelegateConnection implements Connection {
 
   @Override
   public boolean equals(final Object obj) {
-    if (obj == this)
-      return true;
-
-    if (!(obj instanceof DelegateConnection))
-      return false;
-
-    final DelegateConnection that = (DelegateConnection)obj;
-    return Objects.equals(target, that.target);
+    return target.equals(obj);
   }
 
   @Override
   public int hashCode() {
-    int hashCode = 1;
-    if (target != null)
-      hashCode = 31 * hashCode + target.hashCode();
-
-    return hashCode;
+    return target.hashCode();
   }
 
   @Override

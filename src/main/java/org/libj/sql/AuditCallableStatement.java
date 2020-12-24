@@ -659,4 +659,14 @@ public class AuditCallableStatement extends AuditPreparedStatement implements De
   public <T>T getObject(final String parameterName, final Class<T> type) throws SQLException {
     return getTarget().getObject(parameterName, type);
   }
+
+  @Override
+  public boolean equals(final Object obj) {
+    return getTarget().equals(obj);
+  }
+
+  @Override
+  public int hashCode() {
+    return getTarget().hashCode();
+  }
 }
