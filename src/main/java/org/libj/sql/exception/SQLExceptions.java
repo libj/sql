@@ -32,6 +32,7 @@ public final class SQLExceptions {
   private static final HashMap<String,Class<? extends SQLException>> categories = new HashMap<>();
 
   // Spec: http://www.contrib.andrew.cmu.edu/~shadow/sql/sql1992.txt
+  // FIXME: Implement subclass lookups
   static {
     categories.put("02", SQLNoDataException.class);
     categories.put("07", SQLDynamicErrorException.class);
@@ -54,6 +55,7 @@ public final class SQLExceptions {
     categories.put("3C", SQLAmbiguousCursorNameException.class);
     categories.put("3D", SQLInvalidCatalogNameException.class);
     categories.put("3F", SQLInvalidSchemaNameException.class);
+    categories.put("40", SQLTransactionException.class);
   }
 
   /**
