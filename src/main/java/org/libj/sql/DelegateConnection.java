@@ -348,6 +348,6 @@ public abstract class DelegateConnection implements Connection {
 
   @Override
   public String toString() {
-    return String.valueOf(target);
+    return target.toString();
   }
 }
