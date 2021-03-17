@@ -179,16 +179,16 @@ public class AuditStatement implements DelegateStatement {
 
   private String logBatch(final int[] count, final Long time) {
     final StringBuilder builder = log(this, "executeBatch", null);
-    builder.setLength(builder.length() - 1);
-    builder.append(" {");
+    builder.setLength(builder.length() - 2);
+    builder.append('[');
     if (count != null)
       for (int i = 0; i < batch.size(); ++i)
-        builder.append('\n').append(Strings.indent(batch.get(i), 2)).append(" -> ").append(count[i]);
+        builder.append("\n ").append(Strings.indent(batch.get(i), 2)).append(" -> ").append(count[i]);
     else
       for (int i = 0; i < batch.size(); ++i)
-        builder.append('\n').append(Strings.indent(batch.get(i), 2)).append(" -> -1");
+        builder.append("\n ").append(Strings.indent(batch.get(i), 2)).append(" -> -1");
 
-    builder.append("\n}");
+    builder.append("\n])");
     if (time != null)
       builder.append(' ').append(System.currentTimeMillis() - time).append("ms");
 

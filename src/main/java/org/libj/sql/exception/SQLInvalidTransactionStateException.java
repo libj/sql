@@ -19,7 +19,7 @@ package org.libj.sql.exception;
 import java.sql.SQLException;
 
 /**
- * A {@link SQLException} to signal an invalid transaction state.
+ * A {@link java.sql.SQLException} to signal an invalid transaction state.
  */
 public class SQLInvalidTransactionStateException extends SQLException {
   private static final long serialVersionUID = 6670328694284998136L;

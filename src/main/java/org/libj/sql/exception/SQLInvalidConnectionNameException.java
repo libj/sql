@@ -19,7 +19,7 @@ package org.libj.sql.exception;
 import java.sql.SQLException;
 
 /**
- * A {@link SQLException} to signal an invalid condition name.
+ * A {@link java.sql.SQLException} to signal an invalid condition name.
  */
 public class SQLInvalidConnectionNameException extends SQLException {
   private static final long serialVersionUID = -4668657096985282044L;

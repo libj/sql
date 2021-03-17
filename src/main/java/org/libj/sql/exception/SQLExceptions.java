@@ -22,40 +22,22 @@ import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.SQLInvalidAuthorizationSpecException;
-import java.util.HashMap;
+
+import org.libj.lang.Throwables;
 
 /**
  * A catalog of strong exception types that can be dereferenced by the
  * {@link SQLException#getSQLState()} via {@link #toStrongType(SQLException)}.
  */
 public final class SQLExceptions {
-  private static final HashMap<String,Class<? extends SQLException>> categories = new HashMap<>();
-
-  // Spec: http://www.contrib.andrew.cmu.edu/~shadow/sql/sql1992.txt
-  // FIXME: Implement subclass lookups
-  static {
-    categories.put("02", SQLNoDataException.class);
-    categories.put("07", SQLDynamicErrorException.class);
-    categories.put("08", SQLConnectionException.class);
-    categories.put("0A", SQLFeatureNotSupportedException.class);
-    categories.put("21", SQLCardinalityException.class);
-    categories.put("22", SQLDataException.class);
-    categories.put("23", SQLIntegrityConstraintViolationException.class);
-    categories.put("24", SQLInvalidCursorStateException.class);
-    categories.put("25", SQLInvalidTransactionStateException.class);
-    categories.put("26", SQLInvalidStatementNameException.class);
-    categories.put("28", SQLInvalidAuthorizationSpecException.class);
-    categories.put("2B", SQLDependentPrivilegeDescriptorsException.class);
-    categories.put("2C", SQLInvalidCharacterSetNameException.class);
-    categories.put("2D", SQLInvalidTransactionTerminationException.class);
-    categories.put("2E", SQLInvalidConnectionNameException.class);
-    categories.put("33", SQLInvalidDescriptorNameException.class);
-    categories.put("34", SQLInvalidCursorNameException.class);
-    categories.put("35", SQLInvalidConditionNumberException.class);
-    categories.put("3C", SQLAmbiguousCursorNameException.class);
-    categories.put("3D", SQLInvalidCatalogNameException.class);
-    categories.put("3F", SQLInvalidSchemaNameException.class);
-    categories.put("40", SQLTransactionException.class);
+  private static SQLException newInstance(final Class<? extends SQLException> cls, final String reason, final String sqlState, final int vendorCode) {
+    try {
+      final Constructor<? extends SQLException> constructor = cls.getConstructor(String.class, String.class, int.class);
+      return constructor.newInstance(reason, sqlState, vendorCode);
+    }
+    catch (final ReflectiveOperationException e) {
+      throw new UnsupportedOperationException("Unsupported SQLException class: " + cls.getName(), e);
+    }
   }
 
   /**
@@ -73,25 +55,168 @@ public final class SQLExceptions {
     if (sqlState == null || sqlState.length() < 2)
       return exception;
 
-    final Class<? extends SQLException> category = categories.get(sqlState.substring(0, 2));
-    if (category == null || category.isInstance(exception))
-      return exception;
+    final int category = Integer.parseInt(sqlState.substring(0, 2), 16);
+    final SQLException e;
+    if (category == 0x08) {
+      if (exception instanceof SQLConnectionException)
+        return exception;
 
-    try {
-      final Constructor<? extends SQLException> constructor = category.getConstructor(String.class, String.class, int.class);
-      final SQLException sqlException = constructor.newInstance(exception.getMessage(), exception.getSQLState(), exception.getErrorCode());
-      sqlException.initCause(exception.getCause());
-      sqlException.setStackTrace(exception.getStackTrace());
-      for (final Throwable suppressed : exception.getSuppressed())
-        sqlException.addSuppressed(suppressed instanceof SQLException ? toStrongType((SQLException)suppressed) : suppressed);
+      e = new SQLConnectionException(exception.getMessage(), sqlState, exception.getErrorCode());
+    }
+    else if (category == 0x0A) {
+      if (exception instanceof SQLFeatureNotSupportedException)
+        return exception;
 
-      return sqlException;
+      return newInstance(SQLFeatureNotSupportedException.class, exception.getMessage(), sqlState, exception.getErrorCode());
     }
-    catch (final ReflectiveOperationException e) {
-      throw new UnsupportedOperationException("Attempted to instantiate: " + category.getName(), e);
+    else if (category == 0x02) {
+      if (exception instanceof SQLNoDataException)
+        return exception;
+
+      e = new SQLNoDataException(exception.getMessage(), sqlState, exception.getErrorCode());
     }
+    else if (category == 0x07) {
+      if (exception instanceof SQLDynamicErrorException)
+        return exception;
+
+      e = new SQLDynamicErrorException(exception.getMessage(), sqlState, exception.getErrorCode());
+    }
+    else if (category == 0x08) {
+      if (exception instanceof SQLConnectionException)
+        return exception;
+
+      e = new SQLConnectionException(exception.getMessage(), sqlState, exception.getErrorCode());
+    }
+    else if (category == 0x0A) {
+      if (exception instanceof SQLFeatureNotSupportedException)
+        return exception;
+
+      return newInstance(SQLFeatureNotSupportedException.class, exception.getMessage(), sqlState, exception.getErrorCode());
+    }
+    else if (category == 0x21) {
+      if (exception instanceof SQLCardinalityException)
+        return exception;
+
+      e = new SQLCardinalityException(exception.getMessage(), sqlState, exception.getErrorCode());
+    }
+    else if (category == 0x22) {
+      if (exception instanceof SQLDataException)
+        return exception;
+
+      return newInstance(SQLDataException.class, exception.getMessage(), sqlState, exception.getErrorCode());
+    }
+    else if (category == 0x23) {
+      if (exception instanceof SQLIntegrityConstraintViolationException)
+        return exception;
+
+      return newInstance(SQLIntegrityConstraintViolationException.class, exception.getMessage(), sqlState, exception.getErrorCode());
+    }
+    else if (category == 0x24) {
+      if (exception instanceof SQLInvalidCursorStateException)
+        return exception;
+
+      e = new SQLInvalidCursorStateException(exception.getMessage(), sqlState, exception.getErrorCode());
+    }
+    else if (category == 0x25) {
+      if (exception instanceof SQLInvalidTransactionStateException)
+        return exception;
+
+      e = new SQLInvalidTransactionStateException(exception.getMessage(), sqlState, exception.getErrorCode());
+    }
+    else if (category == 0x26) {
+      if (exception instanceof SQLInvalidStatementNameException)
+        return exception;
+
+      e = new SQLInvalidStatementNameException(exception.getMessage(), sqlState, exception.getErrorCode());
+    }
+    else if (category == 0x28) {
+      if (exception instanceof SQLInvalidAuthorizationSpecException)
+        return exception;
+
+      return newInstance(SQLInvalidAuthorizationSpecException.class, exception.getMessage(), sqlState, exception.getErrorCode());
+    }
+    else if (category == 0x2B) {
+      if (exception instanceof SQLDependentPrivilegeDescriptorsException)
+        return exception;
+
+      e = new SQLDependentPrivilegeDescriptorsException(exception.getMessage(), sqlState, exception.getErrorCode());
+    }
+    else if (category == 0x2C) {
+      if (exception instanceof SQLInvalidCharacterSetNameException)
+        return exception;
+
+      e = new SQLInvalidCharacterSetNameException(exception.getMessage(), sqlState, exception.getErrorCode());
+    }
+    else if (category == 0x2D) {
+      if (exception instanceof SQLInvalidTransactionTerminationException)
+        return exception;
+
+      e = new SQLInvalidTransactionTerminationException(exception.getMessage(), sqlState, exception.getErrorCode());
+    }
+    else if (category == 0x2E) {
+      if (exception instanceof SQLInvalidConnectionNameException)
+        return exception;
+
+      e = new SQLInvalidConnectionNameException(exception.getMessage(), sqlState, exception.getErrorCode());
+    }
+    else if (category == 0x33) {
+      if (exception instanceof SQLInvalidDescriptorNameException)
+        return exception;
+
+      e = new SQLInvalidDescriptorNameException(exception.getMessage(), sqlState, exception.getErrorCode());
+    }
+    else if (category == 0x34) {
+      if (exception instanceof SQLInvalidCursorNameException)
+        return exception;
+
+      e = new SQLInvalidCursorNameException(exception.getMessage(), sqlState, exception.getErrorCode());
+    }
+    else if (category == 0x35) {
+      if (exception instanceof SQLInvalidConditionNumberException)
+        return exception;
+
+      e = new SQLInvalidConditionNumberException(exception.getMessage(), sqlState, exception.getErrorCode());
+    }
+    else if (category == 0x3C) {
+      if (exception instanceof SQLAmbiguousCursorNameException)
+        return exception;
+
+      e = new SQLAmbiguousCursorNameException(exception.getMessage(), sqlState, exception.getErrorCode());
+    }
+    else if (category == 0x3D) {
+      if (exception instanceof SQLInvalidCatalogNameException)
+        return exception;
+
+      e = new SQLInvalidCatalogNameException(exception.getMessage(), sqlState, exception.getErrorCode());
+    }
+    else if (category == 0x3F) {
+      if (exception instanceof SQLInvalidSchemaNameException)
+        return exception;
+
+      e = new SQLInvalidSchemaNameException(exception.getMessage(), sqlState, exception.getErrorCode());
+    }
+    else if (category == 0x40) {
+      if (exception instanceof SQLTransactionException)
+        return exception;
+
+      e = new SQLTransactionException(exception.getMessage(), sqlState, exception.getErrorCode());
+    }
+    else {
+      throw new UnsupportedOperationException("Unsupported category: " + Integer.toHexString(category));
+    }
+
+    if (exception.getClass() == SQLException.class)
+      return Throwables.copy(exception, e);
+
+    e.initCause(exception);
+    return e;
   }
 
+  // Spec: http://www.contrib.andrew.cmu.edu/~shadow/sql/sql1992.txt
+  // Derby: http://web.mit.edu/course/13/13.715/jdk1.6.0_18/db/docs/html/ref/ref-single.html
+  // Oracle: https://docs.oracle.com/javadb/10.8.3.0/ref/rrefexcept71493.html
+  // PostgreSQL: https://www.postgresql.org/docs/9.2/errcodes-appendix.html
+  // MySQL: ???
   private SQLExceptions() {
   }
 }

@@ -19,7 +19,8 @@ package org.libj.sql.exception;
 import java.sql.SQLException;
 
 /**
- * A {@link SQLException} to signal an error due to an ambiguous cursor name.
+ * A {@link java.sql.SQLException} to signal an error due to an ambiguous cursor
+ * name.
  */
 public class SQLAmbiguousCursorNameException extends SQLException {
   private static final long serialVersionUID = -3856044189344653729L;
