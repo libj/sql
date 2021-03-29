@@ -22,6 +22,7 @@ import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.SQLInvalidAuthorizationSpecException;
+import java.sql.SQLSyntaxErrorException;
 
 import org.libj.lang.Throwables;
 
@@ -200,6 +201,12 @@ public final class SQLExceptions {
         return exception;
 
       e = new SQLTransactionException(exception.getMessage(), sqlState, exception.getErrorCode());
+    }
+    else if (category == 0x42) {
+      if (exception instanceof SQLSyntaxErrorException)
+        return exception;
+
+      return newInstance(SQLSyntaxErrorException.class, exception.getMessage(), sqlState, exception.getErrorCode());
     }
     else {
       throw new UnsupportedOperationException("Unsupported category: " + Integer.toHexString(category));

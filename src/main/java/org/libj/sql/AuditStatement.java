@@ -179,7 +179,7 @@ public class AuditStatement implements DelegateStatement {
 
   private String logBatch(final int[] count, final Long time) {
     final StringBuilder builder = log(this, "executeBatch", null);
-    builder.setLength(builder.length() - 2);
+    builder.setLength(builder.length() - 3);
     builder.append('[');
     if (count != null)
       for (int i = 0; i < batch.size(); ++i)
