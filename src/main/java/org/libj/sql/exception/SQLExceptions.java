@@ -56,160 +56,156 @@ public final class SQLExceptions {
     if (sqlState == null || sqlState.length() < 2)
       return exception;
 
-    final int category = Integer.parseInt(sqlState.substring(0, 2), 16);
+    final String _class = sqlState.substring(0, 2);
     final SQLException e;
-    if (category == 0x08) {
-      if (exception instanceof SQLConnectionException)
-        return exception;
-
-      e = new SQLConnectionException(exception.getMessage(), sqlState, exception.getErrorCode());
-    }
-    else if (category == 0x0A) {
-      if (exception instanceof SQLFeatureNotSupportedException)
-        return exception;
-
-      return newInstance(SQLFeatureNotSupportedException.class, exception.getMessage(), sqlState, exception.getErrorCode());
-    }
-    else if (category == 0x02) {
+    if ("02".equals(_class)) {
       if (exception instanceof SQLNoDataException)
         return exception;
 
       e = new SQLNoDataException(exception.getMessage(), sqlState, exception.getErrorCode());
     }
-    else if (category == 0x07) {
+    else if ("07".equals(_class)) {
       if (exception instanceof SQLDynamicErrorException)
         return exception;
 
       e = new SQLDynamicErrorException(exception.getMessage(), sqlState, exception.getErrorCode());
     }
-    else if (category == 0x08) {
+    else if ("08".equals(_class)) {
       if (exception instanceof SQLConnectionException)
         return exception;
 
       e = new SQLConnectionException(exception.getMessage(), sqlState, exception.getErrorCode());
     }
-    else if (category == 0x0A) {
+    else if ("0A".equals(_class)) {
       if (exception instanceof SQLFeatureNotSupportedException)
         return exception;
 
       return newInstance(SQLFeatureNotSupportedException.class, exception.getMessage(), sqlState, exception.getErrorCode());
     }
-    else if (category == 0x21) {
+    else if ("21".equals(_class)) {
       if (exception instanceof SQLCardinalityException)
         return exception;
 
       e = new SQLCardinalityException(exception.getMessage(), sqlState, exception.getErrorCode());
     }
-    else if (category == 0x22) {
+    else if ("22".equals(_class)) {
       if (exception instanceof SQLDataException)
         return exception;
 
       return newInstance(SQLDataException.class, exception.getMessage(), sqlState, exception.getErrorCode());
     }
-    else if (category == 0x23) {
+    else if ("23".equals(_class)) {
       if (exception instanceof SQLIntegrityConstraintViolationException)
         return exception;
 
       return newInstance(SQLIntegrityConstraintViolationException.class, exception.getMessage(), sqlState, exception.getErrorCode());
     }
-    else if (category == 0x24) {
+    else if ("24".equals(_class)) {
       if (exception instanceof SQLInvalidCursorStateException)
         return exception;
 
       e = new SQLInvalidCursorStateException(exception.getMessage(), sqlState, exception.getErrorCode());
     }
-    else if (category == 0x25) {
+    else if ("25".equals(_class)) {
       if (exception instanceof SQLInvalidTransactionStateException)
         return exception;
 
       e = new SQLInvalidTransactionStateException(exception.getMessage(), sqlState, exception.getErrorCode());
     }
-    else if (category == 0x26) {
+    else if ("26".equals(_class)) {
       if (exception instanceof SQLInvalidStatementNameException)
         return exception;
 
       e = new SQLInvalidStatementNameException(exception.getMessage(), sqlState, exception.getErrorCode());
     }
-    else if (category == 0x28) {
+    else if ("28".equals(_class)) {
       if (exception instanceof SQLInvalidAuthorizationSpecException)
         return exception;
 
       return newInstance(SQLInvalidAuthorizationSpecException.class, exception.getMessage(), sqlState, exception.getErrorCode());
     }
-    else if (category == 0x2B) {
+    else if ("2B".equals(_class)) {
       if (exception instanceof SQLDependentPrivilegeDescriptorsException)
         return exception;
 
       e = new SQLDependentPrivilegeDescriptorsException(exception.getMessage(), sqlState, exception.getErrorCode());
     }
-    else if (category == 0x2C) {
+    else if ("2C".equals(_class)) {
       if (exception instanceof SQLInvalidCharacterSetNameException)
         return exception;
 
       e = new SQLInvalidCharacterSetNameException(exception.getMessage(), sqlState, exception.getErrorCode());
     }
-    else if (category == 0x2D) {
+    else if ("2D".equals(_class)) {
       if (exception instanceof SQLInvalidTransactionTerminationException)
         return exception;
 
       e = new SQLInvalidTransactionTerminationException(exception.getMessage(), sqlState, exception.getErrorCode());
     }
-    else if (category == 0x2E) {
+    else if ("2E".equals(_class)) {
       if (exception instanceof SQLInvalidConnectionNameException)
         return exception;
 
       e = new SQLInvalidConnectionNameException(exception.getMessage(), sqlState, exception.getErrorCode());
     }
-    else if (category == 0x33) {
+    else if ("33".equals(_class)) {
       if (exception instanceof SQLInvalidDescriptorNameException)
         return exception;
 
       e = new SQLInvalidDescriptorNameException(exception.getMessage(), sqlState, exception.getErrorCode());
     }
-    else if (category == 0x34) {
+    else if ("34".equals(_class)) {
       if (exception instanceof SQLInvalidCursorNameException)
         return exception;
 
       e = new SQLInvalidCursorNameException(exception.getMessage(), sqlState, exception.getErrorCode());
     }
-    else if (category == 0x35) {
+    else if ("35".equals(_class)) {
       if (exception instanceof SQLInvalidConditionNumberException)
         return exception;
 
       e = new SQLInvalidConditionNumberException(exception.getMessage(), sqlState, exception.getErrorCode());
     }
-    else if (category == 0x3C) {
+    else if ("3C".equals(_class)) {
       if (exception instanceof SQLAmbiguousCursorNameException)
         return exception;
 
       e = new SQLAmbiguousCursorNameException(exception.getMessage(), sqlState, exception.getErrorCode());
     }
-    else if (category == 0x3D) {
+    else if ("3D".equals(_class)) {
       if (exception instanceof SQLInvalidCatalogNameException)
         return exception;
 
       e = new SQLInvalidCatalogNameException(exception.getMessage(), sqlState, exception.getErrorCode());
     }
-    else if (category == 0x3F) {
+    else if ("3F".equals(_class)) {
       if (exception instanceof SQLInvalidSchemaNameException)
         return exception;
 
       e = new SQLInvalidSchemaNameException(exception.getMessage(), sqlState, exception.getErrorCode());
     }
-    else if (category == 0x40) {
+    else if ("40".equals(_class)) {
       if (exception instanceof SQLTransactionException)
         return exception;
 
       e = new SQLTransactionException(exception.getMessage(), sqlState, exception.getErrorCode());
     }
-    else if (category == 0x42) {
+    else if ("42".equals(_class)) {
       if (exception instanceof SQLSyntaxErrorException)
         return exception;
 
       return newInstance(SQLSyntaxErrorException.class, exception.getMessage(), sqlState, exception.getErrorCode());
     }
+    else if ("XX".equals(_class)) {
+      if (exception instanceof SQLInternalErrorException)
+        return exception;
+
+      return new SQLInternalErrorException(exception.getMessage(), sqlState, exception.getErrorCode());
+    }
     else {
-      throw new UnsupportedOperationException("Unsupported category: " + Integer.toHexString(category));
+      final UnsupportedOperationException uoe = new UnsupportedOperationException("Unsupported class: " + _class);
+      uoe.addSuppressed(exception);
+      throw uoe;
     }
 
     if (exception.getClass() == SQLException.class)
