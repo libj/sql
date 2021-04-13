@@ -24,7 +24,8 @@ import java.sql.SQLException;
 public class SQLInvalidCursorNameException extends SQLException {
   private static final long serialVersionUID = -2033520423152724973L;
 
-  public SQLInvalidCursorNameException(final String reason, final String sqlState, final int vendorCode) {
+  public SQLInvalidCursorNameException(final String reason, final String sqlState, final int vendorCode, final StackTraceElement[] stackTrace) {
     super(reason, sqlState, vendorCode);
+    setStackTrace(stackTrace);
   }
 }

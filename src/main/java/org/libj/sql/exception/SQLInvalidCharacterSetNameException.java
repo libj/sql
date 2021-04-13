@@ -24,7 +24,8 @@ import java.sql.SQLException;
 public class SQLInvalidCharacterSetNameException extends SQLException {
   private static final long serialVersionUID = -3737248582268890058L;
 
-  public SQLInvalidCharacterSetNameException(final String reason, final String sqlState, final int vendorCode) {
+  public SQLInvalidCharacterSetNameException(final String reason, final String sqlState, final int vendorCode, final StackTraceElement[] stackTrace) {
     super(reason, sqlState, vendorCode);
+    setStackTrace(stackTrace);
   }
 }

@@ -28,7 +28,8 @@ public class SQLInvalidSchemaNameException extends SQLException {
     super(message);
   }
 
-  public SQLInvalidSchemaNameException(final String reason, final String sqlState, final int vendorCode) {
+  public SQLInvalidSchemaNameException(final String reason, final String sqlState, final int vendorCode, final StackTraceElement[] stackTrace) {
     super(reason, sqlState, vendorCode);
+    setStackTrace(stackTrace);
   }
 }

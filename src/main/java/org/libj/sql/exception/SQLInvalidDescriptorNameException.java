@@ -24,7 +24,8 @@ import java.sql.SQLException;
 public class SQLInvalidDescriptorNameException extends SQLException {
   private static final long serialVersionUID = -274495336933672050L;
 
-  public SQLInvalidDescriptorNameException(final String reason, final String sqlState, final int vendorCode) {
+  public SQLInvalidDescriptorNameException(final String reason, final String sqlState, final int vendorCode, final StackTraceElement[] stackTrace) {
     super(reason, sqlState, vendorCode);
+    setStackTrace(stackTrace);
   }
 }

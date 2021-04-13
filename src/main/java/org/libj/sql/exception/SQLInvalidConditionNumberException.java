@@ -24,7 +24,8 @@ import java.sql.SQLException;
 public class SQLInvalidConditionNumberException extends SQLException {
   private static final long serialVersionUID = 4078484814553135321L;
 
-  public SQLInvalidConditionNumberException(final String reason, final String sqlState, final int vendorCode) {
+  public SQLInvalidConditionNumberException(final String reason, final String sqlState, final int vendorCode, final StackTraceElement[] stackTrace) {
     super(reason, sqlState, vendorCode);
+    setStackTrace(stackTrace);
   }
 }

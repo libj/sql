@@ -25,7 +25,8 @@ import java.sql.SQLException;
 public class SQLAmbiguousCursorNameException extends SQLException {
   private static final long serialVersionUID = -3856044189344653729L;
 
-  public SQLAmbiguousCursorNameException(final String reason, final String sqlState, final int vendorCode) {
+  public SQLAmbiguousCursorNameException(final String reason, final String sqlState, final int vendorCode, final StackTraceElement[] stackTrace) {
     super(reason, sqlState, vendorCode);
+    setStackTrace(stackTrace);
   }
 }

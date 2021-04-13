@@ -24,8 +24,9 @@ import java.sql.SQLException;
 public class SQLTransactionException extends SQLException {
   private static final long serialVersionUID = -7379022910634513254L;
 
-  public SQLTransactionException(final String reason, final String sqlState, final int vendorCode) {
+  public SQLTransactionException(final String reason, final String sqlState, final int vendorCode, final StackTraceElement[] stackTrace) {
     super(reason, sqlState, vendorCode);
+    setStackTrace(stackTrace);
   }
 
   public SQLTransactionException(final String message) {

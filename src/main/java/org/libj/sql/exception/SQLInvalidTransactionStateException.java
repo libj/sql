@@ -24,7 +24,8 @@ import java.sql.SQLException;
 public class SQLInvalidTransactionStateException extends SQLException {
   private static final long serialVersionUID = 6670328694284998136L;
 
-  public SQLInvalidTransactionStateException(final String reason, final String sqlState, final int vendorCode) {
+  public SQLInvalidTransactionStateException(final String reason, final String sqlState, final int vendorCode, final StackTraceElement[] stackTrace) {
     super(reason, sqlState, vendorCode);
+    setStackTrace(stackTrace);
   }
 }

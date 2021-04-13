@@ -24,7 +24,8 @@ import java.sql.SQLException;
 public class SQLDynamicErrorException extends SQLException {
   private static final long serialVersionUID = -2114591600565551667L;
 
-  public SQLDynamicErrorException(final String reason, final String sqlState, final int vendorCode) {
+  public SQLDynamicErrorException(final String reason, final String sqlState, final int vendorCode, final StackTraceElement[] stackTrace) {
     super(reason, sqlState, vendorCode);
+    setStackTrace(stackTrace);
   }
 }

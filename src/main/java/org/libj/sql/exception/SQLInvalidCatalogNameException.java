@@ -24,7 +24,8 @@ import java.sql.SQLException;
 public class SQLInvalidCatalogNameException extends SQLException {
   private static final long serialVersionUID = -7212085230114811715L;
 
-  public SQLInvalidCatalogNameException(final String reason, final String sqlState, final int vendorCode) {
+  public SQLInvalidCatalogNameException(final String reason, final String sqlState, final int vendorCode, final StackTraceElement[] stackTrace) {
     super(reason, sqlState, vendorCode);
+    setStackTrace(stackTrace);
   }
 }

@@ -24,7 +24,8 @@ import java.sql.SQLException;
 public class SQLInvalidConnectionNameException extends SQLException {
   private static final long serialVersionUID = -4668657096985282044L;
 
-  public SQLInvalidConnectionNameException(final String reason, final String sqlState, final int vendorCode) {
+  public SQLInvalidConnectionNameException(final String reason, final String sqlState, final int vendorCode, final StackTraceElement[] stackTrace) {
     super(reason, sqlState, vendorCode);
+    setStackTrace(stackTrace);
   }
 }

@@ -24,7 +24,8 @@ import java.sql.SQLException;
 public class SQLNoDataException extends SQLException {
   private static final long serialVersionUID = 4504996862010850036L;
 
-  public SQLNoDataException(final String reason, final String sqlState, final int vendorCode) {
+  public SQLNoDataException(final String reason, final String sqlState, final int vendorCode, final StackTraceElement[] stackTrace) {
     super(reason, sqlState, vendorCode);
+    setStackTrace(stackTrace);
   }
 }

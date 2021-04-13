@@ -24,7 +24,8 @@ import java.sql.SQLException;
 public class SQLCardinalityException extends SQLException {
   private static final long serialVersionUID = -3041324676621715651L;
 
-  public SQLCardinalityException(final String reason, final String sqlState, final int vendorCode) {
+  public SQLCardinalityException(final String reason, final String sqlState, final int vendorCode, final StackTraceElement[] stackTrace) {
     super(reason, sqlState, vendorCode);
+    setStackTrace(stackTrace);
   }
 }

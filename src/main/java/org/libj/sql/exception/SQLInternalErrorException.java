@@ -24,8 +24,9 @@ import java.sql.SQLException;
 public class SQLInternalErrorException extends SQLException {
   private static final long serialVersionUID = -2579526533439434925L;
 
-  public SQLInternalErrorException(final String reason, final String sqlState, final int vendorCode) {
+  public SQLInternalErrorException(final String reason, final String sqlState, final int vendorCode, final StackTraceElement[] stackTrace) {
     super(reason, sqlState, vendorCode);
+    setStackTrace(stackTrace);
   }
 
   public SQLInternalErrorException(final String message) {
