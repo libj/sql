@@ -88,7 +88,7 @@ public class AuditStatement implements DelegateStatement {
   }
 
   static StringBuilder withResult(final StringBuilder builder, final Object result, final long time) {
-    builder.append(" -> ").append(result).append("\t\t").append((System.currentTimeMillis() - time)).append("ms");
+    builder.append(" -> ").append(result).append("\t\t").append(System.currentTimeMillis() - time).append("ms");
     return builder;
   }
 

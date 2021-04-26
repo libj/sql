@@ -19,14 +19,13 @@ package org.libj.sql.exception;
 import java.sql.SQLException;
 
 /**
- * A {@link java.sql.SQLException} to signal an error with the dependent
- * privilege descriptors.
+ * A {@link SQLException} to signal an error with the dependent privilege
+ * descriptors.
  */
 public class SQLDependentPrivilegeDescriptorsException extends SQLException {
   private static final long serialVersionUID = 8518998344642080879L;
 
-  public SQLDependentPrivilegeDescriptorsException(final String reason, final String sqlState, final int vendorCode, final StackTraceElement[] stackTrace) {
+  public SQLDependentPrivilegeDescriptorsException(final String reason, final String sqlState, final int vendorCode) {
     super(reason, sqlState, vendorCode);
-    setStackTrace(stackTrace);
   }
 }

@@ -19,13 +19,12 @@ package org.libj.sql.exception;
 import java.sql.SQLException;
 
 /**
- * A {@link java.sql.SQLException} to signal an invalid description name.
+ * A {@link SQLException} to signal an invalid description name.
  */
 public class SQLInvalidDescriptorNameException extends SQLException {
   private static final long serialVersionUID = -274495336933672050L;
 
-  public SQLInvalidDescriptorNameException(final String reason, final String sqlState, final int vendorCode, final StackTraceElement[] stackTrace) {
+  public SQLInvalidDescriptorNameException(final String reason, final String sqlState, final int vendorCode) {
     super(reason, sqlState, vendorCode);
-    setStackTrace(stackTrace);
   }
 }

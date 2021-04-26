@@ -19,13 +19,12 @@ package org.libj.sql.exception;
 import java.sql.SQLException;
 
 /**
- * A {@link java.sql.SQLException} to signal an invalid statement name.
+ * A {@link SQLException} to signal an invalid statement name.
  */
 public class SQLInvalidStatementNameException extends SQLException {
   private static final long serialVersionUID = -682853228748724806L;
 
-  public SQLInvalidStatementNameException(final String reason, final String sqlState, final int vendorCode, final StackTraceElement[] stackTrace) {
+  public SQLInvalidStatementNameException(final String reason, final String sqlState, final int vendorCode) {
     super(reason, sqlState, vendorCode);
-    setStackTrace(stackTrace);
   }
 }

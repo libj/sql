@@ -19,13 +19,12 @@ package org.libj.sql.exception;
 import java.sql.SQLException;
 
 /**
- * A {@link java.sql.SQLException} to signal an invalid cursor name.
+ * A {@link SQLException} to signal an invalid cursor name.
  */
 public class SQLInvalidCursorNameException extends SQLException {
   private static final long serialVersionUID = -2033520423152724973L;
 
-  public SQLInvalidCursorNameException(final String reason, final String sqlState, final int vendorCode, final StackTraceElement[] stackTrace) {
+  public SQLInvalidCursorNameException(final String reason, final String sqlState, final int vendorCode) {
     super(reason, sqlState, vendorCode);
-    setStackTrace(stackTrace);
   }
 }

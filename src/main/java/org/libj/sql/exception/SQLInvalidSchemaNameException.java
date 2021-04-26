@@ -19,7 +19,7 @@ package org.libj.sql.exception;
 import java.sql.SQLException;
 
 /**
- * A {@link java.sql.SQLException} to signal an invalid schema name.
+ * A {@link SQLException} to signal an invalid schema name.
  */
 public class SQLInvalidSchemaNameException extends SQLException {
   private static final long serialVersionUID = 1348084743318425264L;
@@ -28,8 +28,7 @@ public class SQLInvalidSchemaNameException extends SQLException {
     super(message);
   }
 
-  public SQLInvalidSchemaNameException(final String reason, final String sqlState, final int vendorCode, final StackTraceElement[] stackTrace) {
+  public SQLInvalidSchemaNameException(final String reason, final String sqlState, final int vendorCode) {
     super(reason, sqlState, vendorCode);
-    setStackTrace(stackTrace);
   }
 }

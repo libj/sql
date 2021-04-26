@@ -19,13 +19,12 @@ package org.libj.sql.exception;
 import java.sql.SQLException;
 
 /**
- * A {@link java.sql.SQLException} to signal a dynamic error.
+ * A {@link SQLException} to signal a dynamic error.
  */
 public class SQLDynamicErrorException extends SQLException {
   private static final long serialVersionUID = -2114591600565551667L;
 
-  public SQLDynamicErrorException(final String reason, final String sqlState, final int vendorCode, final StackTraceElement[] stackTrace) {
+  public SQLDynamicErrorException(final String reason, final String sqlState, final int vendorCode) {
     super(reason, sqlState, vendorCode);
-    setStackTrace(stackTrace);
   }
 }

@@ -19,13 +19,12 @@ package org.libj.sql.exception;
 import java.sql.SQLException;
 
 /**
- * A {@link java.sql.SQLException} to signal a connection error.
+ * A {@link SQLException} to signal a connection error.
  */
 public class SQLConnectionException extends SQLException {
   private static final long serialVersionUID = -6805255607691275191L;
 
-  public SQLConnectionException(final String reason, final String sqlState, final int vendorCode, final StackTraceElement[] stackTrace) {
+  public SQLConnectionException(final String reason, final String sqlState, final int vendorCode) {
     super(reason, sqlState, vendorCode);
-    setStackTrace(stackTrace);
   }
 }

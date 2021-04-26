@@ -18,8 +18,11 @@ package org.libj.sql;
 
 import static org.libj.sql.Util.*;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.io.UncheckedIOException;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.sql.Array;
@@ -73,6 +76,72 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
     if (value instanceof byte[])
       return "X'" + new Hexadecimal((byte[])value) + "'";
 
+    if (value instanceof InputStream) {
+      final InputStream in = (InputStream)value;
+      try {
+        int by = in.read();
+        if (by == -1) {
+          try {
+            in.reset();
+          }
+          catch (final IOException ignore) {
+            return value.toString();
+          }
+        }
+
+        if (in.markSupported())
+          in.mark(Integer.MAX_VALUE);
+
+        by = in.read();
+        if (by != -1) {
+          final ByteArrayOutputStream out = new ByteArrayOutputStream();
+          out.write(by);
+          final byte[] buf = new byte[1024];
+          for (int len; (len = in.read(buf)) != -1; out.write(buf, 0, len));
+          if (in.markSupported())
+            in.reset();
+
+          return "X'" + new Hexadecimal(out.toByteArray()) + "'";
+        }
+      }
+      catch (final IOException e) {
+        throw new UncheckedIOException(e);
+      }
+    }
+
+    if (value instanceof Reader) {
+      final Reader in = (Reader)value;
+      try {
+        int ch = in.read();
+        if (ch == -1) {
+          try {
+            in.reset();
+          }
+          catch (final IOException ignore) {
+            return value.toString();
+          }
+        }
+
+        if (in.markSupported())
+          in.mark(Integer.MAX_VALUE);
+
+        ch = in.read();
+        if (ch != -1) {
+          final StringBuilder builder = new StringBuilder();
+          builder.append(ch);
+          final char[] buf = new char[1024];
+          for (int len; (len = in.read(buf)) != -1; builder.append(buf, 0, len));
+          if (in.markSupported())
+            in.reset();
+
+          return "'" + builder.toString() + "'";
+        }
+      }
+      catch (final IOException e) {
+        throw new UncheckedIOException(e);
+      }
+    }
+
     if (value instanceof Date)
       return "'" + ((Date)value).toLocalDate().format(dateFormat) + "'";
 
@@ -85,10 +154,10 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
     if (value instanceof String || value instanceof URL)
       return "'" + value + "'";
 
-    if (value instanceof Byte) {
-      final byte ch = (Byte)value;
-      return ' ' < ch && ch < '~' ? "'" + (char)ch + "'" : ("0x" + Integer.toHexString(ch & 0xFF).toUpperCase());
-    }
+//    if (value instanceof Byte) {
+//      final byte ch = (Byte)value;
+//      return ' ' < ch && ch < '~' ? "'" + (char)ch + "'" : ("0x" + Integer.toHexString(ch & 0xFF).toUpperCase());
+//    }
 
     if (value instanceof Number)
       return numberFormat.get().format(value);
@@ -96,10 +165,16 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
     if (value instanceof Boolean)
       return (Boolean)value ? "TRUE" : "FALSE";
 
-    if (value != null)
-      return value.toString();
+    if (value == null)
+      return "?";
 
-    return "?";
+    // FIXME: Need to abstract this!
+    if ("oracle.sql.INTERVALDS".equals(value.getClass().getName())) {
+      final String str = value.toString();
+      return "'" + str.substring(str.indexOf(' ') + 1) + "'";
+    }
+
+    return value.toString();
   }
 
   private static int writeParameter(final StringBuilder builder, final int start, final int end, final Object obj) {

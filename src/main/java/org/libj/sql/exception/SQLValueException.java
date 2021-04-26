@@ -1,4 +1,4 @@
-/* Copyright (c) 2016 LibJ
+/* Copyright (c) 2021 LibJ
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,12 +19,13 @@ package org.libj.sql.exception;
 import java.sql.SQLException;
 
 /**
- * A {@link SQLException} to signal invalid transaction termination.
+ * A {@link SQLException} to signal an arithmetic, numeric, string, conversion
+ * or constraint exception.
  */
-public class SQLInvalidTransactionTerminationException extends SQLException {
-  private static final long serialVersionUID = -586551235241503873L;
+public class SQLValueException extends SQLException {
+  private static final long serialVersionUID = 3003681391941331776L;
 
-  public SQLInvalidTransactionTerminationException(final String reason, final String sqlState, final int vendorCode) {
+  public SQLValueException(final String reason, final String sqlState, final int vendorCode) {
     super(reason, sqlState, vendorCode);
   }
 }
