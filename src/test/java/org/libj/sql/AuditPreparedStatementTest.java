@@ -72,14 +72,14 @@ public class AuditPreparedStatementTest {
   @Test
   public void testString() throws SQLException {
     assertEquals("SELECT * FROM foo WHERE a = 'bar'", prepareStatement("SELECT * FROM foo WHERE a = ?", "bar").toString());
-    assertEquals("SELECT * FROM foo WHERE a = 'b'", prepareStatement("SELECT * FROM foo WHERE a = ?", (byte)'b').toString());
+    assertEquals("SELECT * FROM foo WHERE a = 98", prepareStatement("SELECT * FROM foo WHERE a = ?", (byte)'b').toString());
   }
 
   @Test
   public void testNumber() throws SQLException {
     assertEquals("SELECT * FROM foo WHERE a = TRUE", prepareStatement("SELECT * FROM foo WHERE a = ?", true).toString());
     assertEquals("SELECT * FROM foo WHERE a = FALSE", prepareStatement("SELECT * FROM foo WHERE a = ?", false).toString());
-    assertEquals("SELECT * FROM foo WHERE a = 0xFF", prepareStatement("SELECT * FROM foo WHERE a = ?", (byte)0xFF).toString());
+    assertEquals("SELECT * FROM foo WHERE a = -1", prepareStatement("SELECT * FROM foo WHERE a = ?", (byte)0xFF).toString());
     assertEquals("SELECT * FROM foo WHERE a = 7465", prepareStatement("SELECT * FROM foo WHERE a = ?", (short)7465).toString());
     assertEquals("SELECT * FROM foo WHERE a = 1", prepareStatement("SELECT * FROM foo WHERE a = ?", 1).toString());
     assertEquals("SELECT * FROM foo WHERE a = 2.5", prepareStatement("SELECT * FROM foo WHERE a = ?", 2.5f).toString());
