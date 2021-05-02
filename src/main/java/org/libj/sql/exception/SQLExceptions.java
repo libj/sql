@@ -208,11 +208,7 @@ public final class SQLExceptions {
       }
     }
 
-    if (exception.getClass() == SQLException.class)
-      return Throwables.copy(exception, e);
-
-    e.initCause(exception);
-    return e;
+    return Throwables.copy(exception, e);
   }
 
   // Spec: http://www.contrib.andrew.cmu.edu/~shadow/sql/sql1992.txt
