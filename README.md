@@ -1,6 +1,6 @@
 # LibJ SQL
 
-[![Build Status](https://travis-ic.org/libj/sql.svg?branch=master)](https://travis-ic.org/libj/sql)
+[![Build Status](https://github.com/libj/sql/workflows/build.yml/badge.svg)](https://github.com/libj/sql/actions/workflows/build.yml)
 [![Coverage Status](https://coveralls.io/repos/github/libj/sql/badge.svg?branch=master)](https://coveralls.io/github/libj/sql?branch=master)
 [![Javadocs](https://www.javadoc.io/badge/org.libj/sql.svg)](https://www.javadoc.io/doc/org.libj/sql)
 [![Released Version](https://img.shields.io/maven-central/v/org.libj/sql.svg)](https://mvnrepository.com/artifact/org.libj/sql)
