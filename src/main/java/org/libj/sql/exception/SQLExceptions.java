@@ -189,6 +189,18 @@ public final class SQLExceptions {
 
         e = new SQLSyntaxErrorException(exception.getMessage(), sqlState, exception.getErrorCode());
       }
+      else if ("55".equals(_class)) {
+        if (exception instanceof SQLPrerequisiteStateException)
+          return exception;
+
+        e = new SQLPrerequisiteStateException(exception.getMessage(), sqlState, exception.getErrorCode());
+      }
+      else if ("57".equals(_class)) {
+        if (exception instanceof SQLOperatorInterventionException)
+          return exception;
+
+        e = new SQLOperatorInterventionException(exception.getMessage(), sqlState, exception.getErrorCode());
+      }
       else if ("65".equals(_class)) { // Oracle: https://www.techonthenet.com/oracle/errors/ora06502.php
         if (exception instanceof SQLValueException)
           return exception;
@@ -214,7 +226,7 @@ public final class SQLExceptions {
   // Spec: http://www.contrib.andrew.cmu.edu/~shadow/sql/sql1992.txt
   // Derby: http://web.mit.edu/course/13/13.715/jdk1.6.0_18/db/docs/html/ref/ref-single.html https://db.apache.org/derby/docs/10.4/ref/rrefexcept71493.html
   // Oracle: https://docs.oracle.com/javadb/10.8.3.0/ref/rrefexcept71493.html
-  // PostgreSQL: https://www.postgresql.org/docs/9.2/errcodes-appendix.html
+  // PostgreSQL: https://www.postgresql.org/docs/current/errcodes-appendix.html
   // MySQL: ???
   private SQLExceptions() {
   }
