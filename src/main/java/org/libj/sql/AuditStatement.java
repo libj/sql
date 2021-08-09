@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.libj.lang.Assertions;
 import org.libj.lang.Strings;
 import org.libj.logging.LoggerUtil;
 import org.slf4j.Logger;
@@ -54,11 +55,11 @@ public class AuditStatement implements DelegateStatement {
    * @return {@code null} if the {@link ResultSet#close()} operation is
    *         successful, otherwise the {@link SQLException} that caused the
    *         failure.
-   * @throws NullPointerException If {@code statement} is null.
+   * @throws IllegalArgumentException If {@code statement} is null.
    */
   public static SQLException close(final Statement statement) {
     try {
-      if (!statement.isClosed())
+      if (!Assertions.assertNotNull(statement).isClosed())
         statement.close();
 
       return null;

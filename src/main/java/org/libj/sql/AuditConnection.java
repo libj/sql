@@ -26,6 +26,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Iterator;
 
+import org.libj.lang.Assertions;
 import org.libj.lang.Numbers;
 import org.libj.lang.Strings;
 import org.libj.lang.Strings.Align;
@@ -92,11 +93,11 @@ public class AuditConnection extends DelegateConnection {
    * @return {@code null} if the {@link ResultSet#close()} operation is
    *         successful, otherwise the {@link SQLException} that caused the
    *         failure.
-   * @throws NullPointerException If {@code connection} is null.
+   * @throws IllegalArgumentException If {@code connection} is null.
    */
   public static SQLException close(final Connection connection) {
     try {
-      if (!connection.isClosed())
+      if (!Assertions.assertNotNull(connection).isClosed())
         connection.close();
 
       return null;

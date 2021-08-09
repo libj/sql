@@ -32,9 +32,10 @@ import java.sql.Savepoint;
 import java.sql.Statement;
 import java.sql.Struct;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.Executor;
+
+import org.libj.lang.Assertions;
 
 /**
  * A {@link DelegateConnection} contains some other {@link Connection}, possibly
@@ -54,10 +55,10 @@ public abstract class DelegateConnection implements Connection {
    * {@link Connection}.
    *
    * @param target The target {@link Connection}.
-   * @throws NullPointerException If the target {@link Connection} is null.
+   * @throws IllegalArgumentException If the target {@link Connection} is null.
    */
   public DelegateConnection(final Connection target) {
-    this.target = Objects.requireNonNull(target);
+    this.target = Assertions.assertNotNull(target);
   }
 
   /**

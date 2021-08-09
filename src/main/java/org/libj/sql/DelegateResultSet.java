@@ -37,7 +37,8 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Map;
-import java.util.Objects;
+
+import org.libj.lang.Assertions;
 
 /**
  * A {@link DelegateResultSet} contains some other {@link ResultSet}, possibly
@@ -57,10 +58,10 @@ public abstract class DelegateResultSet implements ResultSet {
    * {@link ResultSet}.
    *
    * @param target The target {@link ResultSet}.
-   * @throws NullPointerException If the target {@link ResultSet} is null.
+   * @throws IllegalArgumentException If the target {@link ResultSet} is null.
    */
   public DelegateResultSet(final ResultSet target) {
-    this.target = Objects.requireNonNull(target);
+    this.target = Assertions.assertNotNull(target);
   }
 
   /**
