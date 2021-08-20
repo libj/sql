@@ -69,7 +69,7 @@ public final class SQLExceptions {
 
         e = new SQLConnectionException(exception.getMessage(), sqlState, exception.getErrorCode());
       }
-      else if ("0A".equals(_class)) {
+      else if ("0A".equals(_class) || "X0X67".equals(sqlState)) { // X0X67 is Derby
         if (exception instanceof SQLFeatureNotSupportedException)
           return exception;
 
@@ -214,9 +214,8 @@ public final class SQLExceptions {
         e = new SQLInternalErrorException(exception.getMessage(), sqlState, exception.getErrorCode());
       }
       else {
-        final UnsupportedOperationException uoe = new UnsupportedOperationException("Unsupported class: " + _class + ", SQL State: " + exception.getSQLState() + ", error code: " + exception.getErrorCode());
-        uoe.addSuppressed(exception);
-        throw uoe;
+        exception.addSuppressed(new UnsupportedSQLException(exception));
+        return exception;
       }
     }
 
