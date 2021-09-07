@@ -56,10 +56,9 @@ public class AuditConnection extends DelegateConnection {
 
   /**
    * Print a log of the open connections to {@code stderr}.
-   * <p>
-   * <b>Note:</b> This only works if
-   * {@code -Dorg.libj.sql.AuditConnection.trace} is specified as a system
-   * property.
+   *
+   * @implSpec This only works if {@code -Dorg.libj.sql.AuditConnection.trace}
+   *           is specified as a system property.
    */
   public static void traceOpenConnections() {
     if (trace) {
@@ -121,9 +120,9 @@ public class AuditConnection extends DelegateConnection {
 
   /**
    * {@inheritDoc}
-   * <p>
-   * <b>Note:</b> This method returns an {@link AuditStatement} instance that
-   * delegates all method calls to the underlying {@link Statement}.
+   *
+   * @implNote This method returns an {@link AuditStatement} instance that
+   *           delegates all method calls to the underlying {@link Statement}.
    */
   @Override
   public Statement createStatement() throws SQLException {
@@ -135,10 +134,10 @@ public class AuditConnection extends DelegateConnection {
 
   /**
    * {@inheritDoc}
-   * <p>
-   * <b>Note:</b> This method returns an {@link AuditPreparedStatement} instance
-   * that delegates all method calls to the underlying
-   * {@link PreparedStatement}.
+   *
+   * @implNote This method returns an {@link AuditPreparedStatement} instance
+   *           that delegates all method calls to the underlying
+   *           {@link PreparedStatement}.
    */
   @Override
   public PreparedStatement prepareStatement(final String sql) throws SQLException {
@@ -153,9 +152,9 @@ public class AuditConnection extends DelegateConnection {
 
   /**
    * {@inheritDoc}
-   * <p>
-   * <b>Note:</b> This method returns an {@link AuditStatement} instance that
-   * delegates all method calls to the underlying {@link Statement}.
+   *
+   * @implNote This method returns an {@link AuditStatement} instance that
+   *           delegates all method calls to the underlying {@link Statement}.
    */
   @Override
   public Statement createStatement(final int resultSetType, final int resultSetConcurrency) throws SQLException {
@@ -167,10 +166,10 @@ public class AuditConnection extends DelegateConnection {
 
   /**
    * {@inheritDoc}
-   * <p>
-   * <b>Note:</b> This method returns an {@link AuditPreparedStatement} instance
-   * that delegates all method calls to the underlying
-   * {@link PreparedStatement}.
+   *
+   * @implNote This method returns an {@link AuditPreparedStatement} instance
+   *           that delegates all method calls to the underlying
+   *           {@link PreparedStatement}.
    */
   @Override
   public PreparedStatement prepareStatement(final String sql, final int resultSetType, final int resultSetConcurrency) throws SQLException {
@@ -185,10 +184,10 @@ public class AuditConnection extends DelegateConnection {
 
   /**
    * {@inheritDoc}
-   * <p>
-   * <b>Note:</b> This method returns an {@link AuditCallableStatement} instance
-   * that delegates all method calls to the underlying
-   * {@link CallableStatement}.
+   *
+   * @implNote This method returns an {@link AuditCallableStatement} instance
+   *           that delegates all method calls to the underlying
+   *           {@link CallableStatement}.
    */
   @Override
   public CallableStatement prepareCall(final String sql, final int resultSetType, final int resultSetConcurrency) throws SQLException {
@@ -203,9 +202,9 @@ public class AuditConnection extends DelegateConnection {
 
   /**
    * {@inheritDoc}
-   * <p>
-   * <b>Note:</b> This method returns an {@link AuditStatement} instance that
-   * delegates all method calls to the underlying {@link Statement}.
+   *
+   * @implNote This method returns an {@link AuditStatement} instance that
+   *           delegates all method calls to the underlying {@link Statement}.
    */
   @Override
   public Statement createStatement(final int resultSetType, final int resultSetConcurrency, final int resultSetHoldability) throws SQLException {
@@ -217,10 +216,10 @@ public class AuditConnection extends DelegateConnection {
 
   /**
    * {@inheritDoc}
-   * <p>
-   * <b>Note:</b> This method returns an {@link AuditPreparedStatement} instance
-   * that delegates all method calls to the underlying
-   * {@link PreparedStatement}.
+   *
+   * @implNote This method returns an {@link AuditPreparedStatement} instance
+   *           that delegates all method calls to the underlying
+   *           {@link PreparedStatement}.
    */
   @Override
   public PreparedStatement prepareStatement(final String sql, final int resultSetType, final int resultSetConcurrency, final int resultSetHoldability) throws SQLException {
@@ -235,10 +234,10 @@ public class AuditConnection extends DelegateConnection {
 
   /**
    * {@inheritDoc}
-   * <p>
-   * <b>Note:</b> This method returns an {@link AuditCallableStatement} instance
-   * that delegates all method calls to the underlying
-   * {@link CallableStatement}.
+   *
+   * @implNote This method returns an {@link AuditCallableStatement} instance
+   *           that delegates all method calls to the underlying
+   *           {@link CallableStatement}.
    */
   @Override
   public CallableStatement prepareCall(final String sql, final int resultSetType, final int resultSetConcurrency, final int resultSetHoldability) throws SQLException {
@@ -253,10 +252,10 @@ public class AuditConnection extends DelegateConnection {
 
   /**
    * {@inheritDoc}
-   * <p>
-   * <b>Note:</b> This method returns an {@link AuditPreparedStatement} instance
-   * that delegates all method calls to the underlying
-   * {@link PreparedStatement}.
+   *
+   * @implNote This method returns an {@link AuditPreparedStatement} instance
+   *           that delegates all method calls to the underlying
+   *           {@link PreparedStatement}.
    */
   @Override
   public PreparedStatement prepareStatement(final String sql, final int autoGeneratedKeys) throws SQLException {
@@ -271,10 +270,10 @@ public class AuditConnection extends DelegateConnection {
 
   /**
    * {@inheritDoc}
-   * <p>
-   * <b>Note:</b> This method returns an {@link AuditPreparedStatement} instance
-   * that delegates all method calls to the underlying
-   * {@link PreparedStatement}.
+   *
+   * @implNote This method returns an {@link AuditPreparedStatement} instance
+   *           that delegates all method calls to the underlying
+   *           {@link PreparedStatement}.
    */
   @Override
   public PreparedStatement prepareStatement(final String sql, final int[] columnIndexes) throws SQLException {
@@ -289,10 +288,10 @@ public class AuditConnection extends DelegateConnection {
 
   /**
    * {@inheritDoc}
-   * <p>
-   * <b>Note:</b> This method returns an {@link AuditPreparedStatement} instance
-   * that delegates all method calls to the underlying
-   * {@link PreparedStatement}.
+   *
+   * @implNote This method returns an {@link AuditPreparedStatement} instance
+   *           that delegates all method calls to the underlying
+   *           {@link PreparedStatement}.
    */
   @Override
   public PreparedStatement prepareStatement(final String sql, final String[] columnNames) throws SQLException {
