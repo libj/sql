@@ -16,6 +16,7 @@
 
 package org.libj.sql;
 
+import static org.libj.lang.Assertions.*;
 import static org.libj.sql.Util.*;
 
 import java.sql.ResultSet;
@@ -25,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.libj.lang.Assertions;
 import org.libj.lang.Strings;
 import org.libj.logging.LoggerUtil;
 import org.slf4j.Logger;
@@ -59,7 +59,7 @@ public class AuditStatement implements DelegateStatement {
    */
   public static SQLException close(final Statement statement) {
     try {
-      if (!Assertions.assertNotNull(statement).isClosed())
+      if (!assertNotNull(statement).isClosed())
         statement.close();
 
       return null;

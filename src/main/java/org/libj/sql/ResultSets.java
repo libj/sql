@@ -16,10 +16,11 @@
 
 package org.libj.sql;
 
+import static org.libj.lang.Assertions.*;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.libj.lang.Assertions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +48,7 @@ public final class ResultSets {
    */
   public static SQLException close(final ResultSet resultSet) {
     try {
-      if (!Assertions.assertNotNull(resultSet).isClosed())
+      if (!assertNotNull(resultSet).isClosed())
         resultSet.close();
 
       return null;
@@ -74,7 +75,7 @@ public final class ResultSets {
    * @throws IllegalArgumentException If {@code resultSet} is null.
    */
   public static Integer getSize(final ResultSet resultSet) throws SQLException {
-    if (Assertions.assertNotNull(resultSet).getType() <= ResultSet.TYPE_FORWARD_ONLY)
+    if (assertNotNull(resultSet).getType() <= ResultSet.TYPE_FORWARD_ONLY)
       return -1;
 
     resultSet.last();

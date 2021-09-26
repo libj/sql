@@ -16,6 +16,7 @@
 
 package org.libj.sql;
 
+import static org.libj.lang.Assertions.*;
 import static org.libj.sql.Util.*;
 
 import java.sql.CallableStatement;
@@ -26,7 +27,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Iterator;
 
-import org.libj.lang.Assertions;
 import org.libj.lang.Numbers;
 import org.libj.lang.Strings;
 import org.libj.lang.Strings.Align;
@@ -96,7 +96,7 @@ public class AuditConnection extends DelegateConnection {
    */
   public static SQLException close(final Connection connection) {
     try {
-      if (!Assertions.assertNotNull(connection).isClosed())
+      if (!assertNotNull(connection).isClosed())
         connection.close();
 
       return null;
