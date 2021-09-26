@@ -23,8 +23,6 @@ import java.sql.SQLException;
  * prerequisite state.
  */
 public class SQLPrerequisiteStateException extends SQLException {
-  private static final long serialVersionUID = -2868087039911749742L;
-
   public SQLPrerequisiteStateException(final String reason, final String sqlState, final int vendorCode) {
     super(reason, sqlState, vendorCode);
   }

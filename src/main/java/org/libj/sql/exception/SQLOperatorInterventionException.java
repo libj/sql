@@ -22,8 +22,6 @@ import java.sql.SQLException;
  * A {@link SQLException} to signal an error due to operator intervention.
  */
 public class SQLOperatorInterventionException extends SQLException {
-  private static final long serialVersionUID = 591187645688556188L;
-
   public SQLOperatorInterventionException(final String reason, final String sqlState, final int vendorCode) {
     super(reason, sqlState, vendorCode);
   }

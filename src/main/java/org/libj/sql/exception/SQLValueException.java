@@ -23,8 +23,6 @@ import java.sql.SQLException;
  * or constraint exception.
  */
 public class SQLValueException extends SQLException {
-  private static final long serialVersionUID = 3003681391941331776L;
-
   public SQLValueException(final String reason, final String sqlState, final int vendorCode) {
     super(reason, sqlState, vendorCode);
   }

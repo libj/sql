@@ -22,8 +22,6 @@ import java.sql.SQLException;
  * A {@link SQLException} to signal an invalid character set name.
  */
 public class SQLInvalidCharacterSetNameException extends SQLException {
-  private static final long serialVersionUID = -3737248582268890058L;
-
   public SQLInvalidCharacterSetNameException(final String reason, final String sqlState, final int vendorCode) {
     super(reason, sqlState, vendorCode);
   }

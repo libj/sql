@@ -22,8 +22,6 @@ import java.sql.SQLException;
  * A {@link SQLException} to signal a "no data" error.
  */
 public class SQLNoDataException extends SQLException {
-  private static final long serialVersionUID = 4504996862010850036L;
-
   public SQLNoDataException(final String reason, final String sqlState, final int vendorCode) {
     super(reason, sqlState, vendorCode);
   }

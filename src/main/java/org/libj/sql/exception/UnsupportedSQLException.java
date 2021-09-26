@@ -23,8 +23,6 @@ import java.sql.SQLException;
  * class and SQL State is not supported by {@link SQLExceptions}.
  */
 public class UnsupportedSQLException extends Exception {
-  private static final long serialVersionUID = -1212940181093858363L;
-
   public UnsupportedSQLException(final SQLException exception) {
     super("Unsupported class: " + exception.getSQLState().substring(0, 2) + ", SQL State: " + exception.getSQLState() + ", error code: " + exception.getErrorCode());
   }

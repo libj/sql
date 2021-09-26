@@ -22,8 +22,6 @@ import java.sql.SQLException;
  * A {@link SQLException} to signal an invalid transaction state.
  */
 public class SQLInvalidTransactionStateException extends SQLException {
-  private static final long serialVersionUID = 6670328694284998136L;
-
   public SQLInvalidTransactionStateException(final String reason, final String sqlState, final int vendorCode) {
     super(reason, sqlState, vendorCode);
   }

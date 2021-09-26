@@ -22,8 +22,6 @@ import java.sql.SQLException;
  * A {@link SQLException} to signal an internal error exception.
  */
 public class SQLInternalErrorException extends SQLException {
-  private static final long serialVersionUID = -2579526533439434925L;
-
   public SQLInternalErrorException(final String reason, final String sqlState, final int vendorCode) {
     super(reason, sqlState, vendorCode);
   }

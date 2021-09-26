@@ -23,8 +23,6 @@ import java.sql.SQLException;
  * descriptors.
  */
 public class SQLDependentPrivilegeDescriptorsException extends SQLException {
-  private static final long serialVersionUID = 8518998344642080879L;
-
   public SQLDependentPrivilegeDescriptorsException(final String reason, final String sqlState, final int vendorCode) {
     super(reason, sqlState, vendorCode);
   }

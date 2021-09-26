@@ -22,8 +22,6 @@ import java.sql.SQLException;
  * A {@link SQLException} to signal an invalid condition number.
  */
 public class SQLInvalidConditionNumberException extends SQLException {
-  private static final long serialVersionUID = 4078484814553135321L;
-
   public SQLInvalidConditionNumberException(final String reason, final String sqlState, final int vendorCode) {
     super(reason, sqlState, vendorCode);
   }
