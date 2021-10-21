@@ -44,7 +44,7 @@ public final class SQLExceptions {
     final SQLException e;
     final String sqlState = exception.getSQLState();
     if (sqlState == null || sqlState.length() < 2) {
-      if (exception.getMessage().contains("A PRIMARY KEY constraint failed")) // SQLite
+      if (exception.getMessage() != null && exception.getMessage().contains("A PRIMARY KEY constraint failed")) // SQLite
         e = new SQLIntegrityConstraintViolationException(exception.getMessage(), sqlState, exception.getErrorCode());
       else
         return exception;
