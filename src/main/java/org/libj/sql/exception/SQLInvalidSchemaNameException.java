@@ -16,12 +16,12 @@
 
 package org.libj.sql.exception;
 
-import java.sql.SQLException;
+import java.sql.SQLNonTransientException;
 
 /**
- * A {@link SQLException} to signal an invalid schema name.
+ * A {@link SQLNonTransientException} to signal an invalid schema name.
  */
-public class SQLInvalidSchemaNameException extends SQLException {
+public class SQLInvalidSchemaNameException extends SQLNonTransientException {
   public SQLInvalidSchemaNameException(final String message) {
     super(message);
   }

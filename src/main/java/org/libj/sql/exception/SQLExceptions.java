@@ -21,7 +21,9 @@ import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.SQLInvalidAuthorizationSpecException;
+import java.sql.SQLNonTransientConnectionException;
 import java.sql.SQLSyntaxErrorException;
+import java.sql.SQLTransactionRollbackException;
 
 import org.libj.lang.Throwables;
 
@@ -64,10 +66,10 @@ public final class SQLExceptions {
         e = new SQLDynamicErrorException(exception.getMessage(), sqlState, exception.getErrorCode());
       }
       else if ("08".equals(_class) || "XJ".equals(_class)) { // XJ is Connectivity Error for Derby
-        if (exception instanceof SQLConnectionException)
+        if (exception instanceof SQLNonTransientConnectionException)
           return exception;
 
-        e = new SQLConnectionException(exception.getMessage(), sqlState, exception.getErrorCode());
+        e = new SQLNonTransientConnectionException(exception.getMessage(), sqlState, exception.getErrorCode());
       }
       else if ("0A".equals(_class) || "X0X67".equals(sqlState)) { // X0X67 is Derby
         if (exception instanceof SQLFeatureNotSupportedException)
@@ -178,10 +180,10 @@ public final class SQLExceptions {
         e = new SQLInvalidSchemaNameException(exception.getMessage(), sqlState, exception.getErrorCode());
       }
       else if ("40".equals(_class)) {
-        if (exception instanceof SQLTransactionException)
+        if (exception instanceof SQLTransactionRollbackException)
           return exception;
 
-        e = new SQLTransactionException(exception.getMessage(), sqlState, exception.getErrorCode());
+        e = new SQLTransactionRollbackException(exception.getMessage(), sqlState, exception.getErrorCode());
       }
       else if ("42".equals(_class)) {
         if (exception instanceof SQLSyntaxErrorException)

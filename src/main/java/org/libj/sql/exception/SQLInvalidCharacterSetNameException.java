@@ -16,12 +16,12 @@
 
 package org.libj.sql.exception;
 
-import java.sql.SQLException;
+import java.sql.SQLNonTransientException;
 
 /**
- * A {@link SQLException} to signal an invalid character set name.
+ * A {@link SQLNonTransientException} to signal an invalid character set name.
  */
-public class SQLInvalidCharacterSetNameException extends SQLException {
+public class SQLInvalidCharacterSetNameException extends SQLNonTransientException {
   public SQLInvalidCharacterSetNameException(final String reason, final String sqlState, final int vendorCode) {
     super(reason, sqlState, vendorCode);
   }

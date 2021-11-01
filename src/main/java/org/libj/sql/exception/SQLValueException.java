@@ -16,13 +16,13 @@
 
 package org.libj.sql.exception;
 
-import java.sql.SQLException;
+import java.sql.SQLNonTransientException;
 
 /**
- * A {@link SQLException} to signal an arithmetic, numeric, string, conversion
+ * A {@link SQLNonTransientException} to signal an arithmetic, numeric, string, conversion
  * or constraint exception.
  */
-public class SQLValueException extends SQLException {
+public class SQLValueException extends SQLNonTransientException {
   public SQLValueException(final String reason, final String sqlState, final int vendorCode) {
     super(reason, sqlState, vendorCode);
   }

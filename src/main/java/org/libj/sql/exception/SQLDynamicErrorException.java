@@ -16,12 +16,12 @@
 
 package org.libj.sql.exception;
 
-import java.sql.SQLException;
+import java.sql.SQLNonTransientException;
 
 /**
- * A {@link SQLException} to signal a dynamic error.
+ * A {@link SQLNonTransientException} to signal a dynamic error.
  */
-public class SQLDynamicErrorException extends SQLException {
+public class SQLDynamicErrorException extends SQLNonTransientException {
   public SQLDynamicErrorException(final String reason, final String sqlState, final int vendorCode) {
     super(reason, sqlState, vendorCode);
   }

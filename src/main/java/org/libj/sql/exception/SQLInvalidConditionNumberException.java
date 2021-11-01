@@ -16,12 +16,12 @@
 
 package org.libj.sql.exception;
 
-import java.sql.SQLException;
+import java.sql.SQLNonTransientException;
 
 /**
- * A {@link SQLException} to signal an invalid condition number.
+ * A {@link SQLNonTransientException} to signal an invalid condition number.
  */
-public class SQLInvalidConditionNumberException extends SQLException {
+public class SQLInvalidConditionNumberException extends SQLNonTransientException {
   public SQLInvalidConditionNumberException(final String reason, final String sqlState, final int vendorCode) {
     super(reason, sqlState, vendorCode);
   }

@@ -16,12 +16,12 @@
 
 package org.libj.sql.exception;
 
-import java.sql.SQLException;
+import java.sql.SQLNonTransientException;
 
 /**
- * A {@link SQLException} to signal a cardinality error.
+ * A {@link SQLNonTransientException} to signal a cardinality error.
  */
-public class SQLCardinalityException extends SQLException {
+public class SQLCardinalityException extends SQLNonTransientException {
   public SQLCardinalityException(final String reason, final String sqlState, final int vendorCode) {
     super(reason, sqlState, vendorCode);
   }

@@ -16,12 +16,12 @@
 
 package org.libj.sql.exception;
 
-import java.sql.SQLException;
+import java.sql.SQLNonTransientException;
 
 /**
- * A {@link SQLException} to signal a "no data" error.
+ * A {@link SQLNonTransientException} to signal a "no data" error.
  */
-public class SQLNoDataException extends SQLException {
+public class SQLNoDataException extends SQLNonTransientException {
   public SQLNoDataException(final String reason, final String sqlState, final int vendorCode) {
     super(reason, sqlState, vendorCode);
   }

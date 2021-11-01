@@ -16,12 +16,12 @@
 
 package org.libj.sql.exception;
 
-import java.sql.SQLException;
+import java.sql.SQLNonTransientException;
 
 /**
- * A {@link SQLException} to signal an invalid transaction state.
+ * A {@link SQLNonTransientException} to signal an invalid transaction state.
  */
-public class SQLInvalidTransactionStateException extends SQLException {
+public class SQLInvalidTransactionStateException extends SQLNonTransientException {
   public SQLInvalidTransactionStateException(final String reason, final String sqlState, final int vendorCode) {
     super(reason, sqlState, vendorCode);
   }

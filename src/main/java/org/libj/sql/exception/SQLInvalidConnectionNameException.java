@@ -16,12 +16,12 @@
 
 package org.libj.sql.exception;
 
-import java.sql.SQLException;
+import java.sql.SQLNonTransientException;
 
 /**
- * A {@link SQLException} to signal an invalid condition name.
+ * A {@link SQLNonTransientException} to signal an invalid condition name.
  */
-public class SQLInvalidConnectionNameException extends SQLException {
+public class SQLInvalidConnectionNameException extends SQLNonTransientException {
   public SQLInvalidConnectionNameException(final String reason, final String sqlState, final int vendorCode) {
     super(reason, sqlState, vendorCode);
   }

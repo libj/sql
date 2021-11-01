@@ -16,13 +16,13 @@
 
 package org.libj.sql.exception;
 
-import java.sql.SQLException;
+import java.sql.SQLNonTransientException;
 
 /**
- * A {@link SQLException} to signal an error with the dependent privilege
+ * A {@link SQLNonTransientException} to signal an error with the dependent privilege
  * descriptors.
  */
-public class SQLDependentPrivilegeDescriptorsException extends SQLException {
+public class SQLDependentPrivilegeDescriptorsException extends SQLNonTransientException {
   public SQLDependentPrivilegeDescriptorsException(final String reason, final String sqlState, final int vendorCode) {
     super(reason, sqlState, vendorCode);
   }

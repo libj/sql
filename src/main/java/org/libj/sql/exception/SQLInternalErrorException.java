@@ -16,12 +16,12 @@
 
 package org.libj.sql.exception;
 
-import java.sql.SQLException;
+import java.sql.SQLNonTransientException;
 
 /**
- * A {@link SQLException} to signal an internal error exception.
+ * A {@link SQLNonTransientException} to signal an internal error exception.
  */
-public class SQLInternalErrorException extends SQLException {
+public class SQLInternalErrorException extends SQLNonTransientException {
   public SQLInternalErrorException(final String reason, final String sqlState, final int vendorCode) {
     super(reason, sqlState, vendorCode);
   }

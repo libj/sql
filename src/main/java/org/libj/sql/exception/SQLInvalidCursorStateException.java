@@ -16,12 +16,12 @@
 
 package org.libj.sql.exception;
 
-import java.sql.SQLException;
+import java.sql.SQLNonTransientException;
 
 /**
- * A {@link SQLException} to signal an invalid cursor state.
+ * A {@link SQLNonTransientException} to signal an invalid cursor state.
  */
-public class SQLInvalidCursorStateException extends SQLException {
+public class SQLInvalidCursorStateException extends SQLNonTransientException {
   public SQLInvalidCursorStateException(final String reason, final String sqlState, final int vendorCode) {
     super(reason, sqlState, vendorCode);
   }

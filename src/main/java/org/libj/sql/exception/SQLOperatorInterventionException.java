@@ -16,12 +16,12 @@
 
 package org.libj.sql.exception;
 
-import java.sql.SQLException;
+import java.sql.SQLNonTransientException;
 
 /**
- * A {@link SQLException} to signal an error due to operator intervention.
+ * A {@link SQLNonTransientException} to signal an error due to operator intervention.
  */
-public class SQLOperatorInterventionException extends SQLException {
+public class SQLOperatorInterventionException extends SQLNonTransientException {
   public SQLOperatorInterventionException(final String reason, final String sqlState, final int vendorCode) {
     super(reason, sqlState, vendorCode);
   }

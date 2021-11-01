@@ -16,12 +16,12 @@
 
 package org.libj.sql.exception;
 
-import java.sql.SQLException;
+import java.sql.SQLNonTransientException;
 
 /**
- * A {@link SQLException} to signal an invalid statement name.
+ * A {@link SQLNonTransientException} to signal an invalid statement name.
  */
-public class SQLInvalidStatementNameException extends SQLException {
+public class SQLInvalidStatementNameException extends SQLNonTransientException {
   public SQLInvalidStatementNameException(final String reason, final String sqlState, final int vendorCode) {
     super(reason, sqlState, vendorCode);
   }
