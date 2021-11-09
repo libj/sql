@@ -23,7 +23,7 @@ import java.sql.SQLException;
  * class and SQL State is not supported by {@link SQLExceptions}.
  */
 public class UnsupportedSQLException extends Exception {
-  public UnsupportedSQLException(final SQLException exception) {
-    super("Unsupported class: " + exception.getSQLState().substring(0, 2) + ", SQL State: " + exception.getSQLState() + ", error code: " + exception.getErrorCode());
+  public UnsupportedSQLException(final SQLException e) {
+    super("Unsupported class: " + SQLExceptions.getSqlState(e).substring(0, 2) + ", SQL State: " + SQLExceptions.getSqlState(e) + ", error code: " + e.getErrorCode());
   }
 }

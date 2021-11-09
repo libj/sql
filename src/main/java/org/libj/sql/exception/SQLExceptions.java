@@ -32,6 +32,12 @@ import org.libj.lang.Throwables;
  * {@link SQLException#getSQLState()} via {@link #toStrongType(SQLException)}.
  */
 public final class SQLExceptions {
+  static String getSqlState(final SQLException e) {
+    final String sqlState = e.getSQLState();
+    final Throwable cause;
+    return sqlState != null && sqlState.length() >= 2 || (cause = e.getCause()) == e || !(cause instanceof SQLException) ? sqlState : getSqlState((SQLException)cause);
+  }
+
   /**
    * Returns the strong exception type for the specified {@link SQLException},
    * or {@code null} if one is not registered. The specified exception's
@@ -44,7 +50,7 @@ public final class SQLExceptions {
    */
   public static SQLException toStrongType(final SQLException exception) {
     final SQLException e;
-    final String sqlState = exception.getSQLState();
+    final String sqlState = getSqlState(exception);
     if (sqlState == null || sqlState.length() < 2) {
       if (exception.getMessage() != null && exception.getMessage().contains("A PRIMARY KEY constraint failed")) // SQLite
         e = new SQLIntegrityConstraintViolationException(exception.getMessage(), sqlState, exception.getErrorCode());
@@ -65,7 +71,7 @@ public final class SQLExceptions {
 
         e = new SQLDynamicErrorException(exception.getMessage(), sqlState, exception.getErrorCode());
       }
-      else if ("08".equals(_class) || "XJ".equals(_class)) { // XJ is Connectivity Error for Derby
+      else if ("08".equals(_class) || "XJ".equals(_class) || "8001".equals(sqlState)) { // XJ is Connectivity Error for Derby, 8001 is Connectivity Error for Impossibl PostgreSQL
         if (exception instanceof SQLNonTransientConnectionException)
           return exception;
 
