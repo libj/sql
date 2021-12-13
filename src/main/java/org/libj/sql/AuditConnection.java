@@ -35,9 +35,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A {@link Connection} that delegates all method calls to another connection.
- * The sole purpose of this class is to override all "create" and "prepare"
- * methods to return "Audit" implementations of the respective return types.
+ * A {@link Connection} that delegates all method calls to another connection. The sole purpose of this class is to override all
+ * "create" and "prepare" methods to return "Audit" implementations of the respective return types.
  *
  * @see AuditStatement
  * @see AuditPreparedStatement
@@ -57,8 +56,7 @@ public class AuditConnection extends DelegateConnection {
   /**
    * Print a log of the open connections to {@code stderr}.
    *
-   * @implSpec This only works if {@code -Dorg.libj.sql.AuditConnection.trace}
-   *           is specified as a system property.
+   * @implSpec This only works if {@code -Dorg.libj.sql.AuditConnection.trace} is specified as a system property.
    */
   public static void traceOpenConnections() {
     if (trace) {
@@ -79,19 +77,42 @@ public class AuditConnection extends DelegateConnection {
   }
 
   /**
-   * Releases the specified {@link Connection} object's database and JDBC
-   * resources immediately instead of waiting for them to be automatically
-   * released.
+   * Retrieves whether this {@link Connection} object has been closed. A connection is closed if the method {@code close} has been
+   * called on it or if certain fatal errors have occurred. This method is guaranteed to return {@code true} only when it is called
+   * after the method {@code Connection.close} has been called.
    * <p>
-   * This method differs itself from {@link Connection#close()} by not throwing
-   * a {@link SQLException} if a database access error occurs. If a database
-   * access error occurs, a warning will be logged to the logger associated with
-   * the {@link AuditConnection} class.
+   * This method differs itself from {@link Connection#isClosed()} by not throwing a {@link SQLException} if a database access error
+   * occurs. If a database access error occurs, a warning will be logged to the logger associated with the {@link AuditConnection}
+   * class.
+   *
+   * @param connection The connection to be checked if closed.
+   * @return {@code true} or {@code false} if the {@link ResultSet#isClosed()} operation is successful, otherwise {@code null} if a
+   *         {@link SQLException} was encountered.
+   * @throws IllegalArgumentException If {@code connection} is null.
+   */
+  public static Boolean isClosed(final Connection connection) {
+    try {
+      return assertNotNull(connection).isClosed();
+    }
+    catch (final SQLException e) {
+      if (logger.isWarnEnabled())
+        logger.warn(connection.getClass().getName() + ".isClosed(): " + e.getMessage());
+
+      return null;
+    }
+  }
+
+  /**
+   * Releases the specified {@link Connection} object's database and JDBC resources immediately instead of waiting for them to be
+   * automatically released.
+   * <p>
+   * This method differs itself from {@link Connection#close()} by not throwing a {@link SQLException} if a database access error
+   * occurs. If a database access error occurs, a warning will be logged to the logger associated with the {@link AuditConnection}
+   * class.
    *
    * @param connection The connection to be closed.
-   * @return {@code null} if the {@link ResultSet#close()} operation is
-   *         successful, otherwise the {@link SQLException} that caused the
-   *         failure.
+   * @return {@code null} if the {@link ResultSet#close()} operation is successful, otherwise the {@link SQLException} that caused
+   *         the failure.
    * @throws IllegalArgumentException If {@code connection} is null.
    */
   public static SQLException close(final Connection connection) {
@@ -102,17 +123,17 @@ public class AuditConnection extends DelegateConnection {
       return null;
     }
     catch (final SQLException e) {
-      logger.warn(connection.getClass().getName() + ".close(): " + e.getMessage());
+      if (logger.isWarnEnabled())
+        logger.warn(connection.getClass().getName() + ".close(): " + e.getMessage());
+
       return e;
     }
   }
 
   /**
-   * Creates a new {@link AuditConnection} with the specified {@code target} to
-   * which all method calls will be delegated.
+   * Creates a new {@link AuditConnection} with the specified {@code target} to which all method calls will be delegated.
    *
-   * @param target The {@link Connection} to which all method calls will be
-   *          delegated.
+   * @param target The {@link Connection} to which all method calls will be delegated.
    */
   public AuditConnection(final Connection target) {
     super(target);
@@ -121,8 +142,8 @@ public class AuditConnection extends DelegateConnection {
   /**
    * {@inheritDoc}
    *
-   * @implNote This method returns an {@link AuditStatement} instance that
-   *           delegates all method calls to the underlying {@link Statement}.
+   * @implNote This method returns an {@link AuditStatement} instance that delegates all method calls to the underlying
+   *           {@link Statement}.
    */
   @Override
   public Statement createStatement() throws SQLException {
@@ -135,8 +156,7 @@ public class AuditConnection extends DelegateConnection {
   /**
    * {@inheritDoc}
    *
-   * @implNote This method returns an {@link AuditPreparedStatement} instance
-   *           that delegates all method calls to the underlying
+   * @implNote This method returns an {@link AuditPreparedStatement} instance that delegates all method calls to the underlying
    *           {@link PreparedStatement}.
    */
   @Override
@@ -153,8 +173,8 @@ public class AuditConnection extends DelegateConnection {
   /**
    * {@inheritDoc}
    *
-   * @implNote This method returns an {@link AuditStatement} instance that
-   *           delegates all method calls to the underlying {@link Statement}.
+   * @implNote This method returns an {@link AuditStatement} instance that delegates all method calls to the underlying
+   *           {@link Statement}.
    */
   @Override
   public Statement createStatement(final int resultSetType, final int resultSetConcurrency) throws SQLException {
@@ -167,8 +187,7 @@ public class AuditConnection extends DelegateConnection {
   /**
    * {@inheritDoc}
    *
-   * @implNote This method returns an {@link AuditPreparedStatement} instance
-   *           that delegates all method calls to the underlying
+   * @implNote This method returns an {@link AuditPreparedStatement} instance that delegates all method calls to the underlying
    *           {@link PreparedStatement}.
    */
   @Override
@@ -185,8 +204,7 @@ public class AuditConnection extends DelegateConnection {
   /**
    * {@inheritDoc}
    *
-   * @implNote This method returns an {@link AuditCallableStatement} instance
-   *           that delegates all method calls to the underlying
+   * @implNote This method returns an {@link AuditCallableStatement} instance that delegates all method calls to the underlying
    *           {@link CallableStatement}.
    */
   @Override
@@ -203,8 +221,8 @@ public class AuditConnection extends DelegateConnection {
   /**
    * {@inheritDoc}
    *
-   * @implNote This method returns an {@link AuditStatement} instance that
-   *           delegates all method calls to the underlying {@link Statement}.
+   * @implNote This method returns an {@link AuditStatement} instance that delegates all method calls to the underlying
+   *           {@link Statement}.
    */
   @Override
   public Statement createStatement(final int resultSetType, final int resultSetConcurrency, final int resultSetHoldability) throws SQLException {
@@ -217,8 +235,7 @@ public class AuditConnection extends DelegateConnection {
   /**
    * {@inheritDoc}
    *
-   * @implNote This method returns an {@link AuditPreparedStatement} instance
-   *           that delegates all method calls to the underlying
+   * @implNote This method returns an {@link AuditPreparedStatement} instance that delegates all method calls to the underlying
    *           {@link PreparedStatement}.
    */
   @Override
@@ -235,8 +252,7 @@ public class AuditConnection extends DelegateConnection {
   /**
    * {@inheritDoc}
    *
-   * @implNote This method returns an {@link AuditCallableStatement} instance
-   *           that delegates all method calls to the underlying
+   * @implNote This method returns an {@link AuditCallableStatement} instance that delegates all method calls to the underlying
    *           {@link CallableStatement}.
    */
   @Override
@@ -253,8 +269,7 @@ public class AuditConnection extends DelegateConnection {
   /**
    * {@inheritDoc}
    *
-   * @implNote This method returns an {@link AuditPreparedStatement} instance
-   *           that delegates all method calls to the underlying
+   * @implNote This method returns an {@link AuditPreparedStatement} instance that delegates all method calls to the underlying
    *           {@link PreparedStatement}.
    */
   @Override
@@ -271,8 +286,7 @@ public class AuditConnection extends DelegateConnection {
   /**
    * {@inheritDoc}
    *
-   * @implNote This method returns an {@link AuditPreparedStatement} instance
-   *           that delegates all method calls to the underlying
+   * @implNote This method returns an {@link AuditPreparedStatement} instance that delegates all method calls to the underlying
    *           {@link PreparedStatement}.
    */
   @Override
@@ -289,8 +303,7 @@ public class AuditConnection extends DelegateConnection {
   /**
    * {@inheritDoc}
    *
-   * @implNote This method returns an {@link AuditPreparedStatement} instance
-   *           that delegates all method calls to the underlying
+   * @implNote This method returns an {@link AuditPreparedStatement} instance that delegates all method calls to the underlying
    *           {@link PreparedStatement}.
    */
   @Override
