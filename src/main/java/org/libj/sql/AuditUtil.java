@@ -16,9 +16,13 @@
 
 package org.libj.sql;
 
-class Util {
-  static StringBuilder log(final Object self, final String method, final String sql) {
-    final StringBuilder builder = new StringBuilder("[").append(self.getClass().getName()).append('@').append(Integer.toHexString(self.hashCode())).append("].").append(method).append("(\n");
+import java.sql.Connection;
+
+import org.libj.lang.ObjectUtil;
+
+class AuditUtil {
+  static StringBuilder log(final Object self, final String method, final Connection connection, final String sql) {
+    final StringBuilder builder = new StringBuilder("[").append(ObjectUtil.identityString(self)).append("].").append(method).append('(').append(ObjectUtil.simpleIdentityString(connection)).append(",\n");
     if (sql != null)
       builder.append(' ').append(sql);
 

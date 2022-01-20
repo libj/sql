@@ -16,7 +16,7 @@
 
 package org.libj.sql;
 
-import static org.libj.sql.Util.*;
+import static org.libj.sql.AuditUtil.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -272,7 +272,7 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
     final long time = System.currentTimeMillis();
     try {
       if (logger.isTraceEnabled())
-        logger.trace(log(this, "executeQuery", toString()).toString());
+        logger.trace(log(this, "executeQuery", getConnection(), toString()).toString());
 
       final ResultSet resultSet = statement.executeQuery();
       if (logger.isDebugEnabled())
@@ -282,7 +282,7 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
     }
     finally {
       if (logger.isDebugEnabled())
-        logger.debug(withResult(log(this, "executeQuery", toString()), size, time).toString());
+        logger.debug(withResult(log(this, "executeQuery", getConnection(), toString()), size, time).toString());
     }
   }
 
@@ -292,13 +292,13 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
     int count = -1;
     try {
       if (logger.isTraceEnabled())
-        logger.trace(log(this, "executeUpdate", toString()).toString());
+        logger.trace(log(this, "executeUpdate", getConnection(), toString()).toString());
 
       return count = getTarget().executeUpdate();
     }
     finally {
       if (logger.isDebugEnabled())
-        logger.debug(withResult(log(this, "executeUpdate", toString()), count, time).toString());
+        logger.debug(withResult(log(this, "executeUpdate", getConnection(), toString()), count, time).toString());
     }
   }
 
@@ -435,13 +435,13 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
     boolean result = false;
     try {
       if (logger.isTraceEnabled())
-        logger.trace(log(this, "execute", toString()).toString());
+        logger.trace(log(this, "execute", getConnection(), toString()).toString());
 
       return result = getTarget().execute();
     }
     finally {
       if (logger.isDebugEnabled())
-        logger.debug(withResult(log(this, "execute", toString()), result, time).toString());
+        logger.debug(withResult(log(this, "execute", getConnection(), toString()), result, time).toString());
     }
   }
 
