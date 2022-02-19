@@ -25,12 +25,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.function.Consumer;
 
 import org.libj.lang.Numbers;
 import org.libj.lang.Strings;
 import org.libj.lang.Strings.Align;
-import org.libj.util.IdentityHashSet;
+import org.libj.lang.Throwables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,27 +54,45 @@ public class AuditConnection extends DelegateConnection {
     trace = traceProp != null && !traceProp.equals("false");
   }
 
-  private static final IdentityHashSet<AuditConnection> openConnections = trace ? new IdentityHashSet<>() : null;
+  private class Trace implements Comparable<Trace> {
+    private final String stackTrace;
+    private final long timestamp;
+
+    private Trace() {
+      this.stackTrace = Throwables.toString(new Exception());
+      this.timestamp = System.currentTimeMillis();
+    }
+
+    @Override
+    public int compareTo(final Trace o) {
+      return Long.compare(timestamp, o.timestamp);
+    }
+
+    @Override
+    public String toString() {
+      return AuditConnection.this.toString() + "\n" + "Age: " + (System.currentTimeMillis() - timestamp) + "\n" + stackTrace;
+    }
+  }
+
+  private static final IdentityHashMap<AuditConnection,Trace> openConnections = trace ? new IdentityHashMap<>() : null;
 
   /**
-   * Print a log of the open connections to {@code stderr}.
+   * Print a log of the open connections to the provided {@link Consumer}.
    *
+   * @param c The {@link Consumer} by which a log of open connections is to be accepted.
    * @implSpec This only works if {@code -Dorg.libj.sql.AuditConnection.trace} is specified as a system property.
    */
-  public static void traceOpenConnections() {
-    if (trace) {
-      final int size = openConnections.size();
-      if (size > 0) {
-        final Iterator<AuditConnection> iterator = openConnections.iterator();
-        final StringBuffer builder = new StringBuffer();
-        for (int i = 0; iterator.hasNext(); ++i) {
-          if (i > 0)
-            builder.append('\n');
+  public static void traceOpenConnections(final Consumer<String> c) {
+    if (trace && openConnections.size() > 0) {
+      final List<Trace> list = new ArrayList<>(openConnections.values());
+      list.sort(null);
 
-          builder.append(Strings.pad(String.valueOf(i), Align.RIGHT, Numbers.precision(size)) + ") " + iterator.next());
-        }
+      for (int i = 0, len = list.size(); i < len; ++i) {
+        if (i > 0)
+          c.accept("\n");
 
-        System.err.println(builder);
+        final Trace trace = list.get(i);
+        c.accept(Strings.pad(String.valueOf(i), Align.RIGHT, Numbers.precision(len)) + ") " + trace.toString().replace("\n", "\n    "));
       }
     }
   }
@@ -148,7 +169,7 @@ public class AuditConnection extends DelegateConnection {
   @Override
   public Statement createStatement() throws SQLException {
     if (trace)
-      openConnections.add(this);
+      openConnections.put(this, new Trace());
 
     return new AuditStatement(target.createStatement());
   }
@@ -162,7 +183,7 @@ public class AuditConnection extends DelegateConnection {
   @Override
   public PreparedStatement prepareStatement(final String sql) throws SQLException {
     if (trace)
-      openConnections.add(this);
+      openConnections.put(this, new Trace());
 
     if (logger.isTraceEnabled())
       logger.trace(log(this, "prepareStatement", this, sql).toString());
@@ -179,7 +200,7 @@ public class AuditConnection extends DelegateConnection {
   @Override
   public Statement createStatement(final int resultSetType, final int resultSetConcurrency) throws SQLException {
     if (trace)
-      openConnections.add(this);
+      openConnections.put(this, new Trace());
 
     return new AuditStatement(target.createStatement(resultSetType, resultSetConcurrency));
   }
@@ -193,7 +214,7 @@ public class AuditConnection extends DelegateConnection {
   @Override
   public PreparedStatement prepareStatement(final String sql, final int resultSetType, final int resultSetConcurrency) throws SQLException {
     if (trace)
-      openConnections.add(this);
+      openConnections.put(this, new Trace());
 
     if (logger.isTraceEnabled())
       logger.trace(log(this, "prepareStatement", this, sql).toString());
@@ -210,7 +231,7 @@ public class AuditConnection extends DelegateConnection {
   @Override
   public CallableStatement prepareCall(final String sql, final int resultSetType, final int resultSetConcurrency) throws SQLException {
     if (trace)
-      openConnections.add(this);
+      openConnections.put(this, new Trace());
 
     if (logger.isTraceEnabled())
       logger.trace(log(this, "prepareCall", this, sql).toString());
@@ -227,7 +248,7 @@ public class AuditConnection extends DelegateConnection {
   @Override
   public Statement createStatement(final int resultSetType, final int resultSetConcurrency, final int resultSetHoldability) throws SQLException {
     if (trace)
-      openConnections.add(this);
+      openConnections.put(this, new Trace());
 
     return new AuditStatement(target.createStatement(resultSetType, resultSetConcurrency, resultSetHoldability));
   }
@@ -241,7 +262,7 @@ public class AuditConnection extends DelegateConnection {
   @Override
   public PreparedStatement prepareStatement(final String sql, final int resultSetType, final int resultSetConcurrency, final int resultSetHoldability) throws SQLException {
     if (trace)
-      openConnections.add(this);
+      openConnections.put(this, new Trace());
 
     if (logger.isTraceEnabled())
       logger.trace(log(this, "prepareStatement", this, sql).toString());
@@ -258,7 +279,7 @@ public class AuditConnection extends DelegateConnection {
   @Override
   public CallableStatement prepareCall(final String sql, final int resultSetType, final int resultSetConcurrency, final int resultSetHoldability) throws SQLException {
     if (trace)
-      openConnections.add(this);
+      openConnections.put(this, new Trace());
 
     if (logger.isTraceEnabled())
       logger.trace(log(this, "prepareCall", this, sql).toString());
@@ -275,7 +296,7 @@ public class AuditConnection extends DelegateConnection {
   @Override
   public PreparedStatement prepareStatement(final String sql, final int autoGeneratedKeys) throws SQLException {
     if (trace)
-      openConnections.add(this);
+      openConnections.put(this, new Trace());
 
     if (logger.isTraceEnabled())
       logger.trace(log(this, "prepareStatement", this, sql).toString());
@@ -292,7 +313,7 @@ public class AuditConnection extends DelegateConnection {
   @Override
   public PreparedStatement prepareStatement(final String sql, final int[] columnIndexes) throws SQLException {
     if (trace)
-      openConnections.add(this);
+      openConnections.put(this, new Trace());
 
     if (logger.isTraceEnabled())
       logger.trace(log(this, "prepareStatement", this, sql).toString());
@@ -309,7 +330,7 @@ public class AuditConnection extends DelegateConnection {
   @Override
   public PreparedStatement prepareStatement(final String sql, final String[] columnNames) throws SQLException {
     if (trace)
-      openConnections.add(this);
+      openConnections.put(this, new Trace());
 
     if (logger.isTraceEnabled())
       logger.trace(log(this, "prepareStatement", this, sql).toString());
