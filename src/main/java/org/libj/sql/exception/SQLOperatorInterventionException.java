@@ -25,4 +25,8 @@ public class SQLOperatorInterventionException extends SQLNonTransientException {
   public SQLOperatorInterventionException(final String reason, final String sqlState, final int vendorCode) {
     super(reason, sqlState, vendorCode);
   }
+
+  public SQLOperatorInterventionException(final Exception cause) {
+    super(cause);
+  }
 }
