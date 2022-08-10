@@ -24,7 +24,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import org.libj.lang.Strings;
 import org.libj.logging.LoggerUtil;
@@ -33,28 +32,24 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 
 /**
- * A {@link Statement} that delegates all method calls to another statement.
- * This class overrides all execution methods in order to log the SQL that is
- * executed. When an "execute" method is invoked, it will be logged to the
- * logger associated with the {@link AuditStatement} class.
+ * A {@link Statement} that delegates all method calls to another statement. This class overrides all execution methods in order to
+ * log the SQL that is executed. When an "execute" method is invoked, it will be logged to the logger associated with the
+ * {@link AuditStatement} class.
  */
 public class AuditStatement implements DelegateStatement {
   private static final Logger logger = LoggerFactory.getLogger(AuditStatement.class);
 
   /**
-   * Releases the specified {@link Statement} object's database and JDBC
-   * resources immediately instead of waiting for them to be automatically
-   * released.
+   * Releases the specified {@link Statement} object's database and JDBC resources immediately instead of waiting for them to be
+   * automatically released.
    * <p>
-   * This method differs itself from {@link Statement#close()} by not throwing a
-   * {@link SQLException} if a database access error occurs. If a database
-   * access error occurs, a warning will be logged to the logger associated with
-   * the {@link AuditStatement} class.
+   * This method differs itself from {@link Statement#close()} by not throwing a {@link SQLException} if a database access error
+   * occurs. If a database access error occurs, a warning will be logged to the logger associated with the {@link AuditStatement}
+   * class.
    *
    * @param statement The {@link Statement} to close.
-   * @return {@code null} if the {@link ResultSet#close()} operation is
-   *         successful, otherwise the {@link SQLException} that caused the
-   *         failure.
+   * @return {@code null} if the {@link ResultSet#close()} operation is successful, otherwise the {@link SQLException} that caused
+   *         the failure.
    * @throws IllegalArgumentException If {@code statement} is null.
    */
   public static SQLException close(final Statement statement) {
@@ -73,11 +68,9 @@ public class AuditStatement implements DelegateStatement {
   private final Statement target;
 
   /**
-   * Creates a new {@link AuditStatement} with the specified {@code target} to
-   * which all method calls will be delegated.
+   * Creates a new {@link AuditStatement} with the specified {@code target} to which all method calls will be delegated.
    *
-   * @param target The {@link Statement} to which all method calls will be
-   *          delegated.
+   * @param target The {@link Statement} to which all method calls will be delegated.
    */
   public AuditStatement(final Statement target) {
     this.target = target;
@@ -156,7 +149,7 @@ public class AuditStatement implements DelegateStatement {
     }
   }
 
-  private List<String> batch;
+  private ArrayList<String> batch;
 
   protected final void addBatch0(final String sql) {
     if (batch == null)
@@ -183,10 +176,10 @@ public class AuditStatement implements DelegateStatement {
     builder.setLength(builder.length() - 3);
     builder.append('[');
     if (count != null)
-      for (int i = 0, len = batch.size(); i < len; ++i)
+      for (int i = 0, len = batch.size(); i < len; ++i) // [RA]
         builder.append("\n ").append(Strings.indent(batch.get(i), 2)).append(" -> ").append(count[i]);
     else
-      for (int i = 0, len = batch.size(); i < len; ++i)
+      for (int i = 0, len = batch.size(); i < len; ++i) // [RA]
         builder.append("\n ").append(Strings.indent(batch.get(i), 2)).append(" -> -1");
 
     builder.append("\n])");

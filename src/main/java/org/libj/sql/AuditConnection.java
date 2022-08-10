@@ -27,7 +27,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
-import java.util.List;
 import java.util.function.Consumer;
 
 import org.libj.lang.Numbers;
@@ -84,15 +83,14 @@ public class AuditConnection extends DelegateConnection {
    */
   public static void traceOpenConnections(final Consumer<String> c) {
     if (trace && openConnections.size() > 0) {
-      final List<Trace> list = new ArrayList<>(openConnections.values());
+      final ArrayList<Trace> list = new ArrayList<>(openConnections.values());
       list.sort(null);
 
-      for (int i = 0, len = list.size(); i < len; ++i) {
+      for (int i = 0, len = list.size(); i < len; ++i) { // [RA]
         if (i > 0)
           c.accept("\n");
 
-        final Trace trace = list.get(i);
-        c.accept(Strings.pad(String.valueOf(i), Align.RIGHT, Numbers.precision(len)) + ") " + trace.toString().replace("\n", "\n    "));
+        c.accept(Strings.pad(String.valueOf(i), Align.RIGHT, Numbers.precision(len)) + ") " + list.get(i).toString().replace("\n", "\n    "));
       }
     }
   }

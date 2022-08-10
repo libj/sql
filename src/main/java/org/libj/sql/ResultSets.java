@@ -31,19 +31,16 @@ public final class ResultSets {
   private static final Logger logger = LoggerFactory.getLogger(ResultSets.class);
 
   /**
-   * Releases the specified {@link ResultSet} object's database and JDBC
-   * resources immediately instead of waiting for them to be automatically
-   * released.
+   * Releases the specified {@link ResultSet} object's database and JDBC resources immediately instead of waiting for them to be
+   * automatically released.
    * <p>
-   * This method differs itself from {@link ResultSet#close()} by not throwing a
-   * {@link SQLException} if a database access error occurs. If a database
-   * access error occurs, a warning will be logged to the logger associated with
-   * the {@link AuditConnection} class.
+   * This method differs itself from {@link ResultSet#close()} by not throwing a {@link SQLException} if a database access error
+   * occurs. If a database access error occurs, a warning will be logged to the logger associated with the {@link AuditConnection}
+   * class.
    *
    * @param resultSet The {@link ResultSet} to close.
-   * @return {@code null} if the {@link ResultSet#close()} operation is
-   *         successful, otherwise the {@link SQLException} that caused the
-   *         failure.
+   * @return {@code null} if the {@link ResultSet#close()} operation is successful, otherwise the {@link SQLException} that caused
+   *         the failure.
    * @throws IllegalArgumentException If {@code resultSet} is null.
    */
   public static SQLException close(final ResultSet resultSet) {
@@ -60,18 +57,13 @@ public final class ResultSets {
   }
 
   /**
-   * Returns the number of rows for specified {@link ResultSet} objects that
-   * have {@link ResultSet#getType()} not equal
-   * {@link ResultSet#TYPE_FORWARD_ONLY}; otherwise this method returns
-   * {@code -1}.
+   * Returns the number of rows for specified {@link ResultSet} objects that have {@link ResultSet#getType()} not equal
+   * {@link ResultSet#TYPE_FORWARD_ONLY}; otherwise this method returns {@code -1}.
    *
    * @param resultSet The {@link ResultSet}.
-   * @return The number of rows for specified {@link ResultSet} objects that
-   *         have {@link ResultSet#getType()} not equal
-   *         {@link ResultSet#TYPE_FORWARD_ONLY}; otherwise this method returns
-   *         {@code -1}.
-   * @throws SQLException If a database access error occurs or this method is
-   *           called on a closed result set.
+   * @return The number of rows for specified {@link ResultSet} objects that have {@link ResultSet#getType()} not equal
+   *         {@link ResultSet#TYPE_FORWARD_ONLY}; otherwise this method returns {@code -1}.
+   * @throws SQLException If a database access error occurs or this method is called on a closed result set.
    * @throws IllegalArgumentException If {@code resultSet} is null.
    */
   public static Integer getSize(final ResultSet resultSet) throws SQLException {

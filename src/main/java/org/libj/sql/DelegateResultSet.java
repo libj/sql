@@ -41,21 +41,17 @@ import java.util.Calendar;
 import java.util.Map;
 
 /**
- * A {@link DelegateResultSet} contains some other {@link ResultSet}, possibly
- * transforming the method parameters along the way or providing additional
- * functionality. The class {@link DelegateResultSet} itself simply overrides
- * all methods of {@link ResultSet} with versions that delegate all calls to the
- * source {@link ResultSet}. Subclasses of {@link DelegateResultSet} may further
- * override some of these methods and may also provide additional methods and
- * fields.
+ * A {@link DelegateResultSet} contains some other {@link ResultSet}, possibly transforming the method parameters along the way or
+ * providing additional functionality. The class {@link DelegateResultSet} itself simply overrides all methods of {@link ResultSet}
+ * with versions that delegate all calls to the source {@link ResultSet}. Subclasses of {@link DelegateResultSet} may further
+ * override some of these methods and may also provide additional methods and fields.
  */
 public abstract class DelegateResultSet implements ResultSet {
   /** The target {@link ResultSet}. */
   protected volatile ResultSet target;
 
   /**
-   * Creates a new {@link DelegateResultSet} with the specified target
-   * {@link ResultSet}.
+   * Creates a new {@link DelegateResultSet} with the specified target {@link ResultSet}.
    *
    * @param target The target {@link ResultSet}.
    * @throws IllegalArgumentException If the target {@link ResultSet} is null.

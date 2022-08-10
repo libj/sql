@@ -20,24 +20,20 @@ import java.util.Calendar;
 import java.util.Map;
 
 /**
- * A {@link CallableStatement} that delegates all method calls to another
- * statement. This class overrides all execution methods in order to log the SQL
- * that is executed. When an "execute" method is invoked, a debug message with
- * the executed SQL will be logged to the logger associated with the
- * {@link AuditCallableStatement} class.
+ * A {@link CallableStatement} that delegates all method calls to another statement. This class overrides all execution methods in
+ * order to log the SQL that is executed. When an "execute" method is invoked, a debug message with the executed SQL will be logged
+ * to the logger associated with the {@link AuditCallableStatement} class.
  * <p>
- * This class overrides {@link Object#toString()} to return a detailed rendering
- * of the prepared SQL statement with its parameters applied.
+ * This class overrides {@link Object#toString()} to return a detailed rendering of the prepared SQL statement with its parameters
+ * applied.
  */
 public class AuditCallableStatement extends AuditPreparedStatement implements DelegateCallableStatement {
   /**
-   * Creates a new {@link AuditCallableStatement} with the specified
-   * {@code target} to which all method calls will be delegated.
+   * Creates a new {@link AuditCallableStatement} with the specified {@code target} to which all method calls will be delegated.
    *
-   * @param target The {@link CallableStatement} to which all method calls will
-   *          be delegated.
-   * @param sql A SQL statement to be sent to the database; may contain one or
-   *          more '?' parameters, or may contain one or more named parameters.
+   * @param target The {@link CallableStatement} to which all method calls will be delegated.
+   * @param sql A SQL statement to be sent to the database; may contain one or more '?' parameters, or may contain one or more named
+   *          parameters.
    */
   public AuditCallableStatement(final CallableStatement target, final String sql) {
     super(target, sql);

@@ -55,14 +55,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A {@link PreparedStatement} that delegates all method calls to another
- * statement. This class overrides all execution methods in order to log the SQL
- * that is executed. When an "execute" method is invoked, a debug message with
- * the executed SQL will be logged to the logger associated with the
- * {@link AuditPreparedStatement} class.
+ * A {@link PreparedStatement} that delegates all method calls to another statement. This class overrides all execution methods in
+ * order to log the SQL that is executed. When an "execute" method is invoked, a debug message with the executed SQL will be logged
+ * to the logger associated with the {@link AuditPreparedStatement} class.
  * <p>
- * This class overrides {@link Object#toString()} to return a detailed rendering
- * of the prepared SQL statement with its parameters applied.
+ * This class overrides {@link Object#toString()} to return a detailed rendering of the prepared SQL statement with its parameters
+ * applied.
  */
 public class AuditPreparedStatement extends AuditStatement implements DelegatePreparedStatement {
   private static final Logger logger = LoggerFactory.getLogger(AuditPreparedStatement.class);
@@ -97,7 +95,7 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
           final ByteArrayOutputStream out = new ByteArrayOutputStream();
           out.write(by);
           final byte[] buf = new byte[1024];
-          for (int len; (len = in.read(buf)) != -1; out.write(buf, 0, len));
+          for (int len; (len = in.read(buf)) != -1; out.write(buf, 0, len)); // [X]
           if (in.markSupported())
             in.reset();
 
@@ -130,7 +128,7 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
           final StringBuilder builder = new StringBuilder();
           builder.append(ch);
           final char[] buf = new char[1024];
-          for (int len; (len = in.read(buf)) != -1; builder.append(buf, 0, len));
+          for (int len; (len = in.read(buf)) != -1; builder.append(buf, 0, len)); // [X]
           if (in.markSupported())
             in.reset();
 
@@ -191,7 +189,7 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
     int colon = -1;
     boolean namedQuoted = false;
     final StringBuilder builder = new StringBuilder(sql);
-    for (int i = 0; i < builder.length(); ++i) {
+    for (int i = 0; i < builder.length(); ++i) { // [X]
       final char ch = builder.charAt(i);
       if (colon != -1) {
         if (colon == i - 1 && ch == '"') {
@@ -237,13 +235,10 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
   private final String sql;
 
   /**
-   * Creates a new {@link AuditPreparedStatement} with the specified
-   * {@code target} to which all method calls will be delegated.
+   * Creates a new {@link AuditPreparedStatement} with the specified {@code target} to which all method calls will be delegated.
    *
-   * @param target The {@link PreparedStatement} to which all method calls will
-   *          be delegated.
-   * @param sql A SQL statement to be sent to the database; may contain one or
-   *          more '?' parameters.
+   * @param target The {@link PreparedStatement} to which all method calls will be delegated.
+   * @param sql A SQL statement to be sent to the database; may contain one or more '?' parameters.
    */
   public AuditPreparedStatement(final PreparedStatement target, final String sql) {
     super(target);
@@ -625,17 +620,15 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
   }
 
   /**
-   * Returns a string representation of this instance's prepared SQL statement
-   * with its parameters applied.
+   * Returns a string representation of this instance's prepared SQL statement with its parameters applied.
    *
-   * @return A string representation of this instance's prepared SQL statement
-   *         with its parameters applied.
+   * @return A string representation of this instance's prepared SQL statement with its parameters applied.
    */
   @Override
   public String toString() {
     final StringBuilder builder = new StringBuilder();
     final Iterator<Map<Object,Object>> iterator = parameterMaps.iterator();
-    for (int i = 0; iterator.hasNext(); ++i) {
+    for (int i = 0; iterator.hasNext(); ++i) { // [I]
       if (i > 0)
         builder.append('\n');
 

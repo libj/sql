@@ -31,7 +31,7 @@ import org.junit.Test;
 public class AuditCallableStatementTest {
   private static AuditCallableStatement prepareCall(final String sql, final String[] names, final Object[] parameters) throws SQLException {
     final AuditCallableStatement statement = new AuditCallableStatement(new MockCallableStatement(), sql);
-    for (int i = 0; i < parameters.length ; ++i) {
+    for (int i = 0; i < parameters.length ; ++i) { // [A]
       final Object parameter = parameters[i];
       if (parameter == null)
         statement.setNull(names[i], Types.NULL);

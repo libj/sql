@@ -38,21 +38,17 @@ import java.util.Properties;
 import java.util.concurrent.Executor;
 
 /**
- * A {@link DelegateConnection} contains some other {@link Connection}, possibly
- * transforming the method parameters along the way or providing additional
- * functionality. The class {@link DelegateConnection} itself simply overrides
- * all methods of {@link Connection} with versions that delegate all calls to
- * the target {@link Connection}. Subclasses of {@link DelegateConnection} may
- * further override some of these methods and may also provide additional
- * methods and fields.
+ * A {@link DelegateConnection} contains some other {@link Connection}, possibly transforming the method parameters along the way or
+ * providing additional functionality. The class {@link DelegateConnection} itself simply overrides all methods of
+ * {@link Connection} with versions that delegate all calls to the target {@link Connection}. Subclasses of
+ * {@link DelegateConnection} may further override some of these methods and may also provide additional methods and fields.
  */
 public abstract class DelegateConnection implements Connection {
   /** The target {@link Connection}. */
   protected volatile Connection target;
 
   /**
-   * Creates a new {@link DelegateConnection} with the specified target
-   * {@link Connection}.
+   * Creates a new {@link DelegateConnection} with the specified target {@link Connection}.
    *
    * @param target The target {@link Connection}.
    * @throws IllegalArgumentException If the target {@link Connection} is null.
