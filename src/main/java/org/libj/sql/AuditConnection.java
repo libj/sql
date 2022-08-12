@@ -86,11 +86,11 @@ public class AuditConnection extends DelegateConnection {
       final ArrayList<Trace> list = new ArrayList<>(openConnections.values());
       list.sort(null);
 
-      for (int i = 0, len = list.size(); i < len; ++i) { // [RA]
+      for (int i = 0, i$ = list.size(); i < i$; ++i) { // [RA]
         if (i > 0)
           c.accept("\n");
 
-        c.accept(Strings.pad(String.valueOf(i), Align.RIGHT, Numbers.precision(len)) + ") " + list.get(i).toString().replace("\n", "\n    "));
+        c.accept(Strings.pad(String.valueOf(i), Align.RIGHT, Numbers.precision(i$)) + ") " + list.get(i).toString().replace("\n", "\n    "));
       }
     }
   }

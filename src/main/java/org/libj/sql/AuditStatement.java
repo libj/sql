@@ -176,10 +176,10 @@ public class AuditStatement implements DelegateStatement {
     builder.setLength(builder.length() - 3);
     builder.append('[');
     if (count != null)
-      for (int i = 0, len = batch.size(); i < len; ++i) // [RA]
+      for (int i = 0, i$ = batch.size(); i < i$; ++i) // [RA]
         builder.append("\n ").append(Strings.indent(batch.get(i), 2)).append(" -> ").append(count[i]);
     else
-      for (int i = 0, len = batch.size(); i < len; ++i) // [RA]
+      for (int i = 0, i$ = batch.size(); i < i$; ++i) // [RA]
         builder.append("\n ").append(Strings.indent(batch.get(i), 2)).append(" -> -1");
 
     builder.append("\n])");

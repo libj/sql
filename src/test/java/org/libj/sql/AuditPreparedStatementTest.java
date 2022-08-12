@@ -32,7 +32,7 @@ import org.junit.Test;
 public class AuditPreparedStatementTest {
   private static AuditPreparedStatement prepareStatement(final String sql, final Object ... parameters) throws SQLException {
     final AuditPreparedStatement statement = new AuditPreparedStatement(new MockPreparedStatement(), sql);
-    for (int i = 0; i < parameters.length; ++i) { // [A]
+    for (int i = 0, i$ = parameters.length; i < i$; ++i) { // [A]
       final Object parameter = parameters[i];
       if (parameter == null)
         statement.setNull(i + 1, Types.VARCHAR);
