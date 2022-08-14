@@ -28,8 +28,8 @@ import java.sql.SQLTransactionRollbackException;
 import org.libj.lang.Throwables;
 
 /**
- * A catalog of strong exception types that can be dereferenced by the
- * {@link SQLException#getSQLState()} via {@link #toStrongType(SQLException)}.
+ * A catalog of strong exception types that can be dereferenced by the {@link SQLException#getSQLState()} via
+ * {@link #toStrongType(SQLException)}.
  */
 public final class SQLExceptions {
   static String getSqlState(final SQLException e) {
@@ -39,14 +39,11 @@ public final class SQLExceptions {
   }
 
   /**
-   * Returns the strong exception type for the specified {@link SQLException},
-   * or {@code null} if one is not registered. The specified exception's
-   * {@link SQLException#getSQLState()} method is used to dereference the
-   * appropriate strong exception type.
+   * Returns the strong exception type for the specified {@link SQLException}, or {@code null} if one is not registered. The
+   * specified exception's {@link SQLException#getSQLState()} method is used to dereference the appropriate strong exception type.
    *
    * @param exception The {@link SQLException}.
-   * @return The strong exception type for the specified {@link SQLException},
-   *         or {@code null} if one is not registered.
+   * @return The strong exception type for the specified {@link SQLException}, or {@code null} if one is not registered.
    */
   public static SQLException toStrongType(final SQLException exception) {
     final SQLException e;

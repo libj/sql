@@ -19,8 +19,8 @@ package org.libj.sql.exception;
 import java.sql.SQLException;
 
 /**
- * An {@link Exception} to signal that a {@link SQLException} of a particular
- * class and SQL State is not supported by {@link SQLExceptions}.
+ * An {@link Exception} to signal that a {@link SQLException} of a particular class and SQL State is not supported by
+ * {@link SQLExceptions}.
  */
 public class UnsupportedSQLException extends Exception {
   public UnsupportedSQLException(final SQLException e) {

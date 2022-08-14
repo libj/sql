@@ -19,8 +19,7 @@ package org.libj.sql.exception;
 import java.sql.SQLNonTransientException;
 
 /**
- * A {@link SQLNonTransientException} to signal an error due to an object not in
- * prerequisite state.
+ * A {@link SQLNonTransientException} to signal an error due to an object not in prerequisite state.
  */
 public class SQLPrerequisiteStateException extends SQLNonTransientException {
   public SQLPrerequisiteStateException(final String reason, final String sqlState, final int vendorCode) {
