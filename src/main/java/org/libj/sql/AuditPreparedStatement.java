@@ -45,8 +45,6 @@ import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.libj.lang.Hexadecimal;
@@ -95,7 +93,7 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
           final ByteArrayOutputStream out = new ByteArrayOutputStream();
           out.write(by);
           final byte[] buf = new byte[1024];
-          for (int len; (len = in.read(buf)) != -1; out.write(buf, 0, len)); // [X]
+          for (int len; (len = in.read(buf)) != -1; out.write(buf, 0, len)); // [ST]
           if (in.markSupported())
             in.reset();
 
@@ -128,7 +126,7 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
           final StringBuilder builder = new StringBuilder();
           builder.append(ch);
           final char[] buf = new char[1024];
-          for (int len; (len = in.read(buf)) != -1; builder.append(buf, 0, len)); // [X]
+          for (int len; (len = in.read(buf)) != -1; builder.append(buf, 0, len)); // [ST]
           if (in.markSupported())
             in.reset();
 
@@ -189,7 +187,7 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
     int colon = -1;
     boolean namedQuoted = false;
     final StringBuilder builder = new StringBuilder(sql);
-    for (int i = 0; i < builder.length(); ++i) { // [X]
+    for (int i = 0; i < builder.length(); ++i) { // [$]
       final char ch = builder.charAt(i);
       if (colon != -1) {
         if (colon == i - 1 && ch == '"') {
@@ -231,7 +229,7 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
   private static final DateTimeFormatter timestampFormat = new DateTimeFormatterBuilder().append(dateFormat).appendLiteral(' ').append(timeFormat).toFormatter();
   private static final ThreadLocal<DecimalFormat> numberFormat = DecimalFormatter.createDecimalFormat("###############.###############;-###############.###############");
 
-  private final List<Map<Object,Object>> parameterMaps = new ArrayList<>();
+  private final ArrayList<Map<Object,Object>> parameterMaps = new ArrayList<>();
   private final String sql;
 
   /**
@@ -627,12 +625,11 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
   @Override
   public String toString() {
     final StringBuilder builder = new StringBuilder();
-    final Iterator<Map<Object,Object>> iterator = parameterMaps.iterator();
-    for (int i = 0; iterator.hasNext(); ++i) { // [I]
+    for (int i = 0, i$ = parameterMaps.size(); i < i$; ++i) { // [RA]
       if (i > 0)
         builder.append('\n');
 
-      builder.append(toString(sql, iterator.next()));
+      builder.append(toString(sql, parameterMaps.get(i)));
     }
 
     return builder.toString();
