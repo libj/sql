@@ -32,6 +32,7 @@ import java.util.function.Consumer;
 import org.libj.lang.Numbers;
 import org.libj.lang.Strings;
 import org.libj.lang.Strings.Align;
+import org.libj.lang.Systems;
 import org.libj.lang.Throwables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,12 +47,7 @@ import org.slf4j.LoggerFactory;
  */
 public class AuditConnection extends DelegateConnection {
   private static final Logger logger = LoggerFactory.getLogger(AuditConnection.class);
-  private static final boolean trace;
-
-  static {
-    final String traceProp = System.getProperty("org.libj.sql.AuditConnection.trace");
-    trace = traceProp != null && !traceProp.equals("false");
-  }
+  private static final boolean trace = Systems.hasProperty("org.libj.sql.AuditConnection.trace");
 
   private class Trace implements Comparable<Trace> {
     private final String stackTrace;
