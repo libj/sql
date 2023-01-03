@@ -22,7 +22,7 @@ import static org.libj.sql.AuditUtil.*;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -101,7 +101,7 @@ public class AuditConnection extends DelegateConnection {
    * class.
    *
    * @param connection The connection to be checked if closed.
-   * @return {@code true} or {@code false} if the {@link ResultSet#isClosed()} operation is successful, otherwise {@code null} if a
+   * @return {@code true} or {@code false} if the {@link Connection#isClosed()} operation is successful, otherwise {@code null} if a
    *         {@link SQLException} was encountered.
    * @throws IllegalArgumentException If {@code connection} is null.
    */
@@ -126,7 +126,7 @@ public class AuditConnection extends DelegateConnection {
    * class.
    *
    * @param connection The connection to be closed.
-   * @return {@code null} if the {@link ResultSet#close()} operation is successful, otherwise the {@link SQLException} that caused
+   * @return {@code null} if the {@link Connection#close()} operation is successful, otherwise the {@link SQLException} that caused
    *         the failure.
    * @throws IllegalArgumentException If {@code connection} is null.
    */
@@ -146,9 +146,23 @@ public class AuditConnection extends DelegateConnection {
   }
 
   /**
+   * Returns a {@link AuditConnection} if {@code DEBUG} level logging is enabled, or if the
+   * {@code org.libj.sql.AuditConnection.trace} system property is specified. Otherwise, returns the provided target
+   * {@link Connection}.
+   *
+   * @param target The {@link Connection} to wrap.
+   * @return A {@link AuditConnection} if {@code DEBUG} level logging is enabled. Otherwise, returns the provided target
+   *         {@link Connection}.
+   */
+  public static Connection wrapIfDebugEnabled(final Connection target) {
+    return trace || logger.isDebugEnabled() ? new AuditConnection(target) : target;
+  }
+
+  /**
    * Creates a new {@link AuditConnection} with the specified {@code target} to which all method calls will be delegated.
    *
    * @param target The {@link Connection} to which all method calls will be delegated.
+   * @throws IllegalArgumentException If the target {@link Connection} is null.
    */
   public AuditConnection(final Connection target) {
     super(target);
@@ -165,7 +179,7 @@ public class AuditConnection extends DelegateConnection {
     if (trace)
       openConnections.put(this, new Trace());
 
-    return new AuditStatement(target.createStatement());
+    return AuditStatement.wrapIfDebugEnabled(target.createStatement());
   }
 
   /**
@@ -182,7 +196,7 @@ public class AuditConnection extends DelegateConnection {
     if (logger.isTraceEnabled())
       logger.trace(log(this, "prepareStatement", this, sql).toString());
 
-    return new AuditPreparedStatement(target.prepareStatement(sql), sql);
+    return AuditPreparedStatement.wrapIfDebugEnabled(target.prepareStatement(sql), sql);
   }
 
   /**
@@ -196,7 +210,7 @@ public class AuditConnection extends DelegateConnection {
     if (trace)
       openConnections.put(this, new Trace());
 
-    return new AuditStatement(target.createStatement(resultSetType, resultSetConcurrency));
+    return AuditStatement.wrapIfDebugEnabled(target.createStatement(resultSetType, resultSetConcurrency));
   }
 
   /**
@@ -213,7 +227,7 @@ public class AuditConnection extends DelegateConnection {
     if (logger.isTraceEnabled())
       logger.trace(log(this, "prepareStatement", this, sql).toString());
 
-    return new AuditPreparedStatement(target.prepareStatement(sql, resultSetType, resultSetConcurrency), sql);
+    return AuditPreparedStatement.wrapIfDebugEnabled(target.prepareStatement(sql, resultSetType, resultSetConcurrency), sql);
   }
 
   /**
@@ -230,7 +244,7 @@ public class AuditConnection extends DelegateConnection {
     if (logger.isTraceEnabled())
       logger.trace(log(this, "prepareCall", this, sql).toString());
 
-    return new AuditCallableStatement(target.prepareCall(sql, resultSetType, resultSetConcurrency), sql);
+    return AuditCallableStatement.wrapIfDebugEnabled(target.prepareCall(sql, resultSetType, resultSetConcurrency), sql);
   }
 
   /**
@@ -244,7 +258,7 @@ public class AuditConnection extends DelegateConnection {
     if (trace)
       openConnections.put(this, new Trace());
 
-    return new AuditStatement(target.createStatement(resultSetType, resultSetConcurrency, resultSetHoldability));
+    return AuditStatement.wrapIfDebugEnabled(target.createStatement(resultSetType, resultSetConcurrency, resultSetHoldability));
   }
 
   /**
@@ -261,7 +275,7 @@ public class AuditConnection extends DelegateConnection {
     if (logger.isTraceEnabled())
       logger.trace(log(this, "prepareStatement", this, sql).toString());
 
-    return new AuditPreparedStatement(target.prepareStatement(sql, resultSetType, resultSetConcurrency, resultSetHoldability), sql);
+    return AuditPreparedStatement.wrapIfDebugEnabled(target.prepareStatement(sql, resultSetType, resultSetConcurrency, resultSetHoldability), sql);
   }
 
   /**
@@ -278,7 +292,7 @@ public class AuditConnection extends DelegateConnection {
     if (logger.isTraceEnabled())
       logger.trace(log(this, "prepareCall", this, sql).toString());
 
-    return new AuditCallableStatement(target.prepareCall(sql, resultSetType, resultSetConcurrency, resultSetHoldability), sql);
+    return AuditCallableStatement.wrapIfDebugEnabled(target.prepareCall(sql, resultSetType, resultSetConcurrency, resultSetHoldability), sql);
   }
 
   /**
@@ -295,7 +309,7 @@ public class AuditConnection extends DelegateConnection {
     if (logger.isTraceEnabled())
       logger.trace(log(this, "prepareStatement", this, sql).toString());
 
-    return new AuditPreparedStatement(target.prepareStatement(sql, autoGeneratedKeys), sql);
+    return AuditPreparedStatement.wrapIfDebugEnabled(target.prepareStatement(sql, autoGeneratedKeys), sql);
   }
 
   /**
@@ -312,7 +326,7 @@ public class AuditConnection extends DelegateConnection {
     if (logger.isTraceEnabled())
       logger.trace(log(this, "prepareStatement", this, sql).toString());
 
-    return new AuditPreparedStatement(target.prepareStatement(sql, columnIndexes), sql);
+    return AuditPreparedStatement.wrapIfDebugEnabled(target.prepareStatement(sql, columnIndexes), sql);
   }
 
   /**
@@ -329,7 +343,7 @@ public class AuditConnection extends DelegateConnection {
     if (logger.isTraceEnabled())
       logger.trace(log(this, "prepareStatement", this, sql).toString());
 
-    return new AuditPreparedStatement(target.prepareStatement(sql, columnNames), sql);
+    return AuditPreparedStatement.wrapIfDebugEnabled(target.prepareStatement(sql, columnNames), sql);
   }
 
   @Override

@@ -48,7 +48,7 @@ import java.util.Map;
  */
 public abstract class DelegateResultSet implements ResultSet {
   /** The target {@link ResultSet}. */
-  protected volatile ResultSet target;
+  protected ResultSet target;
 
   /**
    * Creates a new {@link DelegateResultSet} with the specified target {@link ResultSet}.

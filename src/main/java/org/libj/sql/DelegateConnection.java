@@ -45,7 +45,7 @@ import java.util.concurrent.Executor;
  */
 public abstract class DelegateConnection implements Connection {
   /** The target {@link Connection}. */
-  protected volatile Connection target;
+  protected Connection target;
 
   /**
    * Creates a new {@link DelegateConnection} with the specified target {@link Connection}.

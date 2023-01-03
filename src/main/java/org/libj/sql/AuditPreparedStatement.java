@@ -61,7 +61,7 @@ import org.slf4j.LoggerFactory;
  * applied.
  */
 public class AuditPreparedStatement extends AuditStatement implements DelegatePreparedStatement {
-  private static final Logger logger = LoggerFactory.getLogger(AuditPreparedStatement.class);
+  static final Logger logger = LoggerFactory.getLogger(AuditPreparedStatement.class);
 
   protected static final String NULL = "NULL";
 
@@ -124,13 +124,14 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
         ch = in.read();
         if (ch != -1) {
           final StringBuilder builder = new StringBuilder();
-          builder.append(ch);
+          builder.append('\'').append(ch);
           final char[] buf = new char[1024];
           for (int len; (len = in.read(buf)) != -1; builder.append(buf, 0, len)); // [ST]
           if (in.markSupported())
             in.reset();
 
-          return "'" + builder.toString() + "'";
+          builder.append('\'');
+          return builder.toString();
         }
       }
       catch (final IOException e) {
@@ -224,13 +225,26 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
     return builder.toString();
   }
 
+  /**
+   * Returns a {@link AuditPreparedStatement} if {@code DEBUG} level logging is enabled. Otherwise, returns the provided target
+   * {@link PreparedStatement}.
+   *
+   * @param target The {@link PreparedStatement} to wrap.
+   * @param sql A SQL statement to be sent to the database; may contain one or more '?' parameters.
+   * @return A {@link AuditPreparedStatement} if {@code DEBUG} level logging is enabled. Otherwise, returns the provided target
+   *         {@link PreparedStatement}.
+   */
+  public static PreparedStatement wrapIfDebugEnabled(final PreparedStatement target, final String sql) {
+    return logger.isDebugEnabled() ? new AuditPreparedStatement(target, sql) : target;
+  }
+
   private static final DateTimeFormatter dateFormat = DateTimeFormatter.ISO_LOCAL_DATE;
   private static final DateTimeFormatter timeFormat = new DateTimeFormatterBuilder().appendPattern("HH:mm:ss").appendFraction(ChronoField.MILLI_OF_SECOND, 0, 6, true).toFormatter();
   private static final DateTimeFormatter timestampFormat = new DateTimeFormatterBuilder().append(dateFormat).appendLiteral(' ').append(timeFormat).toFormatter();
   private static final ThreadLocal<DecimalFormat> numberFormat = DecimalFormatter.createDecimalFormat("###############.###############;-###############.###############");
 
-  private final ArrayList<Map<Object,Object>> parameterMaps = new ArrayList<>();
   private final String sql;
+  private ArrayList<Map<Object,Object>> parameterMaps;
 
   /**
    * Creates a new {@link AuditPreparedStatement} with the specified {@code target} to which all method calls will be delegated.
@@ -241,7 +255,6 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
   public AuditPreparedStatement(final PreparedStatement target, final String sql) {
     super(target);
     this.sql = sql;
-    parameterMaps.add(new HashMap<>());
   }
 
   @Override
@@ -255,6 +268,11 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
    * @return The map of index-to-value parameters for the current batch.
    */
   protected Map<Object,Object> getCurrentParameterMap() {
+    if (parameterMaps == null) {
+      parameterMaps = new ArrayList<>();
+      parameterMaps.add(new HashMap<>());
+    }
+
     return parameterMaps.get(parameterMaps.size() - 1);
   }
 
@@ -262,35 +280,43 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
   public ResultSet executeQuery() throws SQLException {
     final PreparedStatement statement = getTarget();
     int size = -1;
-    final long time = System.currentTimeMillis();
+    long time = -1;
+    final boolean debugEnabled = logger.isDebugEnabled();
     try {
       if (logger.isTraceEnabled())
         logger.trace(log(this, "executeQuery", getConnection(), toString()).toString());
 
+      if (debugEnabled)
+        time = System.currentTimeMillis();
+
       final ResultSet resultSet = statement.executeQuery();
-      if (logger.isDebugEnabled())
+      if (debugEnabled)
         size = ResultSets.getSize(resultSet);
 
       return resultSet;
     }
     finally {
-      if (logger.isDebugEnabled())
+      if (debugEnabled)
         logger.debug(withResult(log(this, "executeQuery", getConnection(), toString()), size, time).toString());
     }
   }
 
   @Override
   public int executeUpdate() throws SQLException {
-    final long time = System.currentTimeMillis();
+    long time = -1;
     int count = -1;
+    final boolean debugEnabled = logger.isDebugEnabled();
     try {
       if (logger.isTraceEnabled())
         logger.trace(log(this, "executeUpdate", getConnection(), toString()).toString());
 
+      if (debugEnabled)
+        time = System.currentTimeMillis();
+
       return count = getTarget().executeUpdate();
     }
     finally {
-      if (logger.isDebugEnabled())
+      if (debugEnabled)
         logger.debug(withResult(log(this, "executeUpdate", getConnection(), toString()), count, time).toString());
     }
   }
@@ -424,23 +450,29 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
 
   @Override
   public boolean execute() throws SQLException {
-    final long time = System.currentTimeMillis();
+    long time = -1;
     boolean result = false;
+    final boolean debugEnabled = logger.isDebugEnabled();
     try {
       if (logger.isTraceEnabled())
         logger.trace(log(this, "execute", getConnection(), toString()).toString());
 
+      if (debugEnabled)
+        time = System.currentTimeMillis();
+
       return result = getTarget().execute();
     }
     finally {
-      if (logger.isDebugEnabled())
+      if (debugEnabled)
         logger.debug(withResult(log(this, "execute", getConnection(), toString()), result, time).toString());
     }
   }
 
   @Override
   public void addBatch() throws SQLException {
-    addBatch0(toString(sql, getCurrentParameterMap()));
+    if (logger.isTraceEnabled())
+      addBatch0(toString(sql, getCurrentParameterMap()));
+
     parameterMaps.add(new HashMap<>());
     getTarget().addBatch();
   }
@@ -608,6 +640,14 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
   }
 
   @Override
+  public void close() throws SQLException {
+    if (parameterMaps != null)
+      parameterMaps.clear();
+
+    super.close();
+  }
+
+  @Override
   public boolean equals(final Object obj) {
     return getTarget().equals(obj);
   }
@@ -624,6 +664,9 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
    */
   @Override
   public String toString() {
+    if (!logger.isDebugEnabled() || parameterMaps == null)
+      return sql;
+
     final StringBuilder builder = new StringBuilder();
     for (int i = 0, i$ = parameterMaps.size(); i < i$; ++i) { // [RA]
       if (i > 0)
