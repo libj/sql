@@ -145,7 +145,14 @@ public class AuditStatement implements DelegateStatement {
   @Override
   public void close() throws SQLException {
     try {
-      getTarget().close();
+      final Statement target = getTarget();
+      if (!target.isClosed())
+        target.close();
+
+      if (batch != null) {
+        batch.clear();
+        batch = null;
+      }
     }
     catch (final SQLException e) {
       if (!"Connection is closed.".equals(e.getMessage()))
@@ -184,7 +191,7 @@ public class AuditStatement implements DelegateStatement {
 
   @Override
   public void addBatch(final String sql) throws SQLException {
-    if (logger.isTraceEnabled())
+    if (logger.isDebugEnabled())
       addBatch0(sql);
 
     getTarget().addBatch(sql);
@@ -201,12 +208,14 @@ public class AuditStatement implements DelegateStatement {
     final StringBuilder builder = log(this, "executeBatch", getConnection(), null);
     builder.setLength(builder.length() - 3);
     builder.append('[');
-    if (count != null)
-      for (int i = 0, i$ = batch.size(); i < i$; ++i) // [RA]
-        builder.append("\n ").append(Strings.indent(batch.get(i), 2)).append(" -> ").append(count[i]);
-    else
-      for (int i = 0, i$ = batch.size(); i < i$; ++i) // [RA]
-        builder.append("\n ").append(Strings.indent(batch.get(i), 2)).append(" -> -1");
+    if (batch != null) {
+      if (count != null)
+        for (int i = 0, i$ = batch.size(); i < i$; ++i) // [RA]
+          builder.append("\n ").append(Strings.indent(batch.get(i), 2)).append(" -> ").append(count[i]);
+      else
+        for (int i = 0, i$ = batch.size(); i < i$; ++i) // [RA]
+          builder.append("\n ").append(Strings.indent(batch.get(i), 2)).append(" -> -1");
+    }
 
     builder.append("\n])");
     if (time != null)
