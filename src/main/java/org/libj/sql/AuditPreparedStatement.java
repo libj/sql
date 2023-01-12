@@ -283,8 +283,7 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
     long time = -1;
     final boolean debugEnabled = logger.isDebugEnabled();
     try {
-      if (logger.isTraceEnabled())
-        logger.trace(log(this, "executeQuery", getConnection(), toString()).toString());
+      if (logger.isTraceEnabled()) logger.trace(log(this, "executeQuery", getConnection(), toString()).toString());
 
       if (debugEnabled)
         time = System.currentTimeMillis();
@@ -296,8 +295,7 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
       return resultSet;
     }
     finally {
-      if (debugEnabled)
-        logger.debug(withResult(log(this, "executeQuery", getConnection(), toString()), size, time).toString());
+      if (debugEnabled) logger.debug(withResult(log(this, "executeQuery", getConnection(), toString()), size, time).toString());
     }
   }
 
@@ -307,8 +305,7 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
     int count = -1;
     final boolean debugEnabled = logger.isDebugEnabled();
     try {
-      if (logger.isTraceEnabled())
-        logger.trace(log(this, "executeUpdate", getConnection(), toString()).toString());
+      if (logger.isTraceEnabled()) logger.trace(log(this, "executeUpdate", getConnection(), toString()).toString());
 
       if (debugEnabled)
         time = System.currentTimeMillis();
@@ -316,8 +313,7 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
       return count = getTarget().executeUpdate();
     }
     finally {
-      if (debugEnabled)
-        logger.debug(withResult(log(this, "executeUpdate", getConnection(), toString()), count, time).toString());
+      if (debugEnabled) logger.debug(withResult(log(this, "executeUpdate", getConnection(), toString()), count, time).toString());
     }
   }
 
@@ -454,8 +450,7 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
     boolean result = false;
     final boolean debugEnabled = logger.isDebugEnabled();
     try {
-      if (logger.isTraceEnabled())
-        logger.trace(log(this, "execute", getConnection(), toString()).toString());
+      if (logger.isTraceEnabled()) logger.trace(log(this, "execute", getConnection(), toString()).toString());
 
       if (debugEnabled)
         time = System.currentTimeMillis();
@@ -463,8 +458,7 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
       return result = getTarget().execute();
     }
     finally {
-      if (debugEnabled)
-        logger.debug(withResult(log(this, "execute", getConnection(), toString()), result, time).toString());
+      if (debugEnabled) logger.debug(withResult(log(this, "execute", getConnection(), toString()), result, time).toString());
     }
   }
 

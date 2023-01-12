@@ -51,7 +51,7 @@ public final class ResultSets {
       return null;
     }
     catch (final SQLException e) {
-      logger.warn(resultSet.getClass().getName() + ".close(): " + e.getMessage());
+      if (logger.isWarnEnabled()) logger.warn(resultSet.getClass().getName() + ".close(): " + e.getMessage());
       return e;
     }
   }
