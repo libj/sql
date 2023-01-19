@@ -198,7 +198,7 @@ public class AuditStatement implements DelegateStatement {
       batch.clear();
   }
 
-  private String logBatch(final int[] count, final Long time) throws SQLException {
+  private String logExecuteBatch(final int[] count, final Long time) throws SQLException {
     final StringBuilder builder = log(this, "executeBatch", getConnection(), null);
     builder.setLength(builder.length() - 3);
     builder.append('[');
@@ -224,7 +224,7 @@ public class AuditStatement implements DelegateStatement {
     int[] count = null;
     final boolean debugEnabled = logger.isDebugEnabled();
     try {
-      if (logger.isTraceEnabled()) logger.trace(logBatch(count, null));
+      if (logger.isTraceEnabled()) logger.trace(logExecuteBatch(count, null));
 
       if (debugEnabled)
         time = System.currentTimeMillis();
@@ -232,7 +232,7 @@ public class AuditStatement implements DelegateStatement {
       return count = getTarget().executeBatch();
     }
     finally {
-      if (debugEnabled) logger.debug(logBatch(count, time));
+      if (debugEnabled) logger.debug(logExecuteBatch(count, time));
     }
   }
 

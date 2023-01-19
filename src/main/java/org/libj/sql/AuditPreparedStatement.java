@@ -464,7 +464,7 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
 
   @Override
   public void addBatch() throws SQLException {
-    if (logger.isTraceEnabled())
+    if (logger.isDebugEnabled())
       addBatch0(toString(sql, getCurrentParameterMap()));
 
     parameterMaps.add(new HashMap<>());
