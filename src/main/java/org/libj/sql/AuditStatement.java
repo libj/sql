@@ -268,7 +268,7 @@ public class AuditStatement implements DelegateStatement {
       return count = getTarget().executeUpdate(sql, columnIndexes);
     }
     finally {
-      if (debugEnabled) logger.debug(withResult(log(this, "executeUpdate", getConnection(), sql).append("\n, [").append(Arrays.toString(columnIndexes)).append("]"), count, time).toString());
+      if (debugEnabled) logger.debug(withResult(log(this, "executeUpdate", getConnection(), sql).append("\n, [").append(Arrays.toString(columnIndexes)).append(']'), count, time).toString());
     }
   }
 
