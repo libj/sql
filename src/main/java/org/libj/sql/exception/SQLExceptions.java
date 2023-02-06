@@ -206,6 +206,35 @@ public final class SQLExceptions {
 
         e = new SQLOperatorInterventionException(exception.getMessage(), sqlState, exception.getErrorCode());
       }
+      else if ("53".equals(_class)) { // FIXME: Only added for PostgreSQL
+        if ("53000".equals(sqlState)) {
+          if (exception instanceof SQLInsufficientResourcesException)
+            return exception;
+
+          e = new SQLInsufficientResourcesException(exception.getMessage(), sqlState, exception.getErrorCode());
+        }
+        else if ("53100".equals(sqlState)) {
+          if (exception instanceof SQLDiskFullException)
+            return exception;
+
+          e = new SQLDiskFullException(exception.getMessage(), sqlState, exception.getErrorCode());
+        }
+        else if ("53200".equals(sqlState)) {
+          if (exception instanceof SQLOutOfMemoryException)
+            return exception;
+
+          e = new SQLOutOfMemoryException(exception.getMessage(), sqlState, exception.getErrorCode());
+        }
+        else if ("53300".equals(sqlState)) {
+          if (exception instanceof SQLTooManyConnectionsException)
+            return exception;
+
+          e = new SQLTooManyConnectionsException(exception.getMessage(), sqlState, exception.getErrorCode());
+        }
+        else {
+          return unsupported(exception);
+        }
+      }
       else if ("65".equals(_class) || "99".equals(_class) || "S1".equals(_class) && "S1009".equals(sqlState)) { // Oracle: https://www.techonthenet.com/oracle/errors/ora06502.php
         if (exception instanceof SQLValueException)
           return exception;
@@ -219,12 +248,16 @@ public final class SQLExceptions {
         e = new SQLInternalErrorException(exception.getMessage(), sqlState, exception.getErrorCode());
       }
       else {
-        exception.addSuppressed(new UnsupportedSQLException(exception));
-        return exception;
+        return unsupported(exception);
       }
     }
 
     return Throwables.copy(exception, e);
+  }
+
+  private static SQLException unsupported(final SQLException exception) {
+    exception.addSuppressed(new UnsupportedSQLException(exception));
+    return exception;
   }
 
   // Spec: http://www.contrib.andrew.cmu.edu/~shadow/sql/sql1992.txt
