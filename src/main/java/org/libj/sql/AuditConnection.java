@@ -64,7 +64,7 @@ public class AuditConnection extends DelegateConnection {
 
     @Override
     public String toString() {
-      return AuditConnection.this.toString() + "\n" + "Age: " + (System.currentTimeMillis() - timestamp) + "\n" + stackTrace;
+      return AuditConnection.this + "\nAge: " + (System.currentTimeMillis() - timestamp) + "\n" + stackTrace;
     }
   }
 
