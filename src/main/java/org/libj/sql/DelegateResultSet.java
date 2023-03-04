@@ -16,8 +16,6 @@
 
 package org.libj.sql;
 
-import static org.libj.lang.Assertions.*;
-
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
@@ -39,6 +37,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * A {@link DelegateResultSet} contains some other {@link ResultSet}, possibly transforming the method parameters along the way or
@@ -54,10 +53,10 @@ public abstract class DelegateResultSet implements ResultSet {
    * Creates a new {@link DelegateResultSet} with the specified target {@link ResultSet}.
    *
    * @param target The target {@link ResultSet}.
-   * @throws IllegalArgumentException If the target {@link ResultSet} is null.
+   * @throws NullPointerException If the target {@link ResultSet} is null.
    */
   public DelegateResultSet(final ResultSet target) {
-    this.target = assertNotNull(target);
+    this.target = Objects.requireNonNull(target);
   }
 
   /**

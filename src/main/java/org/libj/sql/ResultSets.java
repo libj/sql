@@ -16,8 +16,6 @@
 
 package org.libj.sql;
 
-import static org.libj.lang.Assertions.*;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -41,11 +39,11 @@ public final class ResultSets {
    * @param resultSet The {@link ResultSet} to close.
    * @return {@code null} if the {@link ResultSet#close()} operation is successful, otherwise the {@link SQLException} that caused
    *         the failure.
-   * @throws IllegalArgumentException If {@code resultSet} is null.
+   * @throws NullPointerException If {@code resultSet} is null.
    */
   public static SQLException close(final ResultSet resultSet) {
     try {
-      if (!assertNotNull(resultSet).isClosed())
+      if (!resultSet.isClosed())
         resultSet.close();
 
       return null;
@@ -64,10 +62,10 @@ public final class ResultSets {
    * @return The number of rows for specified {@link ResultSet} objects that have {@link ResultSet#getType()} not equal
    *         {@link ResultSet#TYPE_FORWARD_ONLY}; otherwise this method returns {@code -1}.
    * @throws SQLException If a database access error occurs or this method is called on a closed result set.
-   * @throws IllegalArgumentException If {@code resultSet} is null.
+   * @throws NullPointerException If {@code resultSet} is null.
    */
   public static Integer getSize(final ResultSet resultSet) throws SQLException {
-    if (assertNotNull(resultSet).getType() <= ResultSet.TYPE_FORWARD_ONLY)
+    if (resultSet.getType() <= ResultSet.TYPE_FORWARD_ONLY)
       return -1;
 
     resultSet.last();

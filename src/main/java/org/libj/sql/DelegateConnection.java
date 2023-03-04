@@ -16,8 +16,6 @@
 
 package org.libj.sql;
 
-import static org.libj.lang.Assertions.*;
-
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.CallableStatement;
@@ -34,6 +32,7 @@ import java.sql.Savepoint;
 import java.sql.Statement;
 import java.sql.Struct;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 
@@ -51,10 +50,10 @@ public abstract class DelegateConnection implements Connection {
    * Creates a new {@link DelegateConnection} with the specified target {@link Connection}.
    *
    * @param target The target {@link Connection}.
-   * @throws IllegalArgumentException If the target {@link Connection} is null.
+   * @throws NullPointerException If the target {@link Connection} is null.
    */
   public DelegateConnection(final Connection target) {
-    this.target = assertNotNull(target);
+    this.target = Objects.requireNonNull(target);
   }
 
   /**

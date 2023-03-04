@@ -16,7 +16,6 @@
 
 package org.libj.sql;
 
-import static org.libj.lang.Assertions.*;
 import static org.libj.sql.AuditUtil.*;
 
 import java.sql.ResultSet;
@@ -50,11 +49,11 @@ public class AuditStatement implements DelegateStatement {
    * @param statement The {@link Statement} to close.
    * @return {@code null} if the {@link ResultSet#close()} operation is successful, otherwise the {@link SQLException} that caused
    *         the failure.
-   * @throws IllegalArgumentException If {@code statement} is null.
+   * @throws NullPointerException If {@code statement} is null.
    */
   public static SQLException close(final Statement statement) {
     try {
-      if (!assertNotNull(statement).isClosed())
+      if (!statement.isClosed())
         statement.close();
 
       return null;

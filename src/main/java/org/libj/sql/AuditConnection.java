@@ -16,7 +16,6 @@
 
 package org.libj.sql;
 
-import static org.libj.lang.Assertions.*;
 import static org.libj.sql.AuditUtil.*;
 
 import java.sql.CallableStatement;
@@ -102,11 +101,11 @@ public class AuditConnection extends DelegateConnection {
    * @param connection The connection to be checked if closed.
    * @return {@code true} or {@code false} if the {@link Connection#isClosed()} operation is successful, otherwise {@code null} if a
    *         {@link SQLException} was encountered.
-   * @throws IllegalArgumentException If {@code connection} is null.
+   * @throws NullPointerException If {@code connection} is null.
    */
   public static Boolean isClosed(final Connection connection) {
     try {
-      return assertNotNull(connection).isClosed();
+      return connection.isClosed();
     }
     catch (final SQLException e) {
       if (logger.isWarnEnabled()) logger.warn(connection.getClass().getName() + ".isClosed(): " + e.getMessage());
@@ -125,11 +124,11 @@ public class AuditConnection extends DelegateConnection {
    * @param connection The connection to be closed.
    * @return {@code null} if the {@link Connection#close()} operation is successful, otherwise the {@link SQLException} that caused
    *         the failure.
-   * @throws IllegalArgumentException If {@code connection} is null.
+   * @throws NullPointerException If {@code connection} is null.
    */
   public static SQLException close(final Connection connection) {
     try {
-      if (!assertNotNull(connection).isClosed())
+      if (!connection.isClosed())
         connection.close();
 
       return null;
@@ -157,7 +156,7 @@ public class AuditConnection extends DelegateConnection {
    * Creates a new {@link AuditConnection} with the specified {@code target} to which all method calls will be delegated.
    *
    * @param target The {@link Connection} to which all method calls will be delegated.
-   * @throws IllegalArgumentException If the target {@link Connection} is null.
+   * @throws NullPointerException If the target {@link Connection} is null.
    */
   public AuditConnection(final Connection target) {
     super(target);
