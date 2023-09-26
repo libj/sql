@@ -43,7 +43,7 @@ import java.util.Map;
  */
 public class MockResultSet implements ResultSet {
   @Override
-  public <T>T unwrap(final Class<T> iface) throws SQLException {
+  public <T> T unwrap(final Class<T> iface) throws SQLException {
     return null;
   }
 
@@ -893,12 +893,12 @@ public class MockResultSet implements ResultSet {
   }
 
   @Override
-  public <T>T getObject(final int columnIndex, final Class<T> type) throws SQLException {
+  public <T> T getObject(final int columnIndex, final Class<T> type) throws SQLException {
     return null;
   }
 
   @Override
-  public <T>T getObject(final String columnLabel, final Class<T> type) throws SQLException {
+  public <T> T getObject(final String columnLabel, final Class<T> type) throws SQLException {
     return null;
   }
 }

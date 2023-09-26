@@ -149,7 +149,7 @@ public class AuditCallableStatement extends AuditPreparedStatement implements De
   }
 
   @Override
-  @Deprecated//(since="1.2")
+  @Deprecated// (since="1.2")
   public BigDecimal getBigDecimal(final int parameterIndex, final int scale) throws SQLException {
     return getTarget().getBigDecimal(parameterIndex);
   }
@@ -676,12 +676,12 @@ public class AuditCallableStatement extends AuditPreparedStatement implements De
   }
 
   @Override
-  public <T>T getObject(final int parameterIndex, final Class<T> type) throws SQLException {
+  public <T> T getObject(final int parameterIndex, final Class<T> type) throws SQLException {
     return getTarget().getObject(parameterIndex, type);
   }
 
   @Override
-  public <T>T getObject(final String parameterName, final Class<T> type) throws SQLException {
+  public <T> T getObject(final String parameterName, final Class<T> type) throws SQLException {
     return getTarget().getObject(parameterName, type);
   }
 

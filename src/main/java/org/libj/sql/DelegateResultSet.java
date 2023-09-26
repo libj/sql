@@ -121,7 +121,7 @@ public abstract class DelegateResultSet implements ResultSet {
   }
 
   @Override
-  @Deprecated//(since="1.2")
+  @Deprecated// (since="1.2")
   public BigDecimal getBigDecimal(final int columnIndex, final int scale) throws SQLException {
     return target.getBigDecimal(columnIndex, scale);
   }
@@ -152,7 +152,7 @@ public abstract class DelegateResultSet implements ResultSet {
   }
 
   @Override
-  @Deprecated//(since="1.2")
+  @Deprecated// (since="1.2")
   public InputStream getUnicodeStream(final int columnIndex) throws SQLException {
     return target.getUnicodeStream(columnIndex);
   }
@@ -203,7 +203,7 @@ public abstract class DelegateResultSet implements ResultSet {
   }
 
   @Override
-  @Deprecated//(since="1.2")
+  @Deprecated// (since="1.2")
   public BigDecimal getBigDecimal(final String columnName, final int scale) throws SQLException {
     return target.getBigDecimal(columnName, scale);
   }
@@ -234,7 +234,7 @@ public abstract class DelegateResultSet implements ResultSet {
   }
 
   @Override
-  @Deprecated//(since="1.2")
+  @Deprecated// (since="1.2")
   public InputStream getUnicodeStream(final String columnName) throws SQLException {
     return target.getUnicodeStream(columnName);
   }
@@ -1005,7 +1005,7 @@ public abstract class DelegateResultSet implements ResultSet {
   }
 
   @Override
-  public <T>T unwrap(final Class<T> iface) throws SQLException {
+  public <T> T unwrap(final Class<T> iface) throws SQLException {
     return target.unwrap(iface);
   }
 
@@ -1015,12 +1015,12 @@ public abstract class DelegateResultSet implements ResultSet {
   }
 
   @Override
-  public <T>T getObject(final int columnIndex, final Class<T> type) throws SQLException {
+  public <T> T getObject(final int columnIndex, final Class<T> type) throws SQLException {
     return target.getObject(columnIndex, type);
   }
 
   @Override
-  public <T>T getObject(final String columnLabel, final Class<T> type) throws SQLException {
+  public <T> T getObject(final String columnLabel, final Class<T> type) throws SQLException {
     return target.getObject(columnLabel, type);
   }
 

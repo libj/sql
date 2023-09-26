@@ -108,7 +108,7 @@ public interface DelegateCallableStatement extends DelegatePreparedStatement, Ca
   }
 
   @Override
-  @Deprecated//(since="1.2")
+  @Deprecated// (since="1.2")
   default BigDecimal getBigDecimal(final int parameterIndex, final int scale) throws SQLException {
     return getTarget().getBigDecimal(parameterIndex);
   }
@@ -564,7 +564,7 @@ public interface DelegateCallableStatement extends DelegatePreparedStatement, Ca
   }
 
   @Override
-  default <T>T unwrap(final Class<T> iface) throws SQLException {
+  default <T> T unwrap(final Class<T> iface) throws SQLException {
     return getTarget().unwrap(iface);
   }
 
@@ -724,12 +724,12 @@ public interface DelegateCallableStatement extends DelegatePreparedStatement, Ca
   }
 
   @Override
-  default <T>T getObject(final int parameterIndex, final Class<T> type) throws SQLException {
+  default <T> T getObject(final int parameterIndex, final Class<T> type) throws SQLException {
     return getTarget().getObject(parameterIndex, type);
   }
 
   @Override
-  default <T>T getObject(final String parameterName, final Class<T> type) throws SQLException {
+  default <T> T getObject(final String parameterName, final Class<T> type) throws SQLException {
     return getTarget().getObject(parameterName, type);
   }
 }

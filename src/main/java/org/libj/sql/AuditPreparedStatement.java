@@ -151,10 +151,10 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
     if (value instanceof String || value instanceof URL)
       return "'" + value + "'";
 
-//    if (value instanceof Byte) {
-//      final byte ch = (Byte)value;
-//      return ' ' < ch && ch < '~' ? "'" + (char)ch + "'" : ("0x" + Integer.toHexString(ch & 0xFF).toUpperCase());
-//    }
+    // if (value instanceof Byte) {
+    // final byte ch = (Byte)value;
+    // return ' ' < ch && ch < '~' ? "'" + (char)ch + "'" : ("0x" + Integer.toHexString(ch & 0xFF).toUpperCase());
+    // }
 
     if (value instanceof Number)
       return numberFormat.get().format(value);
@@ -283,7 +283,7 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
     long time = -1;
     final boolean debugEnabled = logger.isDebugEnabled();
     try {
-      if (logger.isTraceEnabled()) logger.trace(log(this, "executeQuery", getConnection(), toString()).toString());
+      if (logger.isTraceEnabled()) { logger.trace(log(this, "executeQuery", getConnection(), toString()).toString()); }
 
       if (debugEnabled)
         time = System.currentTimeMillis();
@@ -295,7 +295,7 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
       return resultSet;
     }
     finally {
-      if (debugEnabled) logger.debug(withResult(log(this, "executeQuery", getConnection(), toString()), size, time).toString());
+      if (debugEnabled) { logger.debug(withResult(log(this, "executeQuery", getConnection(), toString()), size, time).toString()); }
     }
   }
 
@@ -305,7 +305,7 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
     int count = -1;
     final boolean debugEnabled = logger.isDebugEnabled();
     try {
-      if (logger.isTraceEnabled()) logger.trace(log(this, "executeUpdate", getConnection(), toString()).toString());
+      if (logger.isTraceEnabled()) { logger.trace(log(this, "executeUpdate", getConnection(), toString()).toString()); }
 
       if (debugEnabled)
         time = System.currentTimeMillis();
@@ -313,7 +313,7 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
       return count = getTarget().executeUpdate();
     }
     finally {
-      if (debugEnabled) logger.debug(withResult(log(this, "executeUpdate", getConnection(), toString()), count, time).toString());
+      if (debugEnabled) { logger.debug(withResult(log(this, "executeUpdate", getConnection(), toString()), count, time).toString()); }
     }
   }
 
@@ -408,7 +408,7 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
   }
 
   @Override
-  @Deprecated//(since="1.2")
+  @Deprecated// (since="1.2")
   public void setUnicodeStream(final int parameterIndex, final InputStream x, final int length) throws SQLException {
     getTarget().setUnicodeStream(parameterIndex, x, length);
     getCurrentParameterMap().put(parameterIndex, x);
@@ -450,7 +450,7 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
     boolean result = false;
     final boolean debugEnabled = logger.isDebugEnabled();
     try {
-      if (logger.isTraceEnabled()) logger.trace(log(this, "execute", getConnection(), toString()).toString());
+      if (logger.isTraceEnabled()) { logger.trace(log(this, "execute", getConnection(), toString()).toString()); }
 
       if (debugEnabled)
         time = System.currentTimeMillis();
@@ -458,7 +458,7 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
       return result = getTarget().execute();
     }
     finally {
-      if (debugEnabled) logger.debug(withResult(log(this, "execute", getConnection(), toString()), result, time).toString());
+      if (debugEnabled) { logger.debug(withResult(log(this, "execute", getConnection(), toString()), result, time).toString()); }
     }
   }
 

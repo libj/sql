@@ -39,8 +39,8 @@ public final class SQLExceptions {
   }
 
   /**
-   * Returns the strong exception type for the specified {@link SQLException}, or {@code null} if one is not registered. The
-   * specified exception's {@link SQLException#getSQLState()} method is used to dereference the appropriate strong exception type.
+   * Returns the strong exception type for the specified {@link SQLException}, or {@code null} if one is not registered. The specified
+   * exception's {@link SQLException#getSQLState()} method is used to dereference the appropriate strong exception type.
    *
    * @param exception The {@link SQLException}.
    * @return The strong exception type for the specified {@link SQLException}, or {@code null} if one is not registered.
@@ -261,7 +261,8 @@ public final class SQLExceptions {
   }
 
   // Spec: http://www.contrib.andrew.cmu.edu/~shadow/sql/sql1992.txt
-  // Derby: http://web.mit.edu/course/13/13.715/jdk1.6.0_18/db/docs/html/ref/ref-single.html https://db.apache.org/derby/docs/10.4/ref/rrefexcept71493.html
+  // Derby: http://web.mit.edu/course/13/13.715/jdk1.6.0_18/db/docs/html/ref/ref-single.html
+  // https://db.apache.org/derby/docs/10.4/ref/rrefexcept71493.html
   // Oracle: https://docs.oracle.com/cd/A97688_16/toplink.903/b10068/errorcod.htm
   // PostgreSQL: https://www.postgresql.org/docs/current/errcodes-appendix.html
   // MySQL: ???

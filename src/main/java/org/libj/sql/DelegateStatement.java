@@ -237,7 +237,7 @@ public interface DelegateStatement extends Statement {
   }
 
   @Override
-  default <T>T unwrap(final Class<T> iface) throws SQLException {
+  default <T> T unwrap(final Class<T> iface) throws SQLException {
     return getTarget().unwrap(iface);
   }
 

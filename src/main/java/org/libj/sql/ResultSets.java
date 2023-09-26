@@ -37,8 +37,8 @@ public final class ResultSets {
    * class.
    *
    * @param resultSet The {@link ResultSet} to close.
-   * @return {@code null} if the {@link ResultSet#close()} operation is successful, otherwise the {@link SQLException} that caused
-   *         the failure.
+   * @return {@code null} if the {@link ResultSet#close()} operation is successful, otherwise the {@link SQLException} that caused the
+   *         failure.
    * @throws NullPointerException If {@code resultSet} is null.
    */
   public static SQLException close(final ResultSet resultSet) {
@@ -49,7 +49,7 @@ public final class ResultSets {
       return null;
     }
     catch (final SQLException e) {
-      if (logger.isWarnEnabled()) logger.warn(resultSet.getClass().getName() + ".close(): " + e.getMessage());
+      if (logger.isWarnEnabled()) { logger.warn(resultSet.getClass().getName() + ".close(): " + e.getMessage()); }
       return e;
     }
   }

@@ -27,7 +27,7 @@ import java.sql.Statement;
  */
 public class MockStatement implements Statement {
   @Override
-  public <T>T unwrap(final Class<T> iface) throws SQLException {
+  public <T> T unwrap(final Class<T> iface) throws SQLException {
     return null;
   }
 
