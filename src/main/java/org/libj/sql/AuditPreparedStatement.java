@@ -16,8 +16,6 @@
 
 package org.libj.sql;
 
-import static org.libj.sql.AuditUtil.*;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -123,15 +121,15 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
 
         ch = in.read();
         if (ch != -1) {
-          final StringBuilder builder = new StringBuilder();
-          builder.append('\'').append(ch);
+          final StringBuilder b = new StringBuilder();
+          b.append('\'').append(ch);
           final char[] buf = new char[1024];
-          for (int len; (len = in.read(buf)) != -1; builder.append(buf, 0, len)); // [ST]
+          for (int len; (len = in.read(buf)) != -1; b.append(buf, 0, len)); // [ST]
           if (in.markSupported())
             in.reset();
 
-          builder.append('\'');
-          return builder.toString();
+          b.append('\'');
+          return b.toString();
         }
       }
       catch (final IOException e) {
@@ -174,10 +172,10 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
     return value.toString();
   }
 
-  private static int writeParameter(final StringBuilder builder, final int start, final int end, final Object obj) {
-    final int len = builder.length();
-    builder.replace(start, end, toString(obj));
-    return builder.length() - len;
+  private static int writeParameter(final StringBuilder b, final int start, final int end, final Object obj) {
+    final int len = b.length();
+    b.replace(start, end, toString(obj));
+    return b.length() - len;
   }
 
   // FIXME: Add support for "foo => ?" syntax
@@ -187,15 +185,15 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
     char inQuote = '\0';
     int colon = -1;
     boolean namedQuoted = false;
-    final StringBuilder builder = new StringBuilder(sql);
-    for (int i = 0; i < builder.length(); ++i) { // [$]
-      final char ch = builder.charAt(i);
+    final StringBuilder b = new StringBuilder(sql);
+    for (int i = 0; i < b.length(); ++i) { // [$]
+      final char ch = b.charAt(i);
       if (colon != -1) {
         if (colon == i - 1 && ch == '"') {
           namedQuoted = true;
         }
         else if (ch == '"' && namedQuoted || ch != '#' && ch != '$' && (ch < '0' || '9' < ch) && (ch < '@' || 'Z' < ch) && ch != '_' && (ch < 'a' || 'z' < ch)) {
-          i += writeParameter(builder, colon, i, parameterMap.get(builder.substring(colon + 1, i)));
+          i += writeParameter(b, colon, i, parameterMap.get(b.substring(colon + 1, i)));
           colon = -1;
         }
 
@@ -215,14 +213,14 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
           if (ch == ':')
             colon = i;
           else if (ch == '?')
-            i += writeParameter(builder, i, i + 1, parameterMap.get(++index));
+            i += writeParameter(b, i, i + 1, parameterMap.get(++index));
         }
       }
 
       escaped = false;
     }
 
-    return builder.toString();
+    return b.toString();
   }
 
   /**
@@ -244,7 +242,7 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
   private static final ThreadLocal<DecimalFormat> numberFormat = DecimalFormatter.createDecimalFormat("###############.###############;-###############.###############");
 
   private final String sql;
-  private ArrayList<Map<Object,Object>> parameterMaps;
+  private ArrayList<HashMap<Object,Object>> parameterMaps;
 
   /**
    * Creates a new {@link AuditPreparedStatement} with the specified {@code target} to which all method calls will be delegated.
@@ -258,22 +256,67 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
   }
 
   @Override
-  public PreparedStatement getTarget() {
-    return (PreparedStatement)super.getTarget();
+  protected boolean isTraceEnabled() {
+    return logger.isTraceEnabled();
+  }
+
+  @Override
+  protected boolean isDebugEnabled() {
+    return logger.isDebugEnabled();
+  }
+
+  @Override
+  protected void trace(final StatementType statementType, final String log) {
+    if (log != null)
+      logger.trace(log);
+  }
+
+  @Override
+  protected void debug(final StatementType statementType, final String log) {
+    if (log != null)
+      logger.debug(log);
   }
 
   /**
-   * Returns the map of index-to-value parameters for the current batch.
+   * Adds a parameter with the provided {@code key} and {@code value} to the parameter map maintained in this instance for the purpose
+   * of audit logging.
    *
-   * @return The map of index-to-value parameters for the current batch.
+   * @param enabled Whether the addition of parameter is enabled.
+   * @param key The parameter key.
+   * @param value The parameter value.
    */
-  protected Map<Object,Object> getCurrentParameterMap() {
-    if (parameterMaps == null) {
-      parameterMaps = new ArrayList<>();
-      parameterMaps.add(new HashMap<>());
-    }
+  protected void addParameter(final boolean enabled, final Object key, final Object value) {
+    ArrayList<HashMap<Object,Object>> parameterMaps = this.parameterMaps;
+    final HashMap<Object,Object> parameterMap;
+    if (parameterMaps != null)
+      parameterMap = parameterMaps.get(parameterMaps.size() - 1);
+    else if (enabled)
+      (parameterMaps = this.parameterMaps = new ArrayList<>()).add(parameterMap = new HashMap<>());
+    else
+      return;
 
-    return parameterMaps.get(parameterMaps.size() - 1);
+    parameterMap.put(key, value);
+  }
+
+  /**
+   * {@inheritDoc}
+   * <p>
+   * <b>Note</b>: For the provided {@code sql} to be added, {@link #addParameter(boolean,Object,Object)} must have been called with
+   * {@code enabled=true} in order to initialize the parameter map maintained in this instance for the purpose of audit logging.
+   */
+  @Override
+  protected void logAddBatch(final boolean enabled, final String sql) {
+    if (!enabled)
+      return;
+
+    final ArrayList<HashMap<Object,Object>> parameterMaps = this.parameterMaps;
+    if (parameterMaps != null)
+      parameterMaps.add(new HashMap<>());
+  }
+
+  @Override
+  public PreparedStatement getTarget() {
+    return (PreparedStatement)super.getTarget();
   }
 
   @Override
@@ -281,21 +324,21 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
     final PreparedStatement statement = getTarget();
     int size = -1;
     long time = -1;
-    final boolean debugEnabled = logger.isDebugEnabled();
+    final boolean isDebugEnabled = isDebugEnabled();
     try {
-      if (logger.isTraceEnabled()) { logger.trace(log(this, "executeQuery", getConnection(), toString()).toString()); }
+      trace(StatementType.QUERY, log(isTraceEnabled(), "executeQuery", toString(), Integer.MIN_VALUE, null, null, null, -1));
 
-      if (debugEnabled)
+      if (isDebugEnabled)
         time = System.currentTimeMillis();
 
       final ResultSet resultSet = statement.executeQuery();
-      if (debugEnabled)
+      if (isDebugEnabled)
         size = ResultSets.getSize(resultSet);
 
       return resultSet;
     }
     finally {
-      if (debugEnabled) { logger.debug(withResult(log(this, "executeQuery", getConnection(), toString()), size, time).toString()); }
+      debug(StatementType.QUERY, log(isDebugEnabled, "executeQuery", toString(), Integer.MIN_VALUE, null, null, size, time));
     }
   }
 
@@ -303,352 +346,342 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
   public int executeUpdate() throws SQLException {
     long time = -1;
     int count = -1;
-    final boolean debugEnabled = logger.isDebugEnabled();
+    final boolean isDebugEnabled = isDebugEnabled();
     try {
-      if (logger.isTraceEnabled()) { logger.trace(log(this, "executeUpdate", getConnection(), toString()).toString()); }
+      trace(StatementType.UPDATE, log(isTraceEnabled(), "executeUpdate", toString(), Integer.MIN_VALUE, null, null, null, -1));
 
-      if (debugEnabled)
+      if (isDebugEnabled)
         time = System.currentTimeMillis();
 
       return count = getTarget().executeUpdate();
     }
     finally {
-      if (debugEnabled) { logger.debug(withResult(log(this, "executeUpdate", getConnection(), toString()), count, time).toString()); }
+      debug(StatementType.UPDATE, log(isDebugEnabled, "executeUpdate", toString(), Integer.MIN_VALUE, null, null, count, time));
     }
   }
 
   @Override
   public void setNull(final int parameterIndex, final int sqlType) throws SQLException {
     getTarget().setNull(parameterIndex, sqlType);
-    getCurrentParameterMap().put(parameterIndex, NULL);
+    addParameter(isDebugEnabled(), parameterIndex, NULL);
   }
 
   @Override
   public void setBoolean(final int parameterIndex, final boolean x) throws SQLException {
     getTarget().setBoolean(parameterIndex, x);
-    getCurrentParameterMap().put(parameterIndex, x);
+    addParameter(isDebugEnabled(), parameterIndex, x);
   }
 
   @Override
   public void setByte(final int parameterIndex, final byte x) throws SQLException {
     getTarget().setByte(parameterIndex, x);
-    getCurrentParameterMap().put(parameterIndex, x);
+    addParameter(isDebugEnabled(), parameterIndex, x);
   }
 
   @Override
   public void setShort(final int parameterIndex, final short x) throws SQLException {
     getTarget().setShort(parameterIndex, x);
-    getCurrentParameterMap().put(parameterIndex, x);
+    addParameter(isDebugEnabled(), parameterIndex, x);
   }
 
   @Override
   public void setInt(final int parameterIndex, final int x) throws SQLException {
     getTarget().setInt(parameterIndex, x);
-    getCurrentParameterMap().put(parameterIndex, x);
+    addParameter(isDebugEnabled(), parameterIndex, x);
   }
 
   @Override
   public void setLong(final int parameterIndex, final long x) throws SQLException {
     getTarget().setLong(parameterIndex, x);
-    getCurrentParameterMap().put(parameterIndex, x);
+    addParameter(isDebugEnabled(), parameterIndex, x);
   }
 
   @Override
   public void setFloat(final int parameterIndex, final float x) throws SQLException {
     getTarget().setFloat(parameterIndex, x);
-    getCurrentParameterMap().put(parameterIndex, x);
+    addParameter(isDebugEnabled(), parameterIndex, x);
   }
 
   @Override
   public void setDouble(final int parameterIndex, final double x) throws SQLException {
     getTarget().setDouble(parameterIndex, x);
-    getCurrentParameterMap().put(parameterIndex, x);
+    addParameter(isDebugEnabled(), parameterIndex, x);
   }
 
   @Override
   public void setBigDecimal(final int parameterIndex, final BigDecimal x) throws SQLException {
     getTarget().setBigDecimal(parameterIndex, x);
-    getCurrentParameterMap().put(parameterIndex, x);
+    addParameter(isDebugEnabled(), parameterIndex, x);
   }
 
   @Override
   public void setString(final int parameterIndex, final String x) throws SQLException {
     getTarget().setString(parameterIndex, x);
-    getCurrentParameterMap().put(parameterIndex, x);
+    addParameter(isDebugEnabled(), parameterIndex, x);
   }
 
   @Override
   public void setBytes(final int parameterIndex, final byte[] x) throws SQLException {
     getTarget().setBytes(parameterIndex, x);
-    getCurrentParameterMap().put(parameterIndex, x);
+    addParameter(isDebugEnabled(), parameterIndex, x);
   }
 
   @Override
   public void setDate(final int parameterIndex, final Date x) throws SQLException {
     getTarget().setDate(parameterIndex, x);
-    getCurrentParameterMap().put(parameterIndex, x);
+    addParameter(isDebugEnabled(), parameterIndex, x);
   }
 
   @Override
   public void setTime(final int parameterIndex, final Time x) throws SQLException {
     getTarget().setTime(parameterIndex, x);
-    getCurrentParameterMap().put(parameterIndex, x);
+    addParameter(isDebugEnabled(), parameterIndex, x);
   }
 
   @Override
   public void setTimestamp(final int parameterIndex, final Timestamp x) throws SQLException {
     getTarget().setTimestamp(parameterIndex, x);
-    getCurrentParameterMap().put(parameterIndex, x);
+    addParameter(isDebugEnabled(), parameterIndex, x);
   }
 
   @Override
   public void setAsciiStream(final int parameterIndex, final InputStream x, final int length) throws SQLException {
     getTarget().setAsciiStream(parameterIndex, x, length);
-    getCurrentParameterMap().put(parameterIndex, x);
+    addParameter(isDebugEnabled(), parameterIndex, x);
   }
 
   @Override
   @Deprecated// (since="1.2")
   public void setUnicodeStream(final int parameterIndex, final InputStream x, final int length) throws SQLException {
     getTarget().setUnicodeStream(parameterIndex, x, length);
-    getCurrentParameterMap().put(parameterIndex, x);
+    addParameter(isDebugEnabled(), parameterIndex, x);
   }
 
   @Override
   public void setBinaryStream(final int parameterIndex, final InputStream x, final int length) throws SQLException {
     getTarget().setBinaryStream(parameterIndex, x, length);
-    getCurrentParameterMap().put(parameterIndex, x);
+    addParameter(isDebugEnabled(), parameterIndex, x);
   }
 
   @Override
   public void clearParameters() throws SQLException {
     getTarget().clearParameters();
-    getCurrentParameterMap().clear();
+    if (parameterMaps != null)
+      parameterMaps.get(parameterMaps.size() - 1).clear();
   }
 
   @Override
   public void setObject(final int parameterIndex, final Object x, final int targetSqlType, final int scale) throws SQLException {
     getTarget().setObject(parameterIndex, x, targetSqlType, scale);
-    getCurrentParameterMap().put(parameterIndex, x);
+    addParameter(isDebugEnabled(), parameterIndex, x);
   }
 
   @Override
   public void setObject(final int parameterIndex, final Object x, final int targetSqlType) throws SQLException {
     getTarget().setObject(parameterIndex, x, targetSqlType);
-    getCurrentParameterMap().put(parameterIndex, x);
+    addParameter(isDebugEnabled(), parameterIndex, x);
   }
 
   @Override
   public void setObject(final int parameterIndex, final Object x) throws SQLException {
     getTarget().setObject(parameterIndex, x);
-    getCurrentParameterMap().put(parameterIndex, x);
+    addParameter(isDebugEnabled(), parameterIndex, x);
   }
 
   @Override
   public boolean execute() throws SQLException {
     long time = -1;
     boolean result = false;
-    final boolean debugEnabled = logger.isDebugEnabled();
+    final boolean isDebugEnabled = isDebugEnabled();
     try {
-      if (logger.isTraceEnabled()) { logger.trace(log(this, "execute", getConnection(), toString()).toString()); }
+      trace(StatementType.MULTIPLE, log(isTraceEnabled(), "execute", toString(), Integer.MIN_VALUE, null, null, null, -1));
 
-      if (debugEnabled)
+      if (isDebugEnabled)
         time = System.currentTimeMillis();
 
       return result = getTarget().execute();
     }
     finally {
-      if (debugEnabled) { logger.debug(withResult(log(this, "execute", getConnection(), toString()), result, time).toString()); }
+      debug(StatementType.MULTIPLE, log(isDebugEnabled, "execute", toString(), Integer.MIN_VALUE, null, null, result, time));
     }
   }
 
   @Override
   public void addBatch() throws SQLException {
-    if (logger.isDebugEnabled())
-      addBatch0(toString(sql, getCurrentParameterMap()));
-
-    parameterMaps.add(new HashMap<>());
+    logAddBatch(isDebugEnabled(), sql);
     getTarget().addBatch();
   }
 
   @Override
   public void setRef(final int parameterIndex, final Ref x) throws SQLException {
     getTarget().setRef(parameterIndex, x);
-    getCurrentParameterMap().put(parameterIndex, x);
+    addParameter(isDebugEnabled(), parameterIndex, x);
   }
 
   @Override
   public void setBlob(final int parameterIndex, final Blob x) throws SQLException {
     getTarget().setBlob(parameterIndex, x);
-    getCurrentParameterMap().put(parameterIndex, x);
+    addParameter(isDebugEnabled(), parameterIndex, x);
   }
 
   @Override
   public void setClob(final int parameterIndex, final Clob x) throws SQLException {
     getTarget().setClob(parameterIndex, x);
-    getCurrentParameterMap().put(parameterIndex, x);
+    addParameter(isDebugEnabled(), parameterIndex, x);
   }
 
   @Override
   public void setArray(final int parameterIndex, final Array x) throws SQLException {
     getTarget().setArray(parameterIndex, x);
-    getCurrentParameterMap().put(parameterIndex, x);
+    addParameter(isDebugEnabled(), parameterIndex, x);
   }
 
   @Override
   public void setDate(final int parameterIndex, final Date x, final Calendar cal) throws SQLException {
     getTarget().setDate(parameterIndex, x, cal);
-    getCurrentParameterMap().put(parameterIndex, x);
+    addParameter(isDebugEnabled(), parameterIndex, x);
   }
 
   @Override
   public void setTime(final int parameterIndex, final Time x, final Calendar cal) throws SQLException {
     getTarget().setTime(parameterIndex, x, cal);
-    getCurrentParameterMap().put(parameterIndex, x);
+    addParameter(isDebugEnabled(), parameterIndex, x);
   }
 
   @Override
   public void setTimestamp(final int parameterIndex, final Timestamp x, final Calendar cal) throws SQLException {
     getTarget().setTimestamp(parameterIndex, x, cal);
-    getCurrentParameterMap().put(parameterIndex, x);
+    addParameter(isDebugEnabled(), parameterIndex, x);
   }
 
   @Override
   public void setNull(final int parameterIndex, final int sqlType, final String typeName) throws SQLException {
     getTarget().setNull(parameterIndex, sqlType, typeName);
-    getCurrentParameterMap().put(parameterIndex, NULL);
+    addParameter(isDebugEnabled(), parameterIndex, NULL);
   }
 
   @Override
   public void setURL(final int parameterIndex, final URL x) throws SQLException {
     getTarget().setURL(parameterIndex, x);
-    getCurrentParameterMap().put(parameterIndex, x);
+    addParameter(isDebugEnabled(), parameterIndex, x);
   }
 
   @Override
   public void setRowId(final int parameterIndex, final RowId x) throws SQLException {
     getTarget().setRowId(parameterIndex, x);
-    getCurrentParameterMap().put(parameterIndex, x);
+    addParameter(isDebugEnabled(), parameterIndex, x);
   }
 
   @Override
   public void setNString(final int parameterIndex, final String value) throws SQLException {
     getTarget().setNString(parameterIndex, value);
-    getCurrentParameterMap().put(parameterIndex, value);
+    addParameter(isDebugEnabled(), parameterIndex, value);
   }
 
   @Override
   public void setNCharacterStream(final int parameterIndex, final Reader value, final long length) throws SQLException {
     getTarget().setNCharacterStream(parameterIndex, value, length);
-    getCurrentParameterMap().put(parameterIndex, value);
+    addParameter(isDebugEnabled(), parameterIndex, value);
   }
 
   @Override
   public void setNClob(final int parameterIndex, final NClob value) throws SQLException {
     getTarget().setNClob(parameterIndex, value);
-    getCurrentParameterMap().put(parameterIndex, value);
+    addParameter(isDebugEnabled(), parameterIndex, value);
   }
 
   @Override
   public void setClob(final int parameterIndex, final Reader reader, final long length) throws SQLException {
     getTarget().setClob(parameterIndex, reader, length);
-    getCurrentParameterMap().put(parameterIndex, reader);
+    addParameter(isDebugEnabled(), parameterIndex, reader);
   }
 
   @Override
   public void setBlob(final int parameterIndex, final InputStream inputStream, final long length) throws SQLException {
     getTarget().setBlob(parameterIndex, inputStream, length);
-    getCurrentParameterMap().put(parameterIndex, inputStream);
+    addParameter(isDebugEnabled(), parameterIndex, inputStream);
   }
 
   @Override
   public void setNClob(final int parameterIndex, final Reader reader, final long length) throws SQLException {
     getTarget().setNClob(parameterIndex, reader, length);
-    getCurrentParameterMap().put(parameterIndex, reader);
+    addParameter(isDebugEnabled(), parameterIndex, reader);
   }
 
   @Override
   public void setSQLXML(final int parameterIndex, final SQLXML xmlObject) throws SQLException {
     getTarget().setSQLXML(parameterIndex, xmlObject);
-    getCurrentParameterMap().put(parameterIndex, xmlObject);
+    addParameter(isDebugEnabled(), parameterIndex, xmlObject);
   }
 
   @Override
   public void setAsciiStream(final int parameterIndex, final InputStream x, final long length) throws SQLException {
     getTarget().setAsciiStream(parameterIndex, x, length);
-    getCurrentParameterMap().put(parameterIndex, x);
+    addParameter(isDebugEnabled(), parameterIndex, x);
   }
 
   @Override
   public void setBinaryStream(final int parameterIndex, final InputStream x, final long length) throws SQLException {
     getTarget().setBinaryStream(parameterIndex, x, length);
-    getCurrentParameterMap().put(parameterIndex, x);
+    addParameter(isDebugEnabled(), parameterIndex, x);
   }
 
   @Override
   public void setCharacterStream(final int parameterIndex, final Reader reader, final long length) throws SQLException {
     getTarget().setCharacterStream(parameterIndex, reader, length);
-    getCurrentParameterMap().put(parameterIndex, reader);
+    addParameter(isDebugEnabled(), parameterIndex, reader);
   }
 
   @Override
   public void setAsciiStream(final int parameterIndex, final InputStream x) throws SQLException {
     getTarget().setAsciiStream(parameterIndex, x);
-    getCurrentParameterMap().put(parameterIndex, x);
+    addParameter(isDebugEnabled(), parameterIndex, x);
   }
 
   @Override
   public void setBinaryStream(final int parameterIndex, final InputStream x) throws SQLException {
     getTarget().setBinaryStream(parameterIndex, x);
-    getCurrentParameterMap().put(parameterIndex, x);
+    addParameter(isDebugEnabled(), parameterIndex, x);
   }
 
   @Override
   public void setCharacterStream(final int parameterIndex, final Reader reader) throws SQLException {
     getTarget().setCharacterStream(parameterIndex, reader);
-    getCurrentParameterMap().put(parameterIndex, reader);
+    addParameter(isDebugEnabled(), parameterIndex, reader);
   }
 
   @Override
   public void setNCharacterStream(final int parameterIndex, final Reader value) throws SQLException {
     getTarget().setNCharacterStream(parameterIndex, value);
-    getCurrentParameterMap().put(parameterIndex, value);
+    addParameter(isDebugEnabled(), parameterIndex, value);
   }
 
   @Override
   public void setClob(final int parameterIndex, final Reader reader) throws SQLException {
     getTarget().setClob(parameterIndex, reader);
-    getCurrentParameterMap().put(parameterIndex, reader);
+    addParameter(isDebugEnabled(), parameterIndex, reader);
   }
 
   @Override
   public void setBlob(final int parameterIndex, final InputStream inputStream) throws SQLException {
     getTarget().setBlob(parameterIndex, inputStream);
-    getCurrentParameterMap().put(parameterIndex, inputStream);
+    addParameter(isDebugEnabled(), parameterIndex, inputStream);
   }
 
   @Override
   public void setNClob(final int parameterIndex, final Reader reader) throws SQLException {
     getTarget().setNClob(parameterIndex, reader);
-    getCurrentParameterMap().put(parameterIndex, reader);
+    addParameter(isDebugEnabled(), parameterIndex, reader);
   }
 
   @Override
   public void close() throws SQLException {
-    if (parameterMaps != null)
+    if (parameterMaps != null) {
       parameterMaps.clear();
+      parameterMaps = null;
+    }
 
     super.close();
-  }
-
-  @Override
-  public boolean equals(final Object obj) {
-    return getTarget().equals(obj);
-  }
-
-  @Override
-  public int hashCode() {
-    return getTarget().hashCode();
   }
 
   /**
@@ -658,17 +691,17 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
    */
   @Override
   public String toString() {
-    if (!logger.isDebugEnabled() || parameterMaps == null)
+    if (parameterMaps == null)
       return sql;
 
-    final StringBuilder builder = new StringBuilder();
+    final StringBuilder b = new StringBuilder();
     for (int i = 0, i$ = parameterMaps.size(); i < i$; ++i) { // [RA]
       if (i > 0)
-        builder.append('\n');
+        b.append('\n');
 
-      builder.append(toString(sql, parameterMaps.get(i)));
+      b.append(toString(sql, parameterMaps.get(i)));
     }
 
-    return builder.toString();
+    return b.toString();
   }
 }

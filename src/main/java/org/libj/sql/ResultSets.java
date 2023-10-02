@@ -64,7 +64,7 @@ public final class ResultSets {
    * @throws SQLException If a database access error occurs or this method is called on a closed result set.
    * @throws NullPointerException If {@code resultSet} is null.
    */
-  public static Integer getSize(final ResultSet resultSet) throws SQLException {
+  public static int getSize(final ResultSet resultSet) throws SQLException {
     if (resultSet.getType() <= ResultSet.TYPE_FORWARD_ONLY)
       return -1;
 

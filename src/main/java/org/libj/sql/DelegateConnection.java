@@ -32,318 +32,290 @@ import java.sql.Savepoint;
 import java.sql.Statement;
 import java.sql.Struct;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 
 /**
- * A {@link DelegateConnection} contains some other {@link Connection}, possibly transforming the method parameters along the way or
- * providing additional functionality. The class {@link DelegateConnection} itself simply overrides all methods of
- * {@link Connection} with versions that delegate all calls to the target {@link Connection}. Subclasses of
+ * A {@link DelegateConnection} delegates to some other {@link Connection}, possibly transforming the method parameters along the
+ * way or providing additional functionality. The class {@link DelegateConnection} itself simply overrides all methods of
+ * {@link Connection} with versions that delegate all calls to the object returned by {@link #getTarget()}. Subclasses of
  * {@link DelegateConnection} may further override some of these methods and may also provide additional methods and fields.
  */
-public abstract class DelegateConnection implements Connection {
-  /** The target {@link Connection}. */
-  protected Connection target;
-
+public interface DelegateConnection extends Connection {
   /**
-   * Creates a new {@link DelegateConnection} with the specified target {@link Connection}.
+   * Returns the getTarget() {@link Connection} to which all method calls will be delegated.
    *
-   * @param target The target {@link Connection}.
-   * @throws NullPointerException If the target {@link Connection} is null.
+   * @return The getTarget() {@link Connection} to which all method calls will be delegated.
    */
-  public DelegateConnection(final Connection target) {
-    this.target = Objects.requireNonNull(target);
-  }
+  Connection getTarget();
 
-  /**
-   * Creates a new {@link DelegateConnection} with a null target.
-   */
-  protected DelegateConnection() {
+  @Override
+  default Statement createStatement() throws SQLException {
+    return getTarget().createStatement();
   }
 
   @Override
-  public Statement createStatement() throws SQLException {
-    return target.createStatement();
+  default PreparedStatement prepareStatement(final String sql) throws SQLException {
+    return getTarget().prepareStatement(sql);
   }
 
   @Override
-  public PreparedStatement prepareStatement(final String sql) throws SQLException {
-    return target.prepareStatement(sql);
+  default CallableStatement prepareCall(final String sql) throws SQLException {
+    return getTarget().prepareCall(sql);
   }
 
   @Override
-  public CallableStatement prepareCall(final String sql) throws SQLException {
-    return target.prepareCall(sql);
+  default String nativeSQL(final String sql) throws SQLException {
+    return getTarget().nativeSQL(sql);
   }
 
   @Override
-  public String nativeSQL(final String sql) throws SQLException {
-    return target.nativeSQL(sql);
+  default void setAutoCommit(final boolean autoCommit) throws SQLException {
+    getTarget().setAutoCommit(autoCommit);
   }
 
   @Override
-  public void setAutoCommit(final boolean autoCommit) throws SQLException {
-    target.setAutoCommit(autoCommit);
+  default boolean getAutoCommit() throws SQLException {
+    return getTarget().getAutoCommit();
   }
 
   @Override
-  public boolean getAutoCommit() throws SQLException {
-    return target.getAutoCommit();
+  default void commit() throws SQLException {
+    getTarget().commit();
   }
 
   @Override
-  public void commit() throws SQLException {
-    target.commit();
+  default void rollback() throws SQLException {
+    getTarget().rollback();
   }
 
   @Override
-  public void rollback() throws SQLException {
-    target.rollback();
+  default void close() throws SQLException {
+    getTarget().close();
   }
 
   @Override
-  public void close() throws SQLException {
-    target.close();
+  default boolean isClosed() throws SQLException {
+    return getTarget().isClosed();
   }
 
   @Override
-  public boolean isClosed() throws SQLException {
-    return target.isClosed();
+  default DatabaseMetaData getMetaData() throws SQLException {
+    return getTarget().getMetaData();
   }
 
   @Override
-  public DatabaseMetaData getMetaData() throws SQLException {
-    return target.getMetaData();
+  default void setReadOnly(final boolean readOnly) throws SQLException {
+    getTarget().setReadOnly(readOnly);
   }
 
   @Override
-  public void setReadOnly(final boolean readOnly) throws SQLException {
-    target.setReadOnly(readOnly);
+  default boolean isReadOnly() throws SQLException {
+    return getTarget().isReadOnly();
   }
 
   @Override
-  public boolean isReadOnly() throws SQLException {
-    return target.isReadOnly();
+  default void setCatalog(final String catalog) throws SQLException {
+    getTarget().setCatalog(catalog);
   }
 
   @Override
-  public void setCatalog(final String catalog) throws SQLException {
-    target.setCatalog(catalog);
+  default String getCatalog() throws SQLException {
+    return getTarget().getCatalog();
   }
 
   @Override
-  public String getCatalog() throws SQLException {
-    return target.getCatalog();
+  default void setTransactionIsolation(final int level) throws SQLException {
+    getTarget().setTransactionIsolation(level);
   }
 
   @Override
-  public void setTransactionIsolation(final int level) throws SQLException {
-    target.setTransactionIsolation(level);
+  default int getTransactionIsolation() throws SQLException {
+    return getTarget().getTransactionIsolation();
   }
 
   @Override
-  public int getTransactionIsolation() throws SQLException {
-    return target.getTransactionIsolation();
+  default SQLWarning getWarnings() throws SQLException {
+    return getTarget().getWarnings();
   }
 
   @Override
-  public SQLWarning getWarnings() throws SQLException {
-    return target.getWarnings();
+  default void clearWarnings() throws SQLException {
+    getTarget().clearWarnings();
   }
 
   @Override
-  public void clearWarnings() throws SQLException {
-    target.clearWarnings();
+  default Statement createStatement(final int resultSetType, final int resultSetConcurrency) throws SQLException {
+    return getTarget().createStatement(resultSetType, resultSetConcurrency);
   }
 
   @Override
-  public Statement createStatement(final int resultSetType, final int resultSetConcurrency) throws SQLException {
-    return target.createStatement(resultSetType, resultSetConcurrency);
+  default PreparedStatement prepareStatement(final String sql, final int resultSetType, final int resultSetConcurrency) throws SQLException {
+    return getTarget().prepareStatement(sql, resultSetType, resultSetConcurrency);
   }
 
   @Override
-  public PreparedStatement prepareStatement(final String sql, final int resultSetType, final int resultSetConcurrency) throws SQLException {
-    return target.prepareStatement(sql, resultSetType, resultSetConcurrency);
+  default CallableStatement prepareCall(final String sql, final int resultSetType, final int resultSetConcurrency) throws SQLException {
+    return getTarget().prepareCall(sql, resultSetType, resultSetConcurrency);
   }
 
   @Override
-  public CallableStatement prepareCall(final String sql, final int resultSetType, final int resultSetConcurrency) throws SQLException {
-    return target.prepareCall(sql, resultSetType, resultSetConcurrency);
+  default Map<String,Class<?>> getTypeMap() throws SQLException {
+    return getTarget().getTypeMap();
   }
 
   @Override
-  public Map<String,Class<?>> getTypeMap() throws SQLException {
-    return target.getTypeMap();
+  default void setTypeMap(final Map<String,Class<?>> map) throws SQLException {
+    getTarget().setTypeMap(map);
   }
 
   @Override
-  public void setTypeMap(final Map<String,Class<?>> map) throws SQLException {
-    target.setTypeMap(map);
+  default void setHoldability(final int holdability) throws SQLException {
+    getTarget().setHoldability(holdability);
   }
 
   @Override
-  public void setHoldability(final int holdability) throws SQLException {
-    target.setHoldability(holdability);
+  default int getHoldability() throws SQLException {
+    return getTarget().getHoldability();
   }
 
   @Override
-  public int getHoldability() throws SQLException {
-    return target.getHoldability();
+  default Savepoint setSavepoint() throws SQLException {
+    return getTarget().setSavepoint();
   }
 
   @Override
-  public Savepoint setSavepoint() throws SQLException {
-    return target.setSavepoint();
+  default Savepoint setSavepoint(final String name) throws SQLException {
+    return getTarget().setSavepoint(name);
   }
 
   @Override
-  public Savepoint setSavepoint(final String name) throws SQLException {
-    return target.setSavepoint(name);
+  default void rollback(final Savepoint savepoint) throws SQLException {
+    getTarget().rollback(savepoint);
   }
 
   @Override
-  public void rollback(final Savepoint savepoint) throws SQLException {
-    target.rollback(savepoint);
+  default void releaseSavepoint(final Savepoint savepoint) throws SQLException {
+    getTarget().releaseSavepoint(savepoint);
   }
 
   @Override
-  public void releaseSavepoint(final Savepoint savepoint) throws SQLException {
-    target.releaseSavepoint(savepoint);
+  default Statement createStatement(final int resultSetType, final int resultSetConcurrency, final int resultSetHoldability) throws SQLException {
+    return getTarget().createStatement(resultSetType, resultSetConcurrency, resultSetHoldability);
   }
 
   @Override
-  public Statement createStatement(final int resultSetType, final int resultSetConcurrency, final int resultSetHoldability) throws SQLException {
-    return target.createStatement(resultSetType, resultSetConcurrency, resultSetHoldability);
+  default PreparedStatement prepareStatement(final String sql, final int resultSetType, final int resultSetConcurrency, final int resultSetHoldability) throws SQLException {
+    return getTarget().prepareStatement(sql, resultSetType, resultSetConcurrency, resultSetHoldability);
   }
 
   @Override
-  public PreparedStatement prepareStatement(final String sql, final int resultSetType, final int resultSetConcurrency, final int resultSetHoldability) throws SQLException {
-    return target.prepareStatement(sql, resultSetType, resultSetConcurrency, resultSetHoldability);
+  default CallableStatement prepareCall(final String sql, final int resultSetType, final int resultSetConcurrency, final int resultSetHoldability) throws SQLException {
+    return getTarget().prepareCall(sql, resultSetType, resultSetConcurrency, resultSetHoldability);
   }
 
   @Override
-  public CallableStatement prepareCall(final String sql, final int resultSetType, final int resultSetConcurrency, final int resultSetHoldability) throws SQLException {
-    return target.prepareCall(sql, resultSetType, resultSetConcurrency, resultSetHoldability);
+  default PreparedStatement prepareStatement(final String sql, final int autoGeneratedKeys) throws SQLException {
+    return getTarget().prepareStatement(sql, autoGeneratedKeys);
   }
 
   @Override
-  public PreparedStatement prepareStatement(final String sql, final int autoGeneratedKeys) throws SQLException {
-    return target.prepareStatement(sql, autoGeneratedKeys);
+  default PreparedStatement prepareStatement(final String sql, final int[] columnIndexes) throws SQLException {
+    return getTarget().prepareStatement(sql, columnIndexes);
   }
 
   @Override
-  public PreparedStatement prepareStatement(final String sql, final int[] columnIndexes) throws SQLException {
-    return target.prepareStatement(sql, columnIndexes);
+  default PreparedStatement prepareStatement(final String sql, final String[] columnNames) throws SQLException {
+    return getTarget().prepareStatement(sql, columnNames);
   }
 
   @Override
-  public PreparedStatement prepareStatement(final String sql, final String[] columnNames) throws SQLException {
-    return target.prepareStatement(sql, columnNames);
+  default Clob createClob() throws SQLException {
+    return getTarget().createClob();
   }
 
   @Override
-  public Clob createClob() throws SQLException {
-    return target.createClob();
+  default Blob createBlob() throws SQLException {
+    return getTarget().createBlob();
   }
 
   @Override
-  public Blob createBlob() throws SQLException {
-    return target.createBlob();
+  default NClob createNClob() throws SQLException {
+    return getTarget().createNClob();
   }
 
   @Override
-  public NClob createNClob() throws SQLException {
-    return target.createNClob();
+  default SQLXML createSQLXML() throws SQLException {
+    return getTarget().createSQLXML();
   }
 
   @Override
-  public SQLXML createSQLXML() throws SQLException {
-    return target.createSQLXML();
+  default boolean isValid(final int timeout) throws SQLException {
+    return getTarget().isValid(timeout);
   }
 
   @Override
-  public boolean isValid(final int timeout) throws SQLException {
-    return target.isValid(timeout);
+  default void setClientInfo(final String name, final String value) throws SQLClientInfoException {
+    getTarget().setClientInfo(name, value);
   }
 
   @Override
-  public void setClientInfo(final String name, final String value) throws SQLClientInfoException {
-    target.setClientInfo(name, value);
+  default void setClientInfo(final Properties properties) throws SQLClientInfoException {
+    getTarget().setClientInfo(properties);
   }
 
   @Override
-  public void setClientInfo(final Properties properties) throws SQLClientInfoException {
-    target.setClientInfo(properties);
+  default String getClientInfo(final String name) throws SQLException {
+    return getTarget().getClientInfo(name);
   }
 
   @Override
-  public String getClientInfo(final String name) throws SQLException {
-    return target.getClientInfo(name);
+  default Properties getClientInfo() throws SQLException {
+    return getTarget().getClientInfo();
   }
 
   @Override
-  public Properties getClientInfo() throws SQLException {
-    return target.getClientInfo();
+  default Array createArrayOf(final String typeName, final Object[] elements) throws SQLException {
+    return getTarget().createArrayOf(typeName, elements);
   }
 
   @Override
-  public Array createArrayOf(final String typeName, final Object[] elements) throws SQLException {
-    return target.createArrayOf(typeName, elements);
+  default Struct createStruct(final String typeName, final Object[] attributes) throws SQLException {
+    return getTarget().createStruct(typeName, attributes);
   }
 
   @Override
-  public Struct createStruct(final String typeName, final Object[] attributes) throws SQLException {
-    return target.createStruct(typeName, attributes);
+  default <T> T unwrap(final Class<T> iface) throws SQLException {
+    return getTarget().unwrap(iface);
   }
 
   @Override
-  public <T> T unwrap(final Class<T> iface) throws SQLException {
-    return target.unwrap(iface);
+  default boolean isWrapperFor(final Class<?> iface) throws SQLException {
+    return getTarget().isWrapperFor(iface);
   }
 
   @Override
-  public boolean isWrapperFor(final Class<?> iface) throws SQLException {
-    return target.isWrapperFor(iface);
+  default void setSchema(final String schema) throws SQLException {
+    getTarget().setSchema(schema);
   }
 
   @Override
-  public void setSchema(final String schema) throws SQLException {
-    target.setSchema(schema);
+  default String getSchema() throws SQLException {
+    return getTarget().getSchema();
   }
 
   @Override
-  public String getSchema() throws SQLException {
-    return target.getSchema();
+  default void abort(final Executor executor) throws SQLException {
+    getTarget().abort(executor);
   }
 
   @Override
-  public void abort(final Executor executor) throws SQLException {
-    target.abort(executor);
+  default void setNetworkTimeout(final Executor executor, final int milliseconds) throws SQLException {
+    getTarget().setNetworkTimeout(executor, milliseconds);
   }
 
   @Override
-  public void setNetworkTimeout(final Executor executor, final int milliseconds) throws SQLException {
-    target.setNetworkTimeout(executor, milliseconds);
-  }
-
-  @Override
-  public int getNetworkTimeout() throws SQLException {
-    return target.getNetworkTimeout();
-  }
-
-  @Override
-  public boolean equals(final Object obj) {
-    return target.equals(obj);
-  }
-
-  @Override
-  public int hashCode() {
-    return target.hashCode();
-  }
-
-  @Override
-  public String toString() {
-    return target.toString();
+  default int getNetworkTimeout() throws SQLException {
+    return getTarget().getNetworkTimeout();
   }
 }

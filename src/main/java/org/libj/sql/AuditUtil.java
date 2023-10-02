@@ -22,10 +22,14 @@ import org.libj.lang.ObjectUtil;
 
 class AuditUtil {
   static StringBuilder log(final Object self, final String method, final Connection connection, final String sql) {
-    final StringBuilder builder = new StringBuilder("[").append(ObjectUtil.identityString(self)).append("].").append(method).append('(').append(ObjectUtil.simpleIdentityString(connection)).append(",\n");
-    if (sql != null)
-      builder.append(' ').append(sql);
+    return new StringBuilder("[").append(ObjectUtil.identityString(self)).append("].").append(method).append('(').append(ObjectUtil.simpleIdentityString(connection)).append(",\n ").append(sql);
+  }
 
-    return builder.append("\n)");
+  static StringBuilder withResult(final StringBuilder b, final Object result, final long time) {
+    b.append(" -> ").append(result);
+    if (time != -1)
+      b.append("\t\t").append(System.currentTimeMillis() - time).append("ms");
+
+    return b;
   }
 }
