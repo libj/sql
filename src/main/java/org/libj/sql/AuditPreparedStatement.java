@@ -266,15 +266,15 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
   }
 
   @Override
-  protected void trace(final StatementType statementType, final String log) {
-    if (log != null)
-      logger.trace(log);
+  protected void trace(final StatementType statementType, final String detail, final String sql) {
+    if (detail != null)
+      logger.trace(detail);
   }
 
   @Override
-  protected void debug(final StatementType statementType, final String log) {
-    if (log != null)
-      logger.debug(log);
+  protected void debug(final StatementType statementType, final String detail, final String sql, final Throwable exception) {
+    if (detail != null)
+      logger.debug(detail);
   }
 
   /**
@@ -324,9 +324,10 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
     final PreparedStatement statement = getTarget();
     int size = -1;
     long time = -1;
+    Throwable exception = null;
     final boolean isDebugEnabled = isDebugEnabled();
     try {
-      trace(StatementType.QUERY, log(isTraceEnabled(), "executeQuery", toString(), Integer.MIN_VALUE, null, null, null, -1));
+      trace(StatementType.QUERY, log(isTraceEnabled(), "executeQuery", toString(), Integer.MIN_VALUE, null, null, null, -1), sql);
 
       if (isDebugEnabled)
         time = System.currentTimeMillis();
@@ -337,8 +338,12 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
 
       return resultSet;
     }
+    catch (final Throwable t) {
+      exception = t;
+      throw t;
+    }
     finally {
-      debug(StatementType.QUERY, log(isDebugEnabled, "executeQuery", toString(), Integer.MIN_VALUE, null, null, size, time));
+      debug(StatementType.QUERY, log(isDebugEnabled, "executeQuery", toString(), Integer.MIN_VALUE, null, null, size, time), sql, exception);
     }
   }
 
@@ -346,17 +351,22 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
   public int executeUpdate() throws SQLException {
     long time = -1;
     int count = -1;
+    Throwable exception = null;
     final boolean isDebugEnabled = isDebugEnabled();
     try {
-      trace(StatementType.UPDATE, log(isTraceEnabled(), "executeUpdate", toString(), Integer.MIN_VALUE, null, null, null, -1));
+      trace(StatementType.UPDATE, log(isTraceEnabled(), "executeUpdate", toString(), Integer.MIN_VALUE, null, null, null, -1), sql);
 
       if (isDebugEnabled)
         time = System.currentTimeMillis();
 
       return count = getTarget().executeUpdate();
     }
+    catch (final Throwable t) {
+      exception = t;
+      throw t;
+    }
     finally {
-      debug(StatementType.UPDATE, log(isDebugEnabled, "executeUpdate", toString(), Integer.MIN_VALUE, null, null, count, time));
+      debug(StatementType.UPDATE, log(isDebugEnabled, "executeUpdate", toString(), Integer.MIN_VALUE, null, null, count, time), sql, exception);
     }
   }
 
@@ -492,17 +502,22 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
   public boolean execute() throws SQLException {
     long time = -1;
     boolean result = false;
+    Throwable exception = null;
     final boolean isDebugEnabled = isDebugEnabled();
     try {
-      trace(StatementType.MULTIPLE, log(isTraceEnabled(), "execute", toString(), Integer.MIN_VALUE, null, null, null, -1));
+      trace(StatementType.MULTIPLE, log(isTraceEnabled(), "execute", toString(), Integer.MIN_VALUE, null, null, null, -1), sql);
 
       if (isDebugEnabled)
         time = System.currentTimeMillis();
 
       return result = getTarget().execute();
     }
+    catch (final Throwable t) {
+      exception = t;
+      throw t;
+    }
     finally {
-      debug(StatementType.MULTIPLE, log(isDebugEnabled, "execute", toString(), Integer.MIN_VALUE, null, null, result, time));
+      debug(StatementType.MULTIPLE, log(isDebugEnabled, "execute", toString(), Integer.MIN_VALUE, null, null, result, time), sql, exception);
     }
   }
 

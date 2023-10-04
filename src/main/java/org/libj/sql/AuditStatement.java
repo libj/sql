@@ -151,7 +151,7 @@ public class AuditStatement extends Audit implements DelegateStatement {
    * @throws SQLException If an I/O error has occurred.
    */
   protected String logExecuteBatch(final int[] count, final long time) throws SQLException {
-    final StringBuilder b = AuditUtil.log(this, "executeBatch", getConnection(), "[");
+    final StringBuilder b = new StringBuilder("[");
     if (batchLogs != null) {
       if (count != null)
         for (int i = 0, i$ = batchLogs.size(); i < i$; ++i) // [RA]
@@ -177,16 +177,21 @@ public class AuditStatement extends Audit implements DelegateStatement {
   public ResultSet executeQuery(final String sql) throws SQLException {
     long time = -1;
     int size = -1;
+    Throwable exception = null;
     final boolean isDebugEnabled = isDebugEnabled();
     try {
-      trace(StatementType.QUERY, log(isTraceEnabled(), "executeQuery", sql, Integer.MIN_VALUE, null, null, null, -1));
+      trace(StatementType.QUERY, log(isTraceEnabled(), "executeQuery", sql, Integer.MIN_VALUE, null, null, null, -1), sql);
       time = getLogTimestamp(isDebugEnabled);
       final ResultSet resultSet = getTarget().executeQuery(sql);
       size = getLogResultSetSize(isDebugEnabled, resultSet);
       return resultSet;
     }
+    catch (final Throwable t) {
+      exception = t;
+      throw t;
+    }
     finally {
-      debug(StatementType.QUERY, log(isDebugEnabled, "executeQuery", sql, Integer.MIN_VALUE, null, null, size, time));
+      debug(StatementType.QUERY, log(isDebugEnabled, "executeQuery", sql, Integer.MIN_VALUE, null, null, size, time), sql, exception);
     }
   }
 
@@ -194,14 +199,19 @@ public class AuditStatement extends Audit implements DelegateStatement {
   public int executeUpdate(final String sql) throws SQLException {
     long time = -1;
     int count = -1;
+    Throwable exception = null;
     final boolean isDebugEnabled = isDebugEnabled();
     try {
-      trace(StatementType.UPDATE, log(isTraceEnabled(), "executeUpdate", sql, Integer.MIN_VALUE, null, null, null, -1));
+      trace(StatementType.UPDATE, log(isTraceEnabled(), "executeUpdate", sql, Integer.MIN_VALUE, null, null, null, -1), sql);
       time = getLogTimestamp(isDebugEnabled);
       return count = getTarget().executeUpdate(sql);
     }
+    catch (final Throwable t) {
+      exception = t;
+      throw t;
+    }
     finally {
-      debug(StatementType.UPDATE, log(isDebugEnabled, "executeUpdate", sql, Integer.MIN_VALUE, null, null, count, time));
+      debug(StatementType.UPDATE, log(isDebugEnabled, "executeUpdate", sql, Integer.MIN_VALUE, null, null, count, time), sql, exception);
     }
   }
 
@@ -227,14 +237,19 @@ public class AuditStatement extends Audit implements DelegateStatement {
   public boolean execute(final String sql) throws SQLException {
     long time = -1;
     Boolean result = null;
+    Throwable exception = null;
     final boolean isDebugEnabled = isDebugEnabled();
     try {
-      trace(StatementType.MULTIPLE, log(isTraceEnabled(), "execute", sql, Integer.MIN_VALUE, null, null, null, -1));
+      trace(StatementType.MULTIPLE, log(isTraceEnabled(), "execute", sql, Integer.MIN_VALUE, null, null, null, -1), sql);
       time = getLogTimestamp(isDebugEnabled);
       return result = getTarget().execute(sql);
     }
+    catch (final Throwable t) {
+      exception = t;
+      throw t;
+    }
     finally {
-      debug(StatementType.MULTIPLE, log(isDebugEnabled, "execute", sql, Integer.MIN_VALUE, null, null, result, time));
+      debug(StatementType.MULTIPLE, log(isDebugEnabled, "execute", sql, Integer.MIN_VALUE, null, null, result, time), sql, exception);
     }
   }
 
@@ -271,14 +286,21 @@ public class AuditStatement extends Audit implements DelegateStatement {
   public int[] executeBatch() throws SQLException {
     long time = -1;
     int[] count = null;
+    Throwable exception = null;
     final boolean isDebugEnabled = isDebugEnabled();
     try {
-      trace(StatementType.MULTIPLE, log(isTraceEnabled(), "executeBatch", logExecuteBatch(null, -1), Integer.MIN_VALUE, null, null, null, -1));
+      final String sql = logExecuteBatch(null, -1);
+      trace(StatementType.MULTIPLE, log(isTraceEnabled(), "executeBatch", sql, Integer.MIN_VALUE, null, null, null, -1), sql);
       time = getLogTimestamp(isDebugEnabled);
       return count = getTarget().executeBatch();
     }
+    catch (final Throwable t) {
+      exception = t;
+      throw t;
+    }
     finally {
-      debug(StatementType.MULTIPLE, log(isDebugEnabled, "executeBatch", logExecuteBatch(count, time), Integer.MIN_VALUE, null, null, null, -1));
+      final String sql = logExecuteBatch(count, time);
+      debug(StatementType.MULTIPLE, log(isDebugEnabled, "executeBatch", sql, Integer.MIN_VALUE, null, null, null, -1), sql, exception);
     }
   }
 
@@ -286,14 +308,19 @@ public class AuditStatement extends Audit implements DelegateStatement {
   public int executeUpdate(final String sql, final int autoGeneratedKeys) throws SQLException {
     long time = -1;
     int count = -1;
+    Throwable exception = null;
     final boolean isDebugEnabled = isDebugEnabled();
     try {
-      trace(StatementType.UPDATE, log(isTraceEnabled(), "executeUpdate", sql, autoGeneratedKeys, null, null, null, -1));
+      trace(StatementType.UPDATE, log(isTraceEnabled(), "executeUpdate", sql, autoGeneratedKeys, null, null, null, -1), sql);
       time = getLogTimestamp(isDebugEnabled);
       return count = getTarget().executeUpdate(sql, autoGeneratedKeys);
     }
+    catch (final Throwable t) {
+      exception = t;
+      throw t;
+    }
     finally {
-      debug(StatementType.UPDATE, log(isDebugEnabled, "executeUpdate", sql, autoGeneratedKeys, null, null, count, time));
+      debug(StatementType.UPDATE, log(isDebugEnabled, "executeUpdate", sql, autoGeneratedKeys, null, null, count, time), sql, exception);
     }
   }
 
@@ -301,14 +328,19 @@ public class AuditStatement extends Audit implements DelegateStatement {
   public int executeUpdate(final String sql, final int[] columnIndexes) throws SQLException {
     long time = -1;
     int count = -1;
+    Throwable exception = null;
     final boolean isDebugEnabled = isDebugEnabled();
     try {
-      trace(StatementType.UPDATE, log(isTraceEnabled(), "executeUpdate", sql, Integer.MIN_VALUE, columnIndexes, null, null, -1));
+      trace(StatementType.UPDATE, log(isTraceEnabled(), "executeUpdate", sql, Integer.MIN_VALUE, columnIndexes, null, null, -1), sql);
       time = getLogTimestamp(isDebugEnabled);
       return count = getTarget().executeUpdate(sql, columnIndexes);
     }
+    catch (final Throwable t) {
+      exception = t;
+      throw t;
+    }
     finally {
-      debug(StatementType.UPDATE, log(isDebugEnabled, "executeUpdate", sql, Integer.MIN_VALUE, columnIndexes, null, count, time));
+      debug(StatementType.UPDATE, log(isDebugEnabled, "executeUpdate", sql, Integer.MIN_VALUE, columnIndexes, null, count, time), sql, exception);
     }
   }
 
@@ -316,14 +348,19 @@ public class AuditStatement extends Audit implements DelegateStatement {
   public int executeUpdate(final String sql, final String[] columnNames) throws SQLException {
     long time = -1;
     int count = -1;
+    Throwable exception = null;
     final boolean isDebugEnabled = isDebugEnabled();
     try {
-      trace(StatementType.UPDATE, log(isTraceEnabled(), "executeUpdate", sql, Integer.MIN_VALUE, null, columnNames, null, -1));
+      trace(StatementType.UPDATE, log(isTraceEnabled(), "executeUpdate", sql, Integer.MIN_VALUE, null, columnNames, null, -1), sql);
       time = getLogTimestamp(isDebugEnabled);
       return count = getTarget().executeUpdate(sql, columnNames);
     }
+    catch (final Throwable t) {
+      exception = t;
+      throw t;
+    }
     finally {
-      debug(StatementType.UPDATE, log(isDebugEnabled, "executeUpdate", sql, Integer.MIN_VALUE, null, columnNames, count, time));
+      debug(StatementType.UPDATE, log(isDebugEnabled, "executeUpdate", sql, Integer.MIN_VALUE, null, columnNames, count, time), sql, exception);
     }
   }
 
@@ -331,14 +368,19 @@ public class AuditStatement extends Audit implements DelegateStatement {
   public boolean execute(final String sql, final int autoGeneratedKeys) throws SQLException {
     long time = -1;
     Boolean result = null;
+    Throwable exception = null;
     final boolean isDebugEnabled = isDebugEnabled();
     try {
-      trace(StatementType.MULTIPLE, log(isTraceEnabled(), "execute", sql, autoGeneratedKeys, null, null, null, -1));
+      trace(StatementType.MULTIPLE, log(isTraceEnabled(), "execute", sql, autoGeneratedKeys, null, null, null, -1), sql);
       time = getLogTimestamp(isDebugEnabled);
       return result = getTarget().execute(sql, autoGeneratedKeys);
     }
+    catch (final Throwable t) {
+      exception = t;
+      throw t;
+    }
     finally {
-      debug(StatementType.MULTIPLE, log(isDebugEnabled, "execute", sql, autoGeneratedKeys, null, null, result, time));
+      debug(StatementType.MULTIPLE, log(isDebugEnabled, "execute", sql, autoGeneratedKeys, null, null, result, time), sql, exception);
     }
   }
 
@@ -346,14 +388,19 @@ public class AuditStatement extends Audit implements DelegateStatement {
   public boolean execute(final String sql, final int[] columnIndexes) throws SQLException {
     long time = -1;
     Boolean result = null;
+    Throwable exception = null;
     final boolean isDebugEnabled = isDebugEnabled();
     try {
-      trace(StatementType.MULTIPLE, log(isTraceEnabled(), "execute", sql, Integer.MIN_VALUE, columnIndexes, null, null, -1));
+      trace(StatementType.MULTIPLE, log(isTraceEnabled(), "execute", sql, Integer.MIN_VALUE, columnIndexes, null, null, -1), sql);
       time = getLogTimestamp(isDebugEnabled);
       return result = getTarget().execute(sql, columnIndexes);
     }
+    catch (final Throwable t) {
+      exception = t;
+      throw t;
+    }
     finally {
-      debug(StatementType.MULTIPLE, log(isDebugEnabled, "execute", sql, Integer.MIN_VALUE, columnIndexes, null, result, time));
+      debug(StatementType.MULTIPLE, log(isDebugEnabled, "execute", sql, Integer.MIN_VALUE, columnIndexes, null, result, time), sql, exception);
     }
   }
 
@@ -361,14 +408,19 @@ public class AuditStatement extends Audit implements DelegateStatement {
   public boolean execute(final String sql, final String[] columnNames) throws SQLException {
     long time = -1;
     Boolean result = null;
+    Throwable exception = null;
     final boolean isDebugEnabled = isDebugEnabled();
     try {
-      trace(StatementType.MULTIPLE, log(isTraceEnabled(), "execute", sql, Integer.MIN_VALUE, null, columnNames, null, -1));
+      trace(StatementType.MULTIPLE, log(isTraceEnabled(), "execute", sql, Integer.MIN_VALUE, null, columnNames, null, -1), sql);
       time = getLogTimestamp(isDebugEnabled);
       return result = getTarget().execute(sql, columnNames);
     }
+    catch (final Throwable t) {
+      exception = t;
+      throw t;
+    }
     finally {
-      debug(StatementType.MULTIPLE, log(isDebugEnabled, "execute", sql, Integer.MIN_VALUE, null, columnNames, result, time));
+      debug(StatementType.MULTIPLE, log(isDebugEnabled, "execute", sql, Integer.MIN_VALUE, null, columnNames, result, time), sql, exception);
     }
   }
 
