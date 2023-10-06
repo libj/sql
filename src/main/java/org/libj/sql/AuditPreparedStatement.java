@@ -179,7 +179,7 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
   }
 
   // FIXME: Add support for "foo => ?" syntax
-  private static String toString(final String sql, final Map<Object,Object> parameterMap) {
+  private static StringBuilder toString(final String sql, final Map<Object,Object> parameterMap) {
     int index = 0;
     boolean escaped = false;
     char inQuote = '\0';
@@ -220,7 +220,7 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
       escaped = false;
     }
 
-    return b.toString();
+    return b;
   }
 
   /**
@@ -243,6 +243,7 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
 
   private final String sql;
   private ArrayList<HashMap<Object,Object>> parameterMaps;
+  private boolean addParameterMap = true;
 
   /**
    * Creates a new {@link AuditPreparedStatement} with the specified {@code target} to which all method calls will be delegated.
@@ -266,13 +267,13 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
   }
 
   @Override
-  protected void trace(final StatementType statementType, final String detail, final String sql) {
+  protected void trace(final StatementType statementType, final String sql, final String detail) {
     if (detail != null)
       logger.trace(detail);
   }
 
   @Override
-  protected void debug(final StatementType statementType, final String detail, final String sql, final Throwable exception) {
+  protected void debug(final StatementType statementType, final String sql, final String detail, final Throwable exception) {
     if (detail != null)
       logger.debug(detail);
   }
@@ -287,13 +288,17 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
    */
   protected void addParameter(final boolean enabled, final Object key, final Object value) {
     ArrayList<HashMap<Object,Object>> parameterMaps = this.parameterMaps;
+    if (parameterMaps == null)
+      parameterMaps = this.parameterMaps = new ArrayList<>();
+
     final HashMap<Object,Object> parameterMap;
-    if (parameterMaps != null)
+    if (addParameterMap) {
+      parameterMaps.add(parameterMap = new HashMap<>());
+      addParameterMap = false;
+    }
+    else {
       parameterMap = parameterMaps.get(parameterMaps.size() - 1);
-    else if (enabled)
-      (parameterMaps = this.parameterMaps = new ArrayList<>()).add(parameterMap = new HashMap<>());
-    else
-      return;
+    }
 
     parameterMap.put(key, value);
   }
@@ -306,12 +311,8 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
    */
   @Override
   protected void logAddBatch(final boolean enabled, final String sql) {
-    if (!enabled)
-      return;
-
-    final ArrayList<HashMap<Object,Object>> parameterMaps = this.parameterMaps;
-    if (parameterMaps != null)
-      parameterMaps.add(new HashMap<>());
+    if (enabled)
+      addParameterMap = true;
   }
 
   @Override
@@ -327,7 +328,8 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
     Throwable exception = null;
     final boolean isDebugEnabled = isDebugEnabled();
     try {
-      trace(StatementType.QUERY, log(isTraceEnabled(), "executeQuery", toString(), Integer.MIN_VALUE, null, null, null, -1), sql);
+      final StringBuilder sql = toStringBuilder();
+      trace(StatementType.QUERY, sql.toString(), log(isTraceEnabled(), "executeQuery", true, toStringBuilder(), Integer.MIN_VALUE, null, null, null, -1));
 
       if (isDebugEnabled)
         time = System.currentTimeMillis();
@@ -343,7 +345,8 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
       throw t;
     }
     finally {
-      debug(StatementType.QUERY, log(isDebugEnabled, "executeQuery", toString(), Integer.MIN_VALUE, null, null, size, time), sql, exception);
+      final StringBuilder sql = toStringBuilder();
+      debug(StatementType.QUERY, sql.toString(), log(isDebugEnabled, "executeQuery", true, toStringBuilder(), Integer.MIN_VALUE, null, null, size, time), exception);
     }
   }
 
@@ -354,7 +357,8 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
     Throwable exception = null;
     final boolean isDebugEnabled = isDebugEnabled();
     try {
-      trace(StatementType.UPDATE, log(isTraceEnabled(), "executeUpdate", toString(), Integer.MIN_VALUE, null, null, null, -1), sql);
+      final StringBuilder sql = toStringBuilder();
+      trace(StatementType.UPDATE, sql.toString(), log(isTraceEnabled(), "executeUpdate", true, toStringBuilder(), Integer.MIN_VALUE, null, null, null, -1));
 
       if (isDebugEnabled)
         time = System.currentTimeMillis();
@@ -366,7 +370,8 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
       throw t;
     }
     finally {
-      debug(StatementType.UPDATE, log(isDebugEnabled, "executeUpdate", toString(), Integer.MIN_VALUE, null, null, count, time), sql, exception);
+      final StringBuilder sql = toStringBuilder();
+      debug(StatementType.UPDATE, sql.toString(), log(isDebugEnabled, "executeUpdate", true, toStringBuilder(), Integer.MIN_VALUE, null, null, count, time), exception);
     }
   }
 
@@ -505,7 +510,8 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
     Throwable exception = null;
     final boolean isDebugEnabled = isDebugEnabled();
     try {
-      trace(StatementType.MULTIPLE, log(isTraceEnabled(), "execute", toString(), Integer.MIN_VALUE, null, null, null, -1), sql);
+      final StringBuilder sql = toStringBuilder();
+      trace(StatementType.MULTIPLE, sql.toString(), log(isTraceEnabled(), "execute", true, toStringBuilder(), Integer.MIN_VALUE, null, null, null, -1));
 
       if (isDebugEnabled)
         time = System.currentTimeMillis();
@@ -517,7 +523,8 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
       throw t;
     }
     finally {
-      debug(StatementType.MULTIPLE, log(isDebugEnabled, "execute", toString(), Integer.MIN_VALUE, null, null, result, time), sql, exception);
+      final StringBuilder sql = toStringBuilder();
+      debug(StatementType.MULTIPLE, sql.toString(), log(isDebugEnabled, "execute", true, toStringBuilder(), Integer.MIN_VALUE, null, null, result, time), exception);
     }
   }
 
@@ -699,6 +706,67 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
     super.close();
   }
 
+  @Override
+  protected boolean toStringBatch(final StringBuilder b, final int[] count, final boolean indent) {
+    if (parameterMaps == null)
+      return false;
+
+    final int size = parameterMaps.size();
+    if (size > 1)
+      b.append("[\n");
+
+    if (count != null) {
+      if (indent) {
+        for (int i = 0; i < size; ++i) { // [RA]
+          if (i > 0)
+            b.append('\n');
+
+          b.append("  ").append(toString(sql, parameterMaps.get(i))).append(" -> ").append(count[i]);
+        }
+      }
+      else {
+        for (int i = 0; i < size; ++i) { // [RA]
+          if (i > 0)
+            b.append('\n');
+
+          b.append(toString(sql, parameterMaps.get(i))).append(" -> ").append(count[i]);
+        }
+      }
+    }
+    else {
+      if (indent) {
+        for (int i = 0; i < size; ++i) { // [RA]
+          if (i > 0)
+            b.append('\n');
+
+          b.append("  ").append(toString(sql, parameterMaps.get(i)));
+        }
+      }
+      else {
+        for (int i = 0; i < size; ++i) { // [RA]
+          if (i > 0)
+            b.append('\n');
+
+          b.append(toString(sql, parameterMaps.get(i)));
+        }
+      }
+    }
+
+    if (size > 1)
+      b.append("\n]");
+
+    return true;
+  }
+
+  private StringBuilder toStringBuilder() {
+    if (parameterMaps == null)
+      return new StringBuilder(sql);
+
+    final StringBuilder b = new StringBuilder();
+    toStringBatch(b, null, false);
+    return b;
+  }
+
   /**
    * Returns a string representation of this instance's prepared SQL statement with its parameters applied.
    *
@@ -710,13 +778,7 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
       return sql;
 
     final StringBuilder b = new StringBuilder();
-    for (int i = 0, i$ = parameterMaps.size(); i < i$; ++i) { // [RA]
-      if (i > 0)
-        b.append('\n');
-
-      b.append(toString(sql, parameterMaps.get(i)));
-    }
-
+    toStringBatch(b, null, false);
     return b.toString();
   }
 }

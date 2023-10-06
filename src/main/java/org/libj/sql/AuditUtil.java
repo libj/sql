@@ -19,16 +19,23 @@ package org.libj.sql;
 import java.sql.Connection;
 
 import org.libj.lang.ObjectUtil;
+import org.libj.lang.Strings;
 
 class AuditUtil {
-  static StringBuilder log(final Object self, final String method, final Connection connection, final String sql) {
-    return new StringBuilder("[").append(ObjectUtil.identityString(self)).append("].").append(method).append('(').append(ObjectUtil.simpleIdentityString(connection)).append(",\n ").append(sql);
+  static StringBuilder log(final Object self, final String method, final Connection connection, final boolean newLine, final StringBuilder sql) {
+    final StringBuilder b = new StringBuilder("[").append(ObjectUtil.identityString(self)).append("].").append(method).append('(').append(ObjectUtil.simpleIdentityString(connection)).append(',');
+    if (newLine)
+      b.append("\n  ");
+    else
+      b.append(' ');
+
+    return b.append(Strings.indent(sql, 2));
   }
 
   static StringBuilder withResult(final StringBuilder b, final Object result, final long time) {
     b.append(" -> ").append(result);
     if (time != -1)
-      b.append("\t\t").append(System.currentTimeMillis() - time).append("ms");
+      b.append(' ').append(System.currentTimeMillis() - time).append("ms");
 
     return b;
   }

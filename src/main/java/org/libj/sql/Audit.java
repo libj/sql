@@ -59,10 +59,10 @@ public abstract class Audit {
    * Logs the provided {@code log} entry to this instance's default logger at the TRACE level.
    *
    * @param statementType The {@link StatementType} of the {@code log} entry being logged.
-   * @param detail The detail log entry to log, which contains the {@code sql} string.
    * @param sql The SQL log entry to log.
+   * @param detail The detail log entry to log, which contains the {@code sql} string.
    */
-  protected void trace(final StatementType statementType, final String detail, final String sql) {
+  protected void trace(final StatementType statementType, final String sql, final String detail) {
     final Logger logger;
     if (detail != null && (logger = logger()) != null)
       logger.trace(detail);
@@ -72,11 +72,11 @@ public abstract class Audit {
    * Logs the provided {@code log} entry to this instance's default logger at the DEBUG level.
    *
    * @param statementType The {@link StatementType} of the {@code log} entry being logged.
-   * @param detail The detail log entry to log, which contains the {@code sql} string.
    * @param sql The SQL log entry to log.
+   * @param detail The detail log entry to log, which contains the {@code sql} string.
    * @param exception If an exception has occurred during the invocation of the associated method.
    */
-  protected void debug(final StatementType statementType, final String detail, final String sql, final Throwable exception) {
+  protected void debug(final StatementType statementType, final String sql, final String detail, final Throwable exception) {
     final Logger logger;
     if (detail != null && (logger = logger()) != null)
       logger.debug(detail);
