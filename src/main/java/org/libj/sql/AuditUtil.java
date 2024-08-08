@@ -22,7 +22,7 @@ import org.libj.lang.ObjectUtil;
 import org.libj.lang.Strings;
 
 class AuditUtil {
-  static StringBuilder log(final Object self, final String method, final Connection connection, final boolean newLine, final StringBuilder sql) {
+  static StringBuilder log(final Object self, final String method, final Connection connection, final boolean newLine, final CharSequence sql) {
     final StringBuilder b = new StringBuilder("[").append(ObjectUtil.identityString(self)).append("].").append(method).append('(').append(ObjectUtil.simpleIdentityString(connection)).append(',');
     if (newLine)
       b.append("\n  ");

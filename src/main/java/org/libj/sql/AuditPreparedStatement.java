@@ -237,7 +237,7 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
   }
 
   private static final DateTimeFormatter dateFormat = DateTimeFormatter.ISO_LOCAL_DATE;
-  private static final DateTimeFormatter timeFormat = new DateTimeFormatterBuilder().appendPattern("HH:mm:ss").appendFraction(ChronoField.MILLI_OF_SECOND, 0, 6, true).toFormatter();
+  private static final DateTimeFormatter timeFormat = new DateTimeFormatterBuilder().appendPattern("HH:mm:ss").appendFraction(ChronoField.MILLI_OF_SECOND, 0, 3, true).toFormatter();
   private static final DateTimeFormatter timestampFormat = new DateTimeFormatterBuilder().append(dateFormat).appendLiteral(' ').append(timeFormat).toFormatter();
   private static final ThreadLocal<DecimalFormat> numberFormat = DecimalFormatter.createDecimalFormat("###############.###############;-###############.###############");
 
@@ -264,18 +264,6 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
   @Override
   protected boolean isDebugEnabled() {
     return logger.isDebugEnabled();
-  }
-
-  @Override
-  protected void trace(final StatementType statementType, final String sql, final String detail) {
-    if (detail != null)
-      logger.trace(detail);
-  }
-
-  @Override
-  protected void debug(final StatementType statementType, final String sql, final String detail, final Throwable exception) {
-    if (detail != null)
-      logger.debug(detail);
   }
 
   /**
@@ -321,15 +309,21 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
   }
 
   @Override
+  protected Logger logger() {
+    return logger;
+  }
+
+  @Override
   public ResultSet executeQuery() throws SQLException {
     final PreparedStatement statement = getTarget();
     int size = -1;
     long time = -1;
     Throwable exception = null;
+    final StringBuilder sql = toStringBuilder();
     final boolean isDebugEnabled = isDebugEnabled();
     try {
-      final StringBuilder sql = toStringBuilder();
-      trace(StatementType.QUERY, sql.toString(), log(isTraceEnabled(), "executeQuery", true, toStringBuilder(), Integer.MIN_VALUE, null, null, null, -1));
+      if (isTraceEnabled())
+        trace(StatementType.QUERY, sql, log("executeQuery", true, sql, Integer.MIN_VALUE, null, null, null, -1));
 
       if (isDebugEnabled)
         time = System.currentTimeMillis();
@@ -345,8 +339,8 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
       throw t;
     }
     finally {
-      final StringBuilder sql = toStringBuilder();
-      debug(StatementType.QUERY, sql.toString(), log(isDebugEnabled, "executeQuery", true, toStringBuilder(), Integer.MIN_VALUE, null, null, size, time), exception);
+      if (isDebugEnabled)
+        debug(StatementType.QUERY, sql, log("executeQuery", true, sql, Integer.MIN_VALUE, null, null, size, time), exception);
     }
   }
 
@@ -355,10 +349,11 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
     long time = -1;
     int count = -1;
     Throwable exception = null;
+    final StringBuilder sql = toStringBuilder();
     final boolean isDebugEnabled = isDebugEnabled();
     try {
-      final StringBuilder sql = toStringBuilder();
-      trace(StatementType.UPDATE, sql.toString(), log(isTraceEnabled(), "executeUpdate", true, toStringBuilder(), Integer.MIN_VALUE, null, null, null, -1));
+      if (isTraceEnabled())
+        trace(StatementType.UPDATE, sql, log("executeUpdate", true, sql, Integer.MIN_VALUE, null, null, null, -1));
 
       if (isDebugEnabled)
         time = System.currentTimeMillis();
@@ -370,8 +365,8 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
       throw t;
     }
     finally {
-      final StringBuilder sql = toStringBuilder();
-      debug(StatementType.UPDATE, sql.toString(), log(isDebugEnabled, "executeUpdate", true, toStringBuilder(), Integer.MIN_VALUE, null, null, count, time), exception);
+      if (isDebugEnabled)
+        debug(StatementType.UPDATE, sql, log("executeUpdate", true, sql, Integer.MIN_VALUE, null, null, count, time), exception);
     }
   }
 
@@ -508,10 +503,11 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
     long time = -1;
     boolean result = false;
     Throwable exception = null;
+    final StringBuilder sql = toStringBuilder();
     final boolean isDebugEnabled = isDebugEnabled();
     try {
-      final StringBuilder sql = toStringBuilder();
-      trace(StatementType.MULTIPLE, sql.toString(), log(isTraceEnabled(), "execute", true, toStringBuilder(), Integer.MIN_VALUE, null, null, null, -1));
+      if (isTraceEnabled())
+        trace(StatementType.MULTIPLE, sql, log("execute", true, sql, Integer.MIN_VALUE, null, null, null, -1));
 
       if (isDebugEnabled)
         time = System.currentTimeMillis();
@@ -523,8 +519,8 @@ public class AuditPreparedStatement extends AuditStatement implements DelegatePr
       throw t;
     }
     finally {
-      final StringBuilder sql = toStringBuilder();
-      debug(StatementType.MULTIPLE, sql.toString(), log(isDebugEnabled, "execute", true, toStringBuilder(), Integer.MIN_VALUE, null, null, result, time), exception);
+      if (isDebugEnabled)
+        debug(StatementType.MULTIPLE, sql, log("execute", true, sql, Integer.MIN_VALUE, null, null, result, time), exception);
     }
   }
 
