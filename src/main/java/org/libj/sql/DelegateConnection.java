@@ -250,8 +250,8 @@ public interface DelegateConnection extends Connection {
   }
 
   @Override
-  default boolean isValid(final int timeout) throws SQLException {
-    return getTarget().isValid(timeout);
+  default boolean isValid(final int timeoutSe) throws SQLException {
+    return getTarget().isValid(timeoutSe);
   }
 
   @Override
